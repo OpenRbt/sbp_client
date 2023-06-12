@@ -1,0 +1,41 @@
+version: "3.2"
+
+services:
+  sbp_db:
+    container_name: sbp_postgresql
+    image: postgres:14.5
+    restart: always
+    environment:
+      POSTGRES_DB: "sbp_db"
+      POSTGRES_USER:  ${SBP_ADMIN_DB_USER:-wash_admin}
+      POSTGRES_PASSWORD: ${SBP_ADMIN_DB_PASS:-wash_admin}
+    volumes:
+      - ./scripts:/init.sql
+      - ./postgresql-data:/var/lib/postgresql/data
+    ports:
+      - "8092:5432"
+
+  # sbp_rabbit:
+  #   container_name: sbp_rabbit
+  #   hostname: 'sbp_rabbit'
+  #   user: "rabbitmq"
+  #   image: rabbitmq:3.11.8-management
+  #   restart: always
+  #   ports:
+  #     - "5672:5672"
+  #     - "15672:15672"
+    # volumes:
+#       # - ./environment/certs/:/certs/
+#       # - ./environment/rabbit/rabbit.conf:/etc/rabbitmq/rabbitmq.conf
+      # - ./environment/rabbit/definitions.json:/etc/rabbitmq/definitions.json
+#       - rabbitmq-data:/var/lib/rabbitmq
+#       - rabbitmq-logs:/var/log/rabbitmq
+#       - rabbitmq_conf:/etc/rabbitmq
+
+# volumes:
+#   rabbitmq-data:
+#     driver: local
+#   rabbitmq-logs:
+#     driver: local
+#   rabbitmq_conf:
+#     driver: local

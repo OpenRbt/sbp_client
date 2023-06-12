@@ -1,0 +1,164 @@
+swagger: "2.0"
+info:
+  title: Tinkoff-API
+  description: Tinkoff internal httpAPI
+  version: 2.0.0
+host: securepay.tinkoff.ru
+basePath: /v2
+consumes:
+  - application/json
+produces:
+  - application/json
+
+schemes:
+  - https
+
+paths:
+  /Init/:
+    post:
+      operationId: init
+      description: init tinkoff operation
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/Init"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/ResponseInit"
+        500:
+          description: error
+
+  /GetQr:
+    post:
+      operationId: GetQr
+      description: Get Qr code from Tinkoff
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/GetQr"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/ResponseGetQr"
+        500:
+          description: error
+
+  /Cancel:
+    post:
+      operationId: Cancel
+      description: Cancel pay from Tinkoff
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/Cancel"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/ResponseCancel"
+        500:
+          description: error
+
+definitions:
+  Init:
+    type: object
+    properties:
+      TerminalKey:
+        type: string
+      Amount:
+        type: integer
+      OrderId:
+        type: string
+    required:
+      - Amount
+      - TerminalKey 
+      - OrderId
+
+  GetQr:
+    type: object
+    properties:
+      TerminalKey:
+        type: string
+      PaymentId:
+        type: string
+      Token:
+        type: string
+
+  Cancel:
+    type: object
+    properties:
+      TerminalKey:
+        type: string
+      PaymentId:
+        type: string
+      Token:
+        type: string
+
+  ResponseInit:
+    type: object
+    properties:
+      Success:
+        type: boolean
+      ErrorCode:
+        type: string
+      TerminalKey:
+        type: string
+      Status:
+        type: string
+      PaymentId:
+        type: string
+      OrderId:
+        type: string
+      Amount:
+        type: integer
+      PaymentURL:
+        type: string
+
+  ResponseGetQr:
+    type: object
+    properties:
+      TerminalKey:
+        type: string
+      OrderId:
+        type: string
+      Success:
+        type: boolean
+      Data:
+        type: string
+      PaymentId: 
+        type: integer
+      ErrorCode: 
+        type: string
+      Message:
+        type: string
+      Details:
+        type: string
+
+  ResponseCancel:
+    type: object
+    properties:
+      TerminalKey:
+        type: string
+      OrderId:
+        type: string
+      Success:
+        type: boolean
+      Status:
+        type: string
+      PaymentId: 
+        type: string
+      ErrorCode: 
+        type: string
+      OriginalAmount:
+        type: integer
+      NewAmount:
+        type: integer
