@@ -1,14 +1,42 @@
 package app
 
-type Auth struct {
-	UID          string
-	Disabled     bool
-	UserMetadata *AuthUserMeta
+import (
+	"golang.org/x/net/context"
+)
+
+// App ...
+type App struct {
+	deps *deps
 }
 
-type AuthUserMeta struct {
-	CreationTimestamp  int64
-	LastLogInTimestamp int64
+// NewApp ...
+func NewApp(ctx context.Context, envFilePath string) (*App, error) {
+	config, err := getConfig(envFilePath)
+	if err != nil {
+		return nil, err
+	}
 
-	LastRefreshTimestamp int64
+	logger, err := getLogger(config.LogLevel)
+	if err != nil {
+		return nil, err
+	}
+
+	deps, err := InitDeps(ctx, config, logger)
+	if err != nil {
+		return nil, err
+	}
+
+	return &App{
+		deps: deps,
+	}, nil
+}
+
+// Run ...
+func (a App) Run() error {
+	return a.deps.httpServer.Run()
+}
+
+// Run ...
+func (a App) Close() {
+	a.deps.close()
 }
