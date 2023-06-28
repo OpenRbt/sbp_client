@@ -1,12 +1,14 @@
 package bootstrap
 
 import (
+	"strings"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"strings"
 )
 
 const (
+	levelDev     = "dev"
 	levelInfo    = "info"
 	levelWarning = "warning"
 	levelError   = "error"
@@ -19,6 +21,11 @@ func NewLogger(level string) (l *zap.SugaredLogger, err error) {
 	switch strings.ToLower(level) {
 	default:
 		cfg = zap.NewDevelopmentConfig()
+		cfg.EncoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+	case levelDev:
+		cfg = zap.NewDevelopmentConfig()
+		cfg.DisableCaller = true
+		cfg.DisableStacktrace = true
 		cfg.EncoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
 	case levelInfo:
 		cfg.Level = zap.NewAtomicLevelAt(zap.InfoLevel)

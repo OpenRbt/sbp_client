@@ -1,0 +1,6 @@
+.vscode
+postgresql-data
+__debug_bin
+docker_sbp
+.env
+firebase_key.json
