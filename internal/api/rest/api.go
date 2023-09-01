@@ -117,6 +117,7 @@ func (api *restApi) route() error {
 	api.swaggerApi.WashServersUpdateHandler = wash_servers.UpdateHandlerFunc(handler.UpdateWashServer)
 	api.swaggerApi.WashServersDeleteHandler = wash_servers.DeleteHandlerFunc(handler.DeleteWashServer)
 	api.swaggerApi.WashServersGetWashServerHandler = wash_servers.GetWashServerHandlerFunc(handler.GetWashServer)
+	api.swaggerApi.WashServersListHandler = wash_servers.ListHandlerFunc(handler.GetWashServerList)
 
 	// payment
 	// api.swaggerApi.WashServersPayHandler = wash_servers.PayHandlerFunc(handler.Pay)
