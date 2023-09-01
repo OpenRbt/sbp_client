@@ -25,11 +25,12 @@ type Config struct {
 }
 
 type DBConfig struct {
-	Host     string `env:"DB_HOST" envDefault:"localhost"`
-	Port     string `env:"DB_PORT" envDefault:"8092"`
-	Database string `env:"DB_DATABASE" envDefault:"sbp_db"`
-	User     string `env:"DB_USER" envDefault:"wash_admin"`
-	Password string `env:"DB_PASSWORD" envDefault:"wash_admin"`
+	Host           string `env:"DB_HOST" envDefault:"localhost"`
+	Port           string `env:"DB_PORT" envDefault:"8092"`
+	Database       string `env:"DB_DATABASE" envDefault:"sbp_db"`
+	User           string `env:"DB_USER" envDefault:"wash_admin"`
+	Password       string `env:"DB_PASSWORD" envDefault:"wash_admin"`
+	MigrationsPath string `env:"MIGRATIONS_PATH" envDefault:"internal/repository/migrations"`
 }
 
 type FirebaseConfig struct {

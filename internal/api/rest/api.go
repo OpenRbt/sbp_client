@@ -5,10 +5,10 @@ import (
 	"path"
 
 	logicEntities "sbp/internal/logic/entities"
-	swaggerRestapi "sbp/internal/openapi/restapi"
-	swaggerOperations "sbp/internal/openapi/restapi/operations"
-	"sbp/internal/openapi/restapi/operations/standard"
-	"sbp/internal/openapi/restapi/operations/wash_servers"
+	swaggerRestapi "sbp/openapi/restapi"
+	swaggerOperations "sbp/openapi/restapi/operations"
+	"sbp/openapi/restapi/operations/standard"
+	"sbp/openapi/restapi/operations/wash_servers"
 
 	restHandlers "sbp/internal/api/rest/handlers"
 

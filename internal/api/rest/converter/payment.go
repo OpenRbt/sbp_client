@@ -3,7 +3,7 @@ package restconverter
 import (
 	"fmt"
 	logicEntities "sbp/internal/logic/entities"
-	openapiEntities "sbp/internal/openapi/models"
+	openapiEntities "sbp/openapi/models"
 )
 
 // СonvertRegisterNotificationFromRest ...

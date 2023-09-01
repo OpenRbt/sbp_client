@@ -2,7 +2,7 @@ package server
 
 import (
 	"net/http"
-	swaggerRestapi "sbp/internal/openapi/restapi"
+	swaggerRestapi "sbp/openapi/restapi"
 	"strconv"
 	"strings"
 

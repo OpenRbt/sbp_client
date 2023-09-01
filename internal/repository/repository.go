@@ -57,7 +57,7 @@ func NewRepository(repositoryConfig RepositoryConfig) (*Repository, error) {
 	repositoryConfig.Logger.Debug("connected to db")
 
 	// up migrations
-	err = bootstrap.UpMigrations(dbConn.DB, dbConfig.Database, "internal/repository/migrations")
+	err = bootstrap.UpMigrations(dbConn.DB, dbConfig.Database, dbConfig.MigrationsPath)
 	if err != nil {
 		return nil, bootstrap.CustomError(layer, "up migrations: %s", err)
 	}
