@@ -4,7 +4,7 @@ import (
 	"log"
 	restConverter "sbp/internal/api/rest/converter"
 	logicEntities "sbp/internal/logic/entities"
-	washServers "sbp/internal/openapi/restapi/operations/wash_servers"
+	washServers "sbp/openapi/restapi/operations/wash_servers"
 
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"

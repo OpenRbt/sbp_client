@@ -2,7 +2,7 @@ package server
 
 import (
 	"net/http"
-	swaggerOperations "sbp/internal/openapi/restapi/operations"
+	swaggerOperations "sbp/openapi/restapi/operations"
 )
 
 // Api ...

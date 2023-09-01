@@ -2,7 +2,7 @@ package restconverter
 
 import (
 	logicEntities "sbp/internal/logic/entities"
-	openapiEntities "sbp/internal/openapi/models"
+	openapiEntities "sbp/openapi/models"
 
 	uuid "github.com/satori/go.uuid"
 )

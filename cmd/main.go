@@ -3,12 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	app "sbp/internal/app"
 )
 
 func main() {
 	ctx := context.Background()
-	envFilePath := "/Users/gnomvreditel/Projects/jobs/mt/sbp_client/.env"
+
+	envFilePath := os.Getenv("ENV_FILE_PATH")
 
 	// app init
 	app, err := app.NewApp(ctx, envFilePath)

@@ -3,8 +3,8 @@ package handlers
 import (
 	"context"
 	logicEntities "sbp/internal/logic/entities"
-	openapiEntities "sbp/internal/openapi/models"
-	washServers "sbp/internal/openapi/restapi/operations/wash_servers"
+	openapiEntities "sbp/openapi/models"
+	washServers "sbp/openapi/restapi/operations/wash_servers"
 )
 
 // Auth ...
