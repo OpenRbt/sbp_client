@@ -30,8 +30,6 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	Cancel(params *CancelParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*CancelOK, error)
-
 	Create(params *CreateParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*CreateOK, error)
 
 	Delete(params *DeleteParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*DeleteNoContent, error)
@@ -42,52 +40,9 @@ type ClientService interface {
 
 	Notification(params *NotificationParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*NotificationOK, error)
 
-	Pay(params *PayParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PayOK, error)
-
-	Signup(params *SignupParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*SignupOK, error)
-
 	Update(params *UpdateParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*UpdateNoContent, error)
 
 	SetTransport(transport runtime.ClientTransport)
-}
-
-/*
-Cancel cancel API
-*/
-func (a *Client) Cancel(params *CancelParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*CancelOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewCancelParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "cancel",
-		Method:             "POST",
-		PathPattern:        "/cancel",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http"},
-		Params:             params,
-		Reader:             &CancelReader{formats: a.formats},
-		AuthInfo:           authInfo,
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*CancelOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for cancel: API contract not enforced by server. Client expected to get an error, but got: %T", result)
-	panic(msg)
 }
 
 /*
@@ -282,84 +237,6 @@ func (a *Client) Notification(params *NotificationParams, authInfo runtime.Clien
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for notification: API contract not enforced by server. Client expected to get an error, but got: %T", result)
-	panic(msg)
-}
-
-/*
-Pay pay API
-*/
-func (a *Client) Pay(params *PayParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PayOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewPayParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "pay",
-		Method:             "POST",
-		PathPattern:        "/pay",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http"},
-		Params:             params,
-		Reader:             &PayReader{formats: a.formats},
-		AuthInfo:           authInfo,
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*PayOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for pay: API contract not enforced by server. Client expected to get an error, but got: %T", result)
-	panic(msg)
-}
-
-/*
-Signup signup API
-*/
-func (a *Client) Signup(params *SignupParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*SignupOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewSignupParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "signup",
-		Method:             "POST",
-		PathPattern:        "/signup",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http"},
-		Params:             params,
-		Reader:             &SignupReader{formats: a.formats},
-		AuthInfo:           authInfo,
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*SignupOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for signup: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

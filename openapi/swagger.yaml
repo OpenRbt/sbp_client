@@ -19,18 +19,18 @@ security:
   - authKey: []
 paths:
 
-  /signup:
-    post:
-      tags:
-        - wash_servers
-      security:
-        - {}
-      operationId: signup
-      responses:
-        200:
-          description: OK
-          schema:
-            $ref: "#/definitions/FirebaseToken"
+  # /signup:
+  #   post:
+  #     tags:
+  #       - wash_servers
+  #     security:
+  #       - {}
+  #     operationId: signup
+  #     responses:
+  #       200:
+  #         description: OK
+  #         schema:
+  #           $ref: "#/definitions/FirebaseToken"
 
   /notification:
     post:
@@ -210,47 +210,47 @@ paths:
           schema:
             $ref: "#/definitions/error"
 
-  /pay:
-    post:
-      tags:
-        - wash_servers
-      security:
-        - authKey: []
-      operationId: pay
-      parameters:
-        - name: body
-          in: body
-          schema:
-            $ref: "#/definitions/Pay"
-      responses:
-        200:
-          description: OK
-          schema:
-            $ref: "#/definitions/payResponse"
-        400:
-          description: Bad request
-          schema:
-            $ref: "#/definitions/error"
+  # /pay:
+  #   post:
+  #     tags:
+  #       - wash_servers
+  #     security:
+  #       - authKey: []
+  #     operationId: pay
+  #     parameters:
+  #       - name: body
+  #         in: body
+  #         schema:
+  #           $ref: "#/definitions/Pay"
+  #     responses:
+  #       200:
+  #         description: OK
+  #         schema:
+  #           $ref: "#/definitions/payResponse"
+  #       400:
+  #         description: Bad request
+  #         schema:
+  #           $ref: "#/definitions/error"
 
-  /cancel:
-    post:
-      tags:
-        - wash_servers
-      security:
-        - authKey: []
-      operationId: cancel
-      parameters:
-        - name: body
-          in: body
-          schema:
-            $ref: "#/definitions/cancel"
-      responses:
-        200:
-          description: OK
-        400:
-          description: Bad request
-          schema:
-            $ref: "#/definitions/error"
+  # /cancel:
+  #   post:
+  #     tags:
+  #       - wash_servers
+  #     security:
+  #       - authKey: []
+  #     operationId: cancel
+  #     parameters:
+  #       - name: body
+  #         in: body
+  #         schema:
+  #           $ref: "#/definitions/cancel"
+  #     responses:
+  #       200:
+  #         description: OK
+  #       400:
+  #         description: Bad request
+  #         schema:
+  #           $ref: "#/definitions/error"
 
 
 definitions:
@@ -380,8 +380,8 @@ definitions:
         type: integer
         format: int64
 
-  FirebaseToken:
-    type: object
-    properties: 
-      value:
-        type: string
+  # FirebaseToken:
+  #   type: object
+  #   properties: 
+  #     value:
+  #       type: string

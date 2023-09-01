@@ -110,7 +110,7 @@ func (api *restApi) route() error {
 	// handlers mapping
 	// auth
 	api.swaggerApi.AuthKeyAuth = handler.Auth
-	api.swaggerApi.WashServersSignupHandler = wash_servers.SignupHandlerFunc(handler.SignUP)
+	// api.swaggerApi.WashServersSignupHandler = wash_servers.SignupHandlerFunc(handler.SignUP)
 
 	// wash server
 	api.swaggerApi.WashServersCreateHandler = wash_servers.CreateHandlerFunc(handler.CreateWashServer)
@@ -119,8 +119,8 @@ func (api *restApi) route() error {
 	api.swaggerApi.WashServersGetWashServerHandler = wash_servers.GetWashServerHandlerFunc(handler.GetWashServer)
 
 	// payment
-	api.swaggerApi.WashServersPayHandler = wash_servers.PayHandlerFunc(handler.Pay)
-	api.swaggerApi.WashServersCancelHandler = wash_servers.CancelHandlerFunc(handler.Cancel)
+	// api.swaggerApi.WashServersPayHandler = wash_servers.PayHandlerFunc(handler.Pay)
+	// api.swaggerApi.WashServersCancelHandler = wash_servers.CancelHandlerFunc(handler.Cancel)
 	api.swaggerApi.WashServersNotificationHandler = wash_servers.NotificationHandlerFunc(handler.Notif)
 	return nil
 }

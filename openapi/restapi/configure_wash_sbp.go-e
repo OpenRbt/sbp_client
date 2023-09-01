@@ -52,11 +52,6 @@ func configureAPI(api *operations.WashSbpAPI) http.Handler {
 	// Example:
 	// api.APIAuthorizer = security.Authorized()
 
-	if api.WashServersCancelHandler == nil {
-		api.WashServersCancelHandler = wash_servers.CancelHandlerFunc(func(params wash_servers.CancelParams, principal *entities.Auth) wash_servers.CancelResponder {
-			return wash_servers.CancelNotImplemented()
-		})
-	}
 	if api.WashServersCreateHandler == nil {
 		api.WashServersCreateHandler = wash_servers.CreateHandlerFunc(func(params wash_servers.CreateParams, principal *entities.Auth) wash_servers.CreateResponder {
 			return wash_servers.CreateNotImplemented()
@@ -85,16 +80,6 @@ func configureAPI(api *operations.WashSbpAPI) http.Handler {
 	if api.WashServersNotificationHandler == nil {
 		api.WashServersNotificationHandler = wash_servers.NotificationHandlerFunc(func(params wash_servers.NotificationParams, principal *entities.Auth) wash_servers.NotificationResponder {
 			return wash_servers.NotificationNotImplemented()
-		})
-	}
-	if api.WashServersPayHandler == nil {
-		api.WashServersPayHandler = wash_servers.PayHandlerFunc(func(params wash_servers.PayParams, principal *entities.Auth) wash_servers.PayResponder {
-			return wash_servers.PayNotImplemented()
-		})
-	}
-	if api.WashServersSignupHandler == nil {
-		api.WashServersSignupHandler = wash_servers.SignupHandlerFunc(func(params wash_servers.SignupParams, principal *entities.Auth) wash_servers.SignupResponder {
-			return wash_servers.SignupNotImplemented()
 		})
 	}
 	if api.WashServersUpdateHandler == nil {
