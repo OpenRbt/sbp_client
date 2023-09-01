@@ -32,7 +32,7 @@ func NewRabbitMqClient(config bootstrap.RabbitMQConfig, logger *zap.SugaredLogge
 	rabbitUrl := config.Url
 	rabbitPort := config.Port
 
-	connString := fmt.Sprintf("amqp://%s:%s@%s:%s/",
+	connString := fmt.Sprintf("amqps://%s:%s@%s:%s/",
 		rabbitUser,
 		rabbitPassword,
 		rabbitUrl,
