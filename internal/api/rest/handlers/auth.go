@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"context"
+	// "context"
 	logicEntities "sbp/internal/logic/entities"
-	openapiEntities "sbp/openapi/models"
-	washServers "sbp/openapi/restapi/operations/wash_servers"
+	// openapiEntities "sbp/openapi/models"
+	// washServers "sbp/openapi/restapi/operations/wash_servers"
 )
 
 // Auth ...
@@ -16,14 +16,14 @@ func (handler Handler) Auth(token string) (*logicEntities.Auth, error) {
 	return auth, nil
 }
 
-// SignUP ...
-func (handler Handler) SignUP(params washServers.SignupParams, auth *logicEntities.Auth) washServers.SignupResponder {
-	res, err := handler.logic.SignUp(context.TODO())
-	switch {
-	case err == nil:
-		return washServers.NewSignupOK().WithPayload(&openapiEntities.FirebaseToken{
-			Value: res.Value,
-		})
-	}
-	return washServers.NewSignupOK()
-}
+// // SignUP ...
+// func (handler Handler) SignUP(params washServers.SignupParams, auth *logicEntities.Auth) washServers.SignupResponder {
+// 	res, err := handler.logic.SignUp(context.TODO())
+// 	switch {
+// 	case err == nil:
+// 		return washServers.NewSignupOK().WithPayload(&openapiEntities.FirebaseToken{
+// 			Value: res.Value,
+// 		})
+// 	}
+// 	return washServers.NewSignupOK()
+// }

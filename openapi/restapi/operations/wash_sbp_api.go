@@ -46,9 +46,6 @@ func NewWashSbpAPI(spec *loads.Document) *WashSbpAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
-		WashServersCancelHandler: wash_servers.CancelHandlerFunc(func(params wash_servers.CancelParams, principal *entities.Auth) wash_servers.CancelResponder {
-			return wash_servers.CancelNotImplemented()
-		}),
 		WashServersCreateHandler: wash_servers.CreateHandlerFunc(func(params wash_servers.CreateParams, principal *entities.Auth) wash_servers.CreateResponder {
 			return wash_servers.CreateNotImplemented()
 		}),
@@ -66,12 +63,6 @@ func NewWashSbpAPI(spec *loads.Document) *WashSbpAPI {
 		}),
 		WashServersNotificationHandler: wash_servers.NotificationHandlerFunc(func(params wash_servers.NotificationParams, principal *entities.Auth) wash_servers.NotificationResponder {
 			return wash_servers.NotificationNotImplemented()
-		}),
-		WashServersPayHandler: wash_servers.PayHandlerFunc(func(params wash_servers.PayParams, principal *entities.Auth) wash_servers.PayResponder {
-			return wash_servers.PayNotImplemented()
-		}),
-		WashServersSignupHandler: wash_servers.SignupHandlerFunc(func(params wash_servers.SignupParams, principal *entities.Auth) wash_servers.SignupResponder {
-			return wash_servers.SignupNotImplemented()
 		}),
 		WashServersUpdateHandler: wash_servers.UpdateHandlerFunc(func(params wash_servers.UpdateParams, principal *entities.Auth) wash_servers.UpdateResponder {
 			return wash_servers.UpdateNotImplemented()
@@ -126,8 +117,6 @@ type WashSbpAPI struct {
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
 
-	// WashServersCancelHandler sets the operation handler for the cancel operation
-	WashServersCancelHandler wash_servers.CancelHandler
 	// WashServersCreateHandler sets the operation handler for the create operation
 	WashServersCreateHandler wash_servers.CreateHandler
 	// WashServersDeleteHandler sets the operation handler for the delete operation
@@ -140,10 +129,6 @@ type WashSbpAPI struct {
 	WashServersListHandler wash_servers.ListHandler
 	// WashServersNotificationHandler sets the operation handler for the notification operation
 	WashServersNotificationHandler wash_servers.NotificationHandler
-	// WashServersPayHandler sets the operation handler for the pay operation
-	WashServersPayHandler wash_servers.PayHandler
-	// WashServersSignupHandler sets the operation handler for the signup operation
-	WashServersSignupHandler wash_servers.SignupHandler
 	// WashServersUpdateHandler sets the operation handler for the update operation
 	WashServersUpdateHandler wash_servers.UpdateHandler
 
@@ -227,9 +212,6 @@ func (o *WashSbpAPI) Validate() error {
 		unregistered = append(unregistered, "AuthorizationAuth")
 	}
 
-	if o.WashServersCancelHandler == nil {
-		unregistered = append(unregistered, "wash_servers.CancelHandler")
-	}
 	if o.WashServersCreateHandler == nil {
 		unregistered = append(unregistered, "wash_servers.CreateHandler")
 	}
@@ -247,12 +229,6 @@ func (o *WashSbpAPI) Validate() error {
 	}
 	if o.WashServersNotificationHandler == nil {
 		unregistered = append(unregistered, "wash_servers.NotificationHandler")
-	}
-	if o.WashServersPayHandler == nil {
-		unregistered = append(unregistered, "wash_servers.PayHandler")
-	}
-	if o.WashServersSignupHandler == nil {
-		unregistered = append(unregistered, "wash_servers.SignupHandler")
 	}
 	if o.WashServersUpdateHandler == nil {
 		unregistered = append(unregistered, "wash_servers.UpdateHandler")
@@ -356,10 +332,6 @@ func (o *WashSbpAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/cancel"] = wash_servers.NewCancel(o.context, o.WashServersCancelHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
@@ -384,14 +356,6 @@ func (o *WashSbpAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/notification"] = wash_servers.NewNotification(o.context, o.WashServersNotificationHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/pay"] = wash_servers.NewPay(o.context, o.WashServersPayHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/signup"] = wash_servers.NewSignup(o.context, o.WashServersSignupHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

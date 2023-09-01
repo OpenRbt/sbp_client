@@ -34,39 +34,6 @@ func init() {
     "version": "1.0.0"
   },
   "paths": {
-    "/cancel": {
-      "post": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
-        "tags": [
-          "wash_servers"
-        ],
-        "operationId": "cancel",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/cancel"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      }
-    },
     "/health_check": {
       "get": {
         "security": [
@@ -120,61 +87,6 @@ func init() {
             "description": "Internal error",
             "schema": {
               "$ref": "#/definitions/error"
-            }
-          }
-        }
-      }
-    },
-    "/pay": {
-      "post": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
-        "tags": [
-          "wash_servers"
-        ],
-        "operationId": "pay",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/Pay"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/payResponse"
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      }
-    },
-    "/signup": {
-      "post": {
-        "security": [
-          {}
-        ],
-        "tags": [
-          "wash_servers"
-        ],
-        "operationId": "signup",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/FirebaseToken"
             }
           }
         }
@@ -408,14 +320,6 @@ func init() {
     }
   },
   "definitions": {
-    "FirebaseToken": {
-      "type": "object",
-      "properties": {
-        "value": {
-          "type": "string"
-        }
-      }
-    },
     "Notification": {
       "type": "object",
       "properties": {
@@ -623,39 +527,6 @@ func init() {
     "version": "1.0.0"
   },
   "paths": {
-    "/cancel": {
-      "post": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
-        "tags": [
-          "wash_servers"
-        ],
-        "operationId": "cancel",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/cancel"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      }
-    },
     "/health_check": {
       "get": {
         "security": [
@@ -709,61 +580,6 @@ func init() {
             "description": "Internal error",
             "schema": {
               "$ref": "#/definitions/error"
-            }
-          }
-        }
-      }
-    },
-    "/pay": {
-      "post": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
-        "tags": [
-          "wash_servers"
-        ],
-        "operationId": "pay",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/Pay"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/payResponse"
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      }
-    },
-    "/signup": {
-      "post": {
-        "security": [
-          {}
-        ],
-        "tags": [
-          "wash_servers"
-        ],
-        "operationId": "signup",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/FirebaseToken"
             }
           }
         }
@@ -997,14 +813,6 @@ func init() {
     }
   },
   "definitions": {
-    "FirebaseToken": {
-      "type": "object",
-      "properties": {
-        "value": {
-          "type": "string"
-        }
-      }
-    },
     "Notification": {
       "type": "object",
       "properties": {
