@@ -1,19 +1,19 @@
 version: "3.2"
 
 services:
-  sbp_db:
-    container_name: sbp_postgresql
+  wash_sbp:
+    container_name: wash_sbp_postgresql
     image: postgres:14.5
     restart: always
     environment:
-      POSTGRES_DB: "sbp_db"
-      POSTGRES_USER:  ${SBP_ADMIN_DB_USER:-wash_admin}
-      POSTGRES_PASSWORD: ${SBP_ADMIN_DB_PASS:-wash_admin}
+      POSTGRES_DB: "wash_sbp"
+      POSTGRES_USER:  ${SBP_ADMIN_DB_USER:-wash_sbp_admin}
+      POSTGRES_PASSWORD: ${SBP_ADMIN_DB_PASS:-wash_sbp_admin}
     volumes:
       - ./scripts:/init.sql
       - ./postgresql-data:/var/lib/postgresql/data
     ports:
-      - "8092:5432"
+      - "54327:5432"
 
   # sbp_rabbit:
   #   container_name: sbp_rabbit
