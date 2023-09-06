@@ -15,14 +15,14 @@ func main() {
 	// app init
 	app, err := app.NewApp(ctx, envFilePath)
 	if err != nil {
-		fmt.Printf("Error: %s", err.Error())
+		fmt.Printf("Error: %s\n", err.Error())
 		return
 	}
 
 	// app run
 	err = app.Run()
 	if err != nil {
-		fmt.Printf("Error: %s", err.Error())
+		fmt.Printf("Error: %s\n", err.Error())
 		return
 	}
 

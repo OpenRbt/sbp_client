@@ -1,26 +1,46 @@
-FROM golang:1.20 as builder
+FROM golang:alpine AS builder
 
-WORKDIR /src
+LABEL stage=gobuilder
+
+ENV CGO_ENABLED 0
+
+ENV GOOS linux
+
+RUN apk update --no-cache && apk add --no-cache tzdata
+
+WORKDIR /build
+
+COPY go.mod .
+COPY go.sum .
+
+RUN go mod download
 
 COPY . .
 
-RUN go build -o /app/main ./cmd
+RUN go build -ldflags="-s -w" -o /app/main ./cmd
 
-FROM ubuntu:22.04
+FROM alpine
 
-RUN apt-get update && apt-get install -y curl
+RUN rm -rf /var/cache/apk/* && \
+    rm -rf /tmp/*
 
+RUN apk update --no-cache && apk add --no-cache ca-certificates
+
+WORKDIR /app
+
+# Копируем бинарный файл из предыдущего этапа
 COPY --from=builder /app/main .
 
-ENV PORT=8080
-
-COPY docker.env /src/docker.env
-ENV ENV_FILE_PATH=/src/docker.env
-
-COPY  ./internal/repository/migrations /src/migrations
+# Копируем миграции
+COPY ./internal/repository/migrations /src/migrations
 ENV MIGRATIONS_PATH=/src/migrations
 
+# Копируем файл ключа Firebase
 COPY ./firebase_key.json /firebase_key.json
+
+# Копируем файл с переменными окружения
+COPY docker.env /src/docker.env
+ENV ENV_FILE_PATH=/src/docker.env
 
 EXPOSE 8080
 
