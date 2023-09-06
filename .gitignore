@@ -5,3 +5,4 @@ docker_sbp
 .env
 firebase_key.json
 diae.code-workspace
+docker.env
