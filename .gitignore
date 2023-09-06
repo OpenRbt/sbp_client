@@ -4,3 +4,4 @@ __debug_bin
 docker_sbp
 .env
 firebase_key.json
+diae.code-workspace
