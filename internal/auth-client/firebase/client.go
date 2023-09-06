@@ -3,7 +3,6 @@ package firebase_authorization
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -32,18 +31,18 @@ type FirebaseClient struct {
 func NewAuthClient(keyfileLocation string) (*FirebaseClient, error) {
 	keyFilePath, err := filepath.Abs(keyfileLocation)
 	if err != nil {
-		return nil, errors.New("Unable to load Client key")
+		return nil, fmt.Errorf("Unable to load Client key: %w", err)
 	}
 	opt := option.WithCredentialsFile(keyFilePath)
 
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
-		return nil, errors.New("Failed to load Firebase")
+		return nil, fmt.Errorf("Failed to load Firebase: %w", err)
 	}
 
 	client, err := app.Auth(context.Background())
 	if err != nil {
-		return nil, errors.New("Failed to load Firebase auth")
+		return nil, fmt.Errorf("Failed to load Firebase auth: %w", err)
 	}
 
 	return &FirebaseClient{
