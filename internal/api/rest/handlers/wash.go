@@ -4,7 +4,9 @@ import (
 	"log"
 	restConverter "sbp/internal/api/rest/converter"
 	logicEntities "sbp/internal/logic/entities"
+	openapiEntities "sbp/openapi/models"
 	wash "sbp/openapi/restapi/operations/wash"
+	washes "sbp/openapi/restapi/operations/wash"
 
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
@@ -12,6 +14,14 @@ import (
 
 // GetWash ...
 func (handler Handler) GetWash(params wash.GetWashParams, auth *logicEntities.AuthExtended) wash.GetWashResponder {
+	// auth
+	if !auth.IsAdmin() {
+		return washes.NewGetWashForbidden().WithPayload(&openapiEntities.Error{
+			Code:    &ErrAccessDeniedCode,
+			Message: &ErrAccessDenied,
+		})
+	}
+	//
 	id, err := uuid.FromString(params.ID)
 	if err != nil {
 		return wash.NewGetWashBadRequest()
@@ -30,6 +40,14 @@ func (handler Handler) GetWash(params wash.GetWashParams, auth *logicEntities.Au
 
 // CreateWash ...
 func (handler Handler) CreateWash(params wash.CreateParams, auth *logicEntities.AuthExtended) wash.CreateResponder {
+	// auth
+	if !auth.IsAdmin() {
+		return washes.NewCreateForbidden().WithPayload(&openapiEntities.Error{
+			Code:    &ErrAccessDeniedCode,
+			Message: &ErrAccessDenied,
+		})
+	}
+	//
 	registerWashFromRest := restConverter.СonvertRegisterWashFromRest(*params.Body)
 	registerWashFromRest.OwnerID = auth.User.ID
 	newServer, err := handler.logic.CreateWash(params.HTTPRequest.Context(), registerWashFromRest)
@@ -47,6 +65,11 @@ func (handler Handler) CreateWash(params wash.CreateParams, auth *logicEntities.
 
 // UpdateWash ...
 func (handler Handler) UpdateWash(params wash.UpdateParams, auth *logicEntities.AuthExtended) wash.UpdateResponder {
+	// auth
+	if !auth.IsAdmin() {
+		return washes.NewUpdateForbidden()
+	}
+	//
 	updateWashFromRest, err := restConverter.СonvertUpdateWashFromRest(*params.Body)
 	if err != nil {
 		return wash.NewUpdateBadRequest()
@@ -65,6 +88,14 @@ func (handler Handler) UpdateWash(params wash.UpdateParams, auth *logicEntities.
 
 // DeleteWash ...
 func (handler Handler) DeleteWash(params wash.DeleteParams, auth *logicEntities.AuthExtended) wash.DeleteResponder {
+	// auth
+	if !auth.IsAdmin() {
+		return washes.NewDeleteForbidden().WithPayload(&openapiEntities.Error{
+			Code:    &ErrAccessDeniedCode,
+			Message: &ErrAccessDenied,
+		})
+	}
+	//
 	ctx := params.HTTPRequest.Context()
 	washId, err := restConverter.СonvertDeleteWashFromRest(*params.Body)
 	if err != nil {
@@ -83,6 +114,14 @@ func (handler Handler) DeleteWash(params wash.DeleteParams, auth *logicEntities.
 
 // GetWashList ...
 func (handler Handler) GetWashList(params wash.ListParams, auth *logicEntities.AuthExtended) wash.ListResponder {
+	// auth
+	if !auth.IsAdmin() {
+		return washes.NewListForbidden().WithPayload(&openapiEntities.Error{
+			Code:    &ErrAccessDeniedCode,
+			Message: &ErrAccessDenied,
+		})
+	}
+	//
 	ctx := params.HTTPRequest.Context()
 	res, err := handler.logic.GetWashList(ctx, restConverter.СonvertPaginationFromRest(*params.Body))
 

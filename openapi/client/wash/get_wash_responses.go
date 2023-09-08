@@ -35,6 +35,12 @@ func (o *GetWashReader) ReadResponse(response runtime.ClientResponse, consumer r
 			return nil, err
 		}
 		return nil, result
+	case 403:
+		result := NewGetWashForbidden()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 404:
 		result := NewGetWashNotFound()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -177,6 +183,74 @@ func (o *GetWashBadRequest) GetPayload() *models.Error {
 }
 
 func (o *GetWashBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.Error)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewGetWashForbidden creates a GetWashForbidden with default headers values
+func NewGetWashForbidden() *GetWashForbidden {
+	return &GetWashForbidden{}
+}
+
+/*
+GetWashForbidden describes a response with status code 403, with default header values.
+
+Access denied
+*/
+type GetWashForbidden struct {
+	Payload *models.Error
+}
+
+// IsSuccess returns true when this get wash forbidden response has a 2xx status code
+func (o *GetWashForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get wash forbidden response has a 3xx status code
+func (o *GetWashForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get wash forbidden response has a 4xx status code
+func (o *GetWashForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get wash forbidden response has a 5xx status code
+func (o *GetWashForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get wash forbidden response a status code equal to that given
+func (o *GetWashForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the get wash forbidden response
+func (o *GetWashForbidden) Code() int {
+	return 403
+}
+
+func (o *GetWashForbidden) Error() string {
+	return fmt.Sprintf("[GET /wash/{id}][%d] getWashForbidden  %+v", 403, o.Payload)
+}
+
+func (o *GetWashForbidden) String() string {
+	return fmt.Sprintf("[GET /wash/{id}][%d] getWashForbidden  %+v", 403, o.Payload)
+}
+
+func (o *GetWashForbidden) GetPayload() *models.Error {
+	return o.Payload
+}
+
+func (o *GetWashForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(models.Error)
 

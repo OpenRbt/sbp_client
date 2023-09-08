@@ -3,7 +3,6 @@ package handlers
 import (
 	// "context"
 	"context"
-	"errors"
 	logicEntities "sbp/internal/logic/entities"
 	openapiEntities "sbp/openapi/models"
 	wash "sbp/openapi/restapi/operations/wash"
@@ -13,19 +12,19 @@ import (
 func (handler Handler) Auth(token string) (*logicEntities.AuthExtended, error) {
 	auth, err := handler.logic.Auth(token)
 	if err != nil {
-		return nil, err
+		return &logicEntities.AuthExtended{}, nil
 	}
 	if auth == nil {
-		return nil, errors.New("auth failed: auth = nil")
+		return &logicEntities.AuthExtended{}, nil
 	}
 
 	ctx := context.TODO()
 	user, err := handler.logic.CreateUser(ctx, auth)
 	if err != nil {
-		return nil, err
+		return &logicEntities.AuthExtended{}, nil
 	}
 	if user == nil {
-		return nil, errors.New("auth failed: user = nil")
+		return &logicEntities.AuthExtended{}, nil
 	}
 
 	return &logicEntities.AuthExtended{

@@ -108,6 +108,53 @@ func (o *PayBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.P
 
 func (o *PayBadRequest) PayResponder() {}
 
+// PayForbiddenCode is the HTTP code returned for type PayForbidden
+const PayForbiddenCode int = 403
+
+/*
+PayForbidden Access denied
+
+swagger:response payForbidden
+*/
+type PayForbidden struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *models.Error `json:"body,omitempty"`
+}
+
+// NewPayForbidden creates PayForbidden with default headers values
+func NewPayForbidden() *PayForbidden {
+
+	return &PayForbidden{}
+}
+
+// WithPayload adds the payload to the pay forbidden response
+func (o *PayForbidden) WithPayload(payload *models.Error) *PayForbidden {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the pay forbidden response
+func (o *PayForbidden) SetPayload(payload *models.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *PayForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(403)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
+func (o *PayForbidden) PayResponder() {}
+
 type PayNotImplementedResponder struct {
 	middleware.Responder
 }

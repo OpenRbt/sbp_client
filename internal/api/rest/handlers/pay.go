@@ -10,6 +10,14 @@ import (
 
 // Cancel ...
 func (handler *Handler) Cancel(params washes.CancelParams, auth *logicEntities.AuthExtended) washes.CancelResponder {
+	// auth
+	if !auth.IsAdmin() {
+		return washes.NewCancelForbidden().WithPayload(&openapiEntities.Error{
+			Code:    &ErrAccessDeniedCode,
+			Message: &ErrAccessDenied,
+		})
+	}
+	//
 	req := logicEntities.PayСancellationRequest{
 		WashID:  params.Body.WashID,
 		PostID:  params.Body.PostID,
@@ -27,6 +35,15 @@ func (handler *Handler) Cancel(params washes.CancelParams, auth *logicEntities.A
 
 // Pay ...
 func (handler *Handler) Pay(params washes.PayParams, auth *logicEntities.AuthExtended) washes.PayResponder {
+	// auth
+	if !auth.IsAdmin() {
+		return washes.NewPayForbidden().WithPayload(&openapiEntities.Error{
+			Code:    &ErrAccessDeniedCode,
+			Message: &ErrAccessDenied,
+		})
+	}
+	//
+	//
 	req := logicEntities.PayRequest{
 		Amount:  params.Body.Amount,
 		WashID:  params.Body.WashID,
