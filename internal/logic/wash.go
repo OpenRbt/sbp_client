@@ -2,84 +2,113 @@ package logic
 
 import (
 	"context"
+	"math/rand"
 	logicEntities "sbp/internal/logic/entities"
+	"time"
 
 	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 )
 
-// WashServerLogic ...
-type WashServerLogic struct {
-	logger     *zap.SugaredLogger
-	repository WashServerRepository
+// WashLogic ...
+type WashLogic struct {
+	logger            *zap.SugaredLogger
+	repository        WashRepository
+	passwordLength    int
+	brokerUserCreator BrokerUserCreator
 }
 
-// WashServerRepository ...
-type WashServerRepository interface {
-	CreateWashServer(ctx context.Context, admin uuid.UUID, newServer logicEntities.RegisterWashServer) (logicEntities.WashServer, error)
-	UpdateWashServer(ctx context.Context, updateWashServer logicEntities.UpdateWashServer) error
-	DeleteWashServer(ctx context.Context, id uuid.UUID) error
-	GetWashServer(ctx context.Context, id uuid.UUID) (logicEntities.WashServer, error)
-	GetWashServerList(ctx context.Context, pagination logicEntities.Pagination) ([]logicEntities.WashServer, error)
+// WashRepository ...
+type WashRepository interface {
+	CreateWash(ctx context.Context, new logicEntities.RegisterWash) (logicEntities.Wash, error)
+	UpdateWash(ctx context.Context, updateWash logicEntities.UpdateWash) error
+	DeleteWash(ctx context.Context, id uuid.UUID) error
+	GetWash(ctx context.Context, id uuid.UUID) (logicEntities.Wash, error)
+	GetWashList(ctx context.Context, pagination logicEntities.Pagination) ([]logicEntities.Wash, error)
 }
 
-// newWashServerLogic ...
-func newWashServerLogic(ctx context.Context, logger *zap.SugaredLogger, repository WashServerRepository) (*WashServerLogic, error) {
-	logic := WashServerLogic{
-		logger:     logger,
-		repository: repository,
+// BrokerUserCreator
+type BrokerUserCreator interface {
+	CreateUser(login string, password string) error
+}
+
+// newWashLogic ...
+func newWashLogic(
+	ctx context.Context,
+	logger *zap.SugaredLogger,
+	repository WashRepository,
+	brokerUserCreator BrokerUserCreator,
+	passwordLength int,
+) (*WashLogic, error) {
+
+	logic := WashLogic{
+		logger:            logger,
+		repository:        repository,
+		passwordLength:    passwordLength,
+		brokerUserCreator: brokerUserCreator,
 	}
 
 	return &logic, nil
 }
 
-// CreateWashServer ...
-func (logic *WashServerLogic) CreateWashServer(ctx context.Context, admin logicEntities.SbpAdmin, newServer logicEntities.RegisterWashServer) (logicEntities.WashServer, error) {
-	w, err := logic.repository.CreateWashServer(ctx, admin.ID, newServer)
+// CreateWash ...
+func (logic *WashLogic) CreateWash(ctx context.Context, newWash logicEntities.RegisterWash) (logicEntities.Wash, error) {
+	// generate password
+	newWash.Password = logic.generatePassword()
+
+	// create
+	w, err := logic.repository.CreateWash(ctx, newWash)
 	if err != nil {
-		return logicEntities.WashServer{}, err
+		return logicEntities.Wash{}, err
+	}
+
+	// create broker user
+	err = logic.brokerUserCreator.CreateUser(w.ID.String(), w.Password)
+	if err != nil {
+		return logicEntities.Wash{}, err
 	}
 
 	return w, nil
 }
 
-// GetWashServer ...
-func (logic *WashServerLogic) GetWashServer(ctx context.Context, id uuid.UUID) (logicEntities.WashServer, error) {
-	washServer, err := logic.repository.GetWashServer(ctx, id)
+// GetWash ...
+func (logic *WashLogic) GetWash(ctx context.Context, id uuid.UUID) (logicEntities.Wash, error) {
+	wash, err := logic.repository.GetWash(ctx, id)
 	if err != nil {
-		return logicEntities.WashServer{}, err
+		return logicEntities.Wash{}, err
 	}
 
-	return washServer, nil
+	return wash, nil
 }
 
-// UpdateWashServer ...
-func (logic *WashServerLogic) UpdateWashServer(ctx context.Context, admin logicEntities.SbpAdmin, updateWashServer logicEntities.UpdateWashServer) error {
-	washServer, err := logic.repository.GetWashServer(ctx, updateWashServer.ID)
+// UpdateWash ...
+func (logic *WashLogic) UpdateWash(ctx context.Context, updateWash logicEntities.UpdateWash) error {
+	wash, err := logic.repository.GetWash(ctx, updateWash.ID)
 	if err != nil {
 		return err
 	}
-	if washServer.Owner != admin.ID {
+	if wash.OwnerID != updateWash.OwnerID {
 		return logicEntities.ErrUserNotOwner
 	}
-	err = logic.repository.UpdateWashServer(ctx, updateWashServer)
+
+	err = logic.repository.UpdateWash(ctx, updateWash)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// DeleteWashServer ...
-func (logic *WashServerLogic) DeleteWashServer(ctx context.Context, admin logicEntities.SbpAdmin, id uuid.UUID) error {
-	washServer, err := logic.repository.GetWashServer(ctx, id)
+// DeleteWash ...
+func (logic *WashLogic) DeleteWash(ctx context.Context, ownerID uuid.UUID, id uuid.UUID) error {
+	wash, err := logic.repository.GetWash(ctx, id)
 	if err != nil {
 		return err
 	}
-	if washServer.Owner != admin.ID {
+	if wash.OwnerID != ownerID {
 		return logicEntities.ErrUserNotOwner
 	}
 
-	err = logic.repository.DeleteWashServer(ctx, id)
+	err = logic.repository.DeleteWash(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -87,12 +116,27 @@ func (logic *WashServerLogic) DeleteWashServer(ctx context.Context, admin logicE
 	return nil
 }
 
-// GetWashServerList ...
-func (logic *WashServerLogic) GetWashServerList(ctx context.Context, pagination logicEntities.Pagination) ([]logicEntities.WashServer, error) {
-	washServers, err := logic.repository.GetWashServerList(ctx, pagination)
+// GetWashList ...
+func (logic *WashLogic) GetWashList(ctx context.Context, pagination logicEntities.Pagination) ([]logicEntities.Wash, error) {
+	washs, err := logic.repository.GetWashList(ctx, pagination)
 	if err != nil {
 		return nil, err
 	}
 
-	return washServers, nil
+	return washs, nil
+}
+
+// generatePassword ...
+func (logic *WashLogic) generatePassword() string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	rand.Seed(time.Now().UnixNano())
+
+	// Генерируем пароль
+	password := make([]byte, logic.passwordLength)
+	for i := range password {
+		password[i] = charset[rand.Intn(len(charset))]
+	}
+
+	return string(password)
 }

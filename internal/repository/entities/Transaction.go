@@ -7,18 +7,19 @@ import (
 )
 
 type Transaction struct {
-	ID         uuid.NullUUID `db:"id"`
-	ServerID   string        `db:"server_id"`
-	PostID     string        `db:"post_id"`
-	Amount     int64         `db:"amount"`
-	PaymentID  string        `db:"payment_id_bank"`
-	Status     string        `db:"status"`
-	DataCreate time.Time     `db:"data_create"`
+	ID        uuid.UUID `db:"id"`
+	WashID    string    `db:"wash_id"`
+	PostID    string    `db:"post_id"`
+	Amount    int64     `db:"amount"`
+	PaymentID string    `db:"payment_id_bank"`
+	Status    string    `db:"status"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
 }
 
 type TransactionCreate struct {
 	ID        uuid.UUID `db:"id"`
-	ServerID  string    `db:"server_id"`
+	WashID    string    `db:"wash_id"`
 	PostID    string    `db:"post_id"`
 	Amount    int64     `db:"amount"`
 	PaymentID string    `db:"payment_id_bank"`

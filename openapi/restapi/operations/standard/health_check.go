@@ -17,16 +17,16 @@ import (
 )
 
 // HealthCheckHandlerFunc turns a function with the right signature into a health check handler
-type HealthCheckHandlerFunc func(HealthCheckParams, *entities.Auth) HealthCheckResponder
+type HealthCheckHandlerFunc func(HealthCheckParams, *entities.AuthExtended) HealthCheckResponder
 
 // Handle executing the request and returning a response
-func (fn HealthCheckHandlerFunc) Handle(params HealthCheckParams, principal *entities.Auth) HealthCheckResponder {
+func (fn HealthCheckHandlerFunc) Handle(params HealthCheckParams, principal *entities.AuthExtended) HealthCheckResponder {
 	return fn(params, principal)
 }
 
 // HealthCheckHandler interface for that can handle valid health check params
 type HealthCheckHandler interface {
-	Handle(HealthCheckParams, *entities.Auth) HealthCheckResponder
+	Handle(HealthCheckParams, *entities.AuthExtended) HealthCheckResponder
 }
 
 // NewHealthCheck creates a new http.Handler for the health check operation
@@ -58,9 +58,9 @@ func (o *HealthCheck) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		*r = *aCtx
 	}
-	var principal *entities.Auth
+	var principal *entities.AuthExtended
 	if uprinc != nil {
-		principal = uprinc.(*entities.Auth) // this is really a entities.Auth, I promise
+		principal = uprinc.(*entities.AuthExtended) // this is really a entities.AuthExtended, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

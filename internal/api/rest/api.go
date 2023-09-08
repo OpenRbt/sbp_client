@@ -8,7 +8,7 @@ import (
 	swaggerRestapi "sbp/openapi/restapi"
 	swaggerOperations "sbp/openapi/restapi/operations"
 	"sbp/openapi/restapi/operations/standard"
-	"sbp/openapi/restapi/operations/wash_servers"
+	"sbp/openapi/restapi/operations/wash"
 
 	restHandlers "sbp/internal/api/rest/handlers"
 
@@ -110,24 +110,24 @@ func (api *restApi) route() error {
 	// handlers mapping
 	// auth
 	api.swaggerApi.AuthKeyAuth = handler.Auth
-	// api.swaggerApi.WashServersSignupHandler = wash_servers.SignupHandlerFunc(handler.SignUP)
+	api.swaggerApi.WashSignupHandler = wash.SignupHandlerFunc(handler.SignUP)
 
 	// wash server
-	api.swaggerApi.WashServersCreateHandler = wash_servers.CreateHandlerFunc(handler.CreateWashServer)
-	api.swaggerApi.WashServersUpdateHandler = wash_servers.UpdateHandlerFunc(handler.UpdateWashServer)
-	api.swaggerApi.WashServersDeleteHandler = wash_servers.DeleteHandlerFunc(handler.DeleteWashServer)
-	api.swaggerApi.WashServersGetWashServerHandler = wash_servers.GetWashServerHandlerFunc(handler.GetWashServer)
-	api.swaggerApi.WashServersListHandler = wash_servers.ListHandlerFunc(handler.GetWashServerList)
+	api.swaggerApi.WashCreateHandler = wash.CreateHandlerFunc(handler.CreateWash)
+	api.swaggerApi.WashUpdateHandler = wash.UpdateHandlerFunc(handler.UpdateWash)
+	api.swaggerApi.WashDeleteHandler = wash.DeleteHandlerFunc(handler.DeleteWash)
+	api.swaggerApi.WashGetWashHandler = wash.GetWashHandlerFunc(handler.GetWash)
+	api.swaggerApi.WashListHandler = wash.ListHandlerFunc(handler.GetWashList)
 
 	// payment
-	// api.swaggerApi.WashServersPayHandler = wash_servers.PayHandlerFunc(handler.Pay)
-	// api.swaggerApi.WashServersCancelHandler = wash_servers.CancelHandlerFunc(handler.Cancel)
-	api.swaggerApi.WashServersNotificationHandler = wash_servers.NotificationHandlerFunc(handler.Notif)
+	api.swaggerApi.WashPayHandler = wash.PayHandlerFunc(handler.Pay)
+	api.swaggerApi.WashCancelHandler = wash.CancelHandlerFunc(handler.Cancel)
+	api.swaggerApi.WashNotificationHandler = wash.NotificationHandlerFunc(handler.Notif)
 	return nil
 }
 
 // healthCheck ...
-func healthCheck(params standard.HealthCheckParams, profile *logicEntities.Auth) standard.HealthCheckResponder {
+func healthCheck(params standard.HealthCheckParams, profile *logicEntities.AuthExtended) standard.HealthCheckResponder {
 	return standard.NewHealthCheckOK().WithPayload(&standard.HealthCheckOKBody{Ok: true})
 }
 

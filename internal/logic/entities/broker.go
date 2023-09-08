@@ -13,14 +13,15 @@ const (
 	RoutingKeySbpClient shareBusinessEntities.RoutingKey = "sbp_client"
 
 	// message types
+	// - payment
 	MessageTypePaymentRequest  shareBusinessEntities.MessageType = "sbp_client_service/payment_request"
 	MessageTypePaymentResponse shareBusinessEntities.MessageType = "sbp_client_service/payment_response"
-
+	// - notification
 	MessageTypePaymentNotification         shareBusinessEntities.MessageType = "sbp_client_service/payment_notification"
 	MessageTypePaymentNotificationResponse shareBusinessEntities.MessageType = "sbp_client_service/payment_notification_response"
-
+	// - cancellation
 	MessageTypePaymentСancellationRequest shareBusinessEntities.MessageType = "sbp_client_service/payment_cancellation_request"
-
+	// - error
 	MessageTypePaymentError shareBusinessEntities.MessageType = "sbp_client_service/payment_error"
 
 	// errors
@@ -38,7 +39,7 @@ type BrokerMessage struct {
 
 // PayError ...
 type PayError struct {
-	ServerID  string `json:"server_id"`
+	WashID    string `json:"wash_id"`
 	PostID    string `json:"post_id"`
 	OrderID   string `json:"order_id"`
 	ErrorCode int64  `json:"error_code"`
@@ -47,15 +48,15 @@ type PayError struct {
 
 // PayRequest ...
 type PayRequest struct {
-	Amount     int64  `json:"amount"`
-	ServerID   string `json:"server_id"`
-	PostID     string `json:"post_id"`
-	OrderID    string `json:"order_id,omitempty"`
-	ServiceKey string `json:"service_key"`
+	Amount  int64  `json:"amount"`
+	WashID  string `json:"wash_id"`
+	PostID  string `json:"post_id"`
+	OrderID string `json:"order_id,omitempty"`
 }
 
 // PayResponse ...
 type PayResponse struct {
+	WashID  string `json:"wash_id"`
 	PostID  string `json:"post_id"`
 	OrderID string `json:"order_id"`
 	UrlPay  string `json:"url_pay"`
@@ -63,16 +64,15 @@ type PayResponse struct {
 
 // PayСancellationRequest ...
 type PayСancellationRequest struct {
-	ServerID   string `json:"server_id"`
-	PostID     string `json:"post_id"`
-	ServiceKey string `json:"service_key"`
-	OrderID    string `json:"order_id"`
+	WashID  string `json:"wash_id"`
+	PostID  string `json:"post_id"`
+	OrderID string `json:"order_id"`
 }
 
 // PayNotifcation ...
 type PayNotifcation struct {
-	ServerID string `json:"server_id"`
-	PostID   string `json:"post_id"`
-	OrderID  string `json:"order_id"`
-	Status   string `json:"status"`
+	WashID  string `json:"wash_id"`
+	PostID  string `json:"post_id"`
+	OrderID string `json:"order_id"`
+	Status  string `json:"status"`
 }

@@ -12,116 +12,113 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-// CreateWashServer ...
-func (s *Repository) CreateWashServer(ctx context.Context, admin uuid.UUID, newWashServer logicEntities.RegisterWashServer) (logicEntities.WashServer, error) {
-	var registredServer repEntities.WashServer
+// CreateWash ...
+func (s *Repository) CreateWash(ctx context.Context, newWash logicEntities.RegisterWash) (logicEntities.Wash, error) {
+	var registredServer repEntities.Wash
 
 	err := s.db.NewSession(nil).
 		InsertInto("wash_servers").
-		Columns("title", "description", "owner", "service_key", "terminal_key", "terminal_password").
-		Record(repEntities.RegisterWashServer{
-			Title:       newWashServer.Title,
-			Description: newWashServer.Description,
-			Owner: uuid.NullUUID{
-				UUID:  admin,
-				Valid: true,
-			},
-			ServiceKey:       s.generateNewServiceKey(),
-			TerminalKey:      newWashServer.TerminalKey,
-			TerminalPassword: newWashServer.TerminalPassword,
-		}).Returning("id", "title", "description", "owner", "service_key", "terminal_key", "terminal_password").
+		Columns("owner_id", "password", "title", "description", "terminal_key", "terminal_password").
+		Record(repEntities.RegisterWash{
+			OwnerID:          newWash.OwnerID,
+			Password:         newWash.Password,
+			Title:            newWash.Title,
+			Description:      newWash.Description,
+			TerminalKey:      newWash.TerminalKey,
+			TerminalPassword: newWash.TerminalPassword,
+		}).Returning("id", "owner_id", "password", "title", "description", "terminal_key", "terminal_password", "created_at", "updated_at").
 		LoadContext(ctx, &registredServer)
 
 	if err != nil {
-		return logicEntities.WashServer{}, bootstrap.CustomError(layer, "CreateWashServer", err)
+		return logicEntities.Wash{}, bootstrap.CustomError(layer, "CreateWash", err)
 	}
 
-	return repConverter.ConvertWashServerFromDB(registredServer), bootstrap.CustomError(layer, "CreateWashServer", err)
+	return repConverter.ConvertWashFromDB(registredServer), bootstrap.CustomError(layer, "CreateWash", err)
 }
 
-// GetWashServer ...
-func (s *Repository) GetWashServer(ctx context.Context, id uuid.UUID) (logicEntities.WashServer, error) {
-	var dbWashServer repEntities.WashServer
+// GetWash ...
+func (s *Repository) GetWash(ctx context.Context, id uuid.UUID) (logicEntities.Wash, error) {
+	var dbWash repEntities.Wash
 
 	err := s.db.NewSession(nil).
 		Select("*").
 		From("wash_servers").
 		Where("id = ? AND NOT deleted", uuid.NullUUID{UUID: id, Valid: true}).
-		LoadOneContext(ctx, &dbWashServer)
+		LoadOneContext(ctx, &dbWash)
 
 	switch {
 	case err == nil:
-		return repConverter.ConvertWashServerFromDB(dbWashServer), nil
+		return repConverter.ConvertWashFromDB(dbWash), nil
 	case errors.Is(err, dbr.ErrNotFound):
-		return logicEntities.WashServer{}, bootstrap.CustomError(layer, "GetWashServer", logicEntities.ErrNotFound)
+		return logicEntities.Wash{}, bootstrap.CustomError(layer, "GetWash", logicEntities.ErrNotFound)
 	default:
-		return logicEntities.WashServer{}, bootstrap.CustomError(layer, "GetWashServer", err)
+		return logicEntities.Wash{}, bootstrap.CustomError(layer, "GetWash", err)
 	}
 }
 
-// UpdateWashServer ...
-func (s *Repository) UpdateWashServer(ctx context.Context, updateWashServer logicEntities.UpdateWashServer) error {
-	dbUpdateWashServer := repConverter.ConvertUpdateWashServerToDb(updateWashServer)
+// UpdateWash ...
+func (s *Repository) UpdateWash(ctx context.Context, updateWash logicEntities.UpdateWash) error {
+	dbUpdateWash := repConverter.ConvertUpdateWashToDb(updateWash)
 
 	tx, err := s.db.NewSession(nil).BeginTx(ctx, nil)
 
 	if err != nil {
-		return bootstrap.CustomError(layer, "UpdateWashServer", err)
+		return bootstrap.CustomError(layer, "UpdateWash", err)
 	}
 
 	updateStatement := tx.
 		Update("wash_servers").
-		Where("id = ?", dbUpdateWashServer.ID)
+		Where("id = ?", dbUpdateWash.ID)
 
-	if dbUpdateWashServer.Name != nil {
-		updateStatement = updateStatement.Set("title", dbUpdateWashServer.Name)
+	if dbUpdateWash.Name != nil {
+		updateStatement = updateStatement.Set("title", dbUpdateWash.Name)
 	}
-	if dbUpdateWashServer.Description != nil {
-		updateStatement = updateStatement.Set("description", dbUpdateWashServer.Description)
+	if dbUpdateWash.Description != nil {
+		updateStatement = updateStatement.Set("description", dbUpdateWash.Description)
 	}
-	if dbUpdateWashServer.TerminalKey != nil {
-		updateStatement = updateStatement.Set("terminal_key", dbUpdateWashServer.TerminalKey)
+	if dbUpdateWash.TerminalKey != nil {
+		updateStatement = updateStatement.Set("terminal_key", dbUpdateWash.TerminalKey)
 	}
-	if dbUpdateWashServer.TerminalPassword != nil {
-		updateStatement = updateStatement.Set("terminal_password", dbUpdateWashServer.TerminalPassword)
+	if dbUpdateWash.TerminalPassword != nil {
+		updateStatement = updateStatement.Set("terminal_password", dbUpdateWash.TerminalPassword)
 	}
 
 	_, err = updateStatement.ExecContext(ctx)
 
 	if err != nil {
-		return bootstrap.CustomError(layer, "UpdateWashServer", err)
+		return bootstrap.CustomError(layer, "UpdateWash", err)
 	}
 
 	return tx.Commit()
 }
 
-// DeleteWashServer ...
-func (s *Repository) DeleteWashServer(ctx context.Context, id uuid.UUID) error {
-	dbDeleteWashServer := repConverter.ConvertDeleteWashServerToDB(id)
+// DeleteWash ...
+func (s *Repository) DeleteWash(ctx context.Context, id uuid.UUID) error {
+	dbDeleteWash := repConverter.ConvertDeleteWashToDB(id)
 
 	tx, err := s.db.NewSession(nil).BeginTx(ctx, nil)
 
 	if err != nil {
-		return bootstrap.CustomError(layer, "DeleteWashServer", err)
+		return bootstrap.CustomError(layer, "DeleteWash", err)
 	}
 
 	deleteStatement := tx.
 		Update("wash_servers").
-		Where("id = ? AND NOT DELETED", dbDeleteWashServer.ID).
+		Where("id = ? AND NOT DELETED", dbDeleteWash.ID).
 		Set("deleted", true)
 
 	_, err = deleteStatement.ExecContext(ctx)
 
 	if err != nil {
-		return bootstrap.CustomError(layer, "DeleteWashServer", err)
+		return bootstrap.CustomError(layer, "DeleteWash", err)
 	}
 
 	return tx.Commit()
 }
 
-// GetWashServerList ...
-func (s *Repository) GetWashServerList(ctx context.Context, pagination logicEntities.Pagination) ([]logicEntities.WashServer, error) {
-	var dbWashServerList []repEntities.WashServer
+// GetWashList ...
+func (s *Repository) GetWashList(ctx context.Context, pagination logicEntities.Pagination) ([]logicEntities.Wash, error) {
+	var dbWashList []repEntities.Wash
 
 	count, err := s.db.NewSession(nil).
 		Select("*").
@@ -129,17 +126,17 @@ func (s *Repository) GetWashServerList(ctx context.Context, pagination logicEnti
 		Where("NOT DELETED").
 		Limit(uint64(pagination.Limit)).
 		Offset(uint64(pagination.Offset)).
-		LoadContext(ctx, &dbWashServerList)
+		LoadContext(ctx, &dbWashList)
 
 	if err != nil {
-		return []logicEntities.WashServer{}, bootstrap.CustomError(layer, "GetWashServerList", err)
+		return []logicEntities.Wash{}, bootstrap.CustomError(layer, "GetWashList", err)
 	}
 
 	if count == 0 {
-		return []logicEntities.WashServer{}, nil
+		return []logicEntities.Wash{}, nil
 	}
 
-	washServerListFromDB := repConverter.ConvertWashServerListFromDB(dbWashServerList)
+	washServerListFromDB := repConverter.ConvertWashListFromDB(dbWashList)
 
 	return washServerListFromDB, nil
 }

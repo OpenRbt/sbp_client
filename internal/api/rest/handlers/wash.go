@@ -4,128 +4,95 @@ import (
 	"log"
 	restConverter "sbp/internal/api/rest/converter"
 	logicEntities "sbp/internal/logic/entities"
-	washServers "sbp/openapi/restapi/operations/wash_servers"
+	wash "sbp/openapi/restapi/operations/wash"
 
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 )
 
-// GetWashServer ...
-func (handler Handler) GetWashServer(params washServers.GetWashServerParams, auth *logicEntities.Auth) washServers.GetWashServerResponder {
+// GetWash ...
+func (handler Handler) GetWash(params wash.GetWashParams, auth *logicEntities.AuthExtended) wash.GetWashResponder {
 	id, err := uuid.FromString(params.ID)
 	if err != nil {
-		return washServers.NewGetWashServerBadRequest()
+		return wash.NewGetWashBadRequest()
 	}
 
-	res, err := handler.logic.GetWashServer(params.HTTPRequest.Context(), id)
+	res, err := handler.logic.GetWash(params.HTTPRequest.Context(), id)
 	switch {
 	case err == nil:
-		return washServers.NewGetWashServerOK().WithPayload(restConverter.СonvertWashServerToRest(res))
+		return wash.NewGetWashOK().WithPayload(restConverter.СonvertWashToRest(res))
 	case errors.Is(err, logicEntities.ErrNotFound):
-		return washServers.NewGetWashServerNotFound()
+		return wash.NewGetWashNotFound()
 	default:
-		return washServers.NewGetWashServerInternalServerError()
+		return wash.NewGetWashInternalServerError()
 	}
 }
 
-// CreateWashServer ...
-func (handler Handler) CreateWashServer(params washServers.CreateParams, auth *logicEntities.Auth) washServers.CreateResponder {
-	registerWashServerFromRest := restConverter.СonvertRegisterWashServerFromRest(*params.Body)
-
-	admin, err := handler.logic.GetOrCreateAdminIfNotExists(params.HTTPRequest.Context(), auth)
+// CreateWash ...
+func (handler Handler) CreateWash(params wash.CreateParams, auth *logicEntities.AuthExtended) wash.CreateResponder {
+	registerWashFromRest := restConverter.СonvertRegisterWashFromRest(*params.Body)
+	registerWashFromRest.OwnerID = auth.User.ID
+	newServer, err := handler.logic.CreateWash(params.HTTPRequest.Context(), registerWashFromRest)
 	if err != nil {
 		log.Println(err)
 		if errors.Is(err, logicEntities.ErrNotFound) {
-			return washServers.NewCreateBadRequest()
+			return wash.NewCreateBadRequest()
 		} else {
-			return washServers.NewCreateInternalServerError()
+			return wash.NewCreateInternalServerError()
 		}
 	}
 
-	newServer, err := handler.logic.CreateWashServer(params.HTTPRequest.Context(), *admin, registerWashServerFromRest)
-	if err != nil {
-		log.Println(err)
-		if errors.Is(err, logicEntities.ErrNotFound) {
-			return washServers.NewCreateBadRequest()
-		} else {
-			return washServers.NewCreateInternalServerError()
-		}
-	}
-
-	return washServers.NewCreateOK().WithPayload(restConverter.СonvertWashServerToRest(newServer))
+	return wash.NewCreateOK().WithPayload(restConverter.СonvertWashToRest(newServer))
 }
 
-// UpdateWashServer ...
-func (handler Handler) UpdateWashServer(params washServers.UpdateParams, auth *logicEntities.Auth) washServers.UpdateResponder {
-
-	admin, err := handler.logic.GetOrCreateAdminIfNotExists(params.HTTPRequest.Context(), auth)
+// UpdateWash ...
+func (handler Handler) UpdateWash(params wash.UpdateParams, auth *logicEntities.AuthExtended) wash.UpdateResponder {
+	updateWashFromRest, err := restConverter.СonvertUpdateWashFromRest(*params.Body)
 	if err != nil {
-		log.Println(err)
-		if errors.Is(err, logicEntities.ErrNotFound) {
-			return washServers.NewUpdateBadRequest()
-		} else {
-			return washServers.NewUpdateInternalServerError()
-		}
+		return wash.NewUpdateBadRequest()
 	}
-
-	updateWashServerFromRest, err := restConverter.СonvertUpdateWashServerFromRest(*params.Body)
-	if err != nil {
-		return washServers.NewUpdateBadRequest()
-	}
-
-	err = handler.logic.UpdateWashServer(params.HTTPRequest.Context(), *admin, updateWashServerFromRest)
+	updateWashFromRest.OwnerID = auth.User.ID
+	err = handler.logic.UpdateWash(params.HTTPRequest.Context(), updateWashFromRest)
 	switch {
 	case err == nil:
-		return washServers.NewUpdateNoContent()
+		return wash.NewUpdateNoContent()
 	case errors.Is(err, logicEntities.ErrNotFound):
-		return washServers.NewUpdateNotFound()
+		return wash.NewUpdateNotFound()
 	default:
-		return washServers.NewUpdateInternalServerError()
+		return wash.NewUpdateInternalServerError()
 	}
 }
 
-// DeleteWashServer ...
-func (handler Handler) DeleteWashServer(params washServers.DeleteParams, auth *logicEntities.Auth) washServers.DeleteResponder {
-
-	admin, err := handler.logic.GetOrCreateAdminIfNotExists(params.HTTPRequest.Context(), auth)
-	if err != nil {
-		log.Println(err)
-		if errors.Is(err, logicEntities.ErrNotFound) {
-			return washServers.NewDeleteBadRequest()
-		} else {
-			return washServers.NewDeleteInternalServerError()
-		}
-	}
-
+// DeleteWash ...
+func (handler Handler) DeleteWash(params wash.DeleteParams, auth *logicEntities.AuthExtended) wash.DeleteResponder {
 	ctx := params.HTTPRequest.Context()
-	deleteWashServerFromRest, err := restConverter.СonvertDeleteWashServerFromRest(*params.Body)
+	washId, err := restConverter.СonvertDeleteWashFromRest(*params.Body)
 	if err != nil {
-		return washServers.NewDeleteBadRequest()
+		return wash.NewDeleteBadRequest()
 	}
-
-	err = handler.logic.DeleteWashServer(ctx, *admin, deleteWashServerFromRest)
+	err = handler.logic.DeleteWash(ctx, auth.User.ID, washId)
 	switch {
 	case err == nil:
-		return washServers.NewDeleteNoContent()
+		return wash.NewDeleteNoContent()
 	case errors.Is(err, logicEntities.ErrNotFound):
-		return washServers.NewDeleteNotFound()
+		return wash.NewDeleteNotFound()
 	default:
-		return washServers.NewDeleteInternalServerError()
+		return wash.NewDeleteInternalServerError()
 	}
 }
 
-// GetWashServerList ...
-func (handler Handler) GetWashServerList(params washServers.ListParams, auth *logicEntities.Auth) washServers.ListResponder {
+// GetWashList ...
+func (handler Handler) GetWashList(params wash.ListParams, auth *logicEntities.AuthExtended) wash.ListResponder {
 	ctx := params.HTTPRequest.Context()
-	res, err := handler.logic.GetWashServerList(ctx, restConverter.СonvertPaginationFromRest(*params.Body))
+	res, err := handler.logic.GetWashList(ctx, restConverter.СonvertPaginationFromRest(*params.Body))
 
 	switch {
 	case err == nil:
-		payload := restConverter.СonvertWashServerListToRest(res)
-		return washServers.NewListOK().WithPayload(payload)
+		payload := restConverter.СonvertWashListToRest(res)
+		return wash.NewListOK().WithPayload(payload)
 	case len(res) == 0:
-		return washServers.NewListNotFound()
+		return wash.NewListNotFound()
 	default:
-		return washServers.NewListInternalServerError()
+		return wash.NewListInternalServerError()
 	}
 }

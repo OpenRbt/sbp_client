@@ -18,10 +18,10 @@ func (s *Repository) CreateTransaction(ctx context.Context, transaction logicEnt
 
 	_, err := s.db.NewSession(nil).
 		InsertInto("transactions").
-		Columns("id", "server_id", "post_id", "amount", "payment_id_bank", "status").
+		Columns("id", "wash_id", "post_id", "amount", "payment_id_bank", "status").
 		Record(repEntities.TransactionCreate{
 			ID:        transaction.ID,
-			ServerID:  transaction.ServerID,
+			WashID:    transaction.WashID,
 			PostID:    transaction.PostID,
 			Amount:    transaction.Amount,
 			PaymentID: transaction.PaymentID,

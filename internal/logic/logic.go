@@ -18,10 +18,10 @@ const (
 type Repository interface {
 	// Pay
 	PayRepository
-	// Admin ...
-	AdminRepository
-	// WashServer ...
-	WashServerRepository
+	// User ...
+	UserRepository
+	// Wash ...
+	WashRepository
 	// Close ...
 	Close() error
 }
@@ -30,8 +30,8 @@ type Repository interface {
 type Logic struct {
 	logger *zap.SugaredLogger
 	AuthLogic
-	AdminLogic
-	WashServerLogic
+	UserLogic
+	WashLogic
 	PaymentLogic
 }
 
@@ -39,10 +39,12 @@ type Logic struct {
 type LogicConfig struct {
 	Logger                       *zap.SugaredLogger
 	NotificationExpirationPeriod time.Duration
+	PasswordLength               int
 	Repository                   Repository
 	LeaWashPublisher             LeaWashPublisher
 	PayClient                    PayClient
 	AuthClient                   AuthClient
+	BrokerUserCreator            BrokerUserCreator
 }
 
 // CheckLogicConfig ...
@@ -65,6 +67,9 @@ func CheckLogicConfig(conf LogicConfig) error {
 	if conf.NotificationExpirationPeriod == 0 {
 		return errors.New("logic notification_expiration_period is 0")
 	}
+	if conf.BrokerUserCreator == nil {
+		return errors.New("logic broker_user_creator is nil")
+	}
 	return nil
 }
 
@@ -80,12 +85,12 @@ func NewLogic(ctx context.Context, config LogicConfig) (*Logic, error) {
 		return nil, err
 	}
 
-	adminLogic, err := newAdminLogic(ctx, config.Logger, config.Repository)
+	userLogic, err := newUserLogic(ctx, config.Logger, config.Repository)
 	if err != nil {
 		return nil, err
 	}
 
-	washServerLogic, err := newWashServerLogic(ctx, config.Logger, config.Repository)
+	washLogic, err := newWashLogic(ctx, config.Logger, config.Repository, config.BrokerUserCreator, config.PasswordLength)
 	if err != nil {
 		return nil, err
 	}
@@ -97,18 +102,18 @@ func NewLogic(ctx context.Context, config LogicConfig) (*Logic, error) {
 		config.PayClient,
 		config.Repository,
 		config.LeaWashPublisher,
-		washServerLogic,
+		washLogic,
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	logic := Logic{
-		logger:          config.Logger,
-		AuthLogic:       *authLogic,
-		AdminLogic:      *adminLogic,
-		WashServerLogic: *washServerLogic,
-		PaymentLogic:    *paymentLogic,
+		logger:       config.Logger,
+		AuthLogic:    *authLogic,
+		UserLogic:    *userLogic,
+		WashLogic:    *washLogic,
+		PaymentLogic: *paymentLogic,
 	}
 
 	return &logic, nil

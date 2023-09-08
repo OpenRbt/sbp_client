@@ -74,3 +74,8 @@ func (c *RabbitMqClient) CreateConsumer(exchangeName string, routingKey string, 
 func (c *RabbitMqClient) CreatePublisher(exchangeName string) (*Publisher, error) {
 	return newPublisher(c.logger, c.rabbitMqClient, exchangeName)
 }
+
+// CreateUser ...
+func (c *RabbitMqClient) CreateUser(exchangeName string, login string, password string) error {
+	return c.rabbitMqClient.CreateRabbitUser(exchangeName, login, password)
+}

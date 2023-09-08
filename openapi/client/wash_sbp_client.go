@@ -11,7 +11,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"sbp/openapi/client/standard"
-	"sbp/openapi/client/wash_servers"
+	"sbp/openapi/client/wash"
 )
 
 // Default wash sbp HTTP client.
@@ -57,7 +57,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *WashSbp {
 	cli := new(WashSbp)
 	cli.Transport = transport
 	cli.Standard = standard.New(transport, formats)
-	cli.WashServers = wash_servers.New(transport, formats)
+	cli.Wash = wash.New(transport, formats)
 	return cli
 }
 
@@ -104,7 +104,7 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 type WashSbp struct {
 	Standard standard.ClientService
 
-	WashServers wash_servers.ClientService
+	Wash wash.ClientService
 
 	Transport runtime.ClientTransport
 }
@@ -113,5 +113,5 @@ type WashSbp struct {
 func (c *WashSbp) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.Standard.SetTransport(transport)
-	c.WashServers.SetTransport(transport)
+	c.Wash.SetTransport(transport)
 }

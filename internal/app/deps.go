@@ -25,12 +25,13 @@ type deps struct {
 	logger *zap.SugaredLogger
 
 	// clients
-	repository       logic.Repository
-	authClient       logic.AuthClient
-	rabbitMqClient   *rabbitmq.RabbitMqClient
-	payClient        logic.PayClient
-	leaWashPublisher logic.LeaWashPublisher
-	leaWashConsumer  leaWashConsumer
+	repository        logic.Repository
+	authClient        logic.AuthClient
+	rabbitMqClient    *rabbitmq.RabbitMqClient
+	payClient         logic.PayClient
+	leaWashPublisher  logic.LeaWashPublisher
+	leaWashConsumer   leaWashConsumer
+	brokerUserCreator logic.BrokerUserCreator
 
 	// logic
 	logic *logic.Logic
@@ -64,6 +65,7 @@ func InitDeps(ctx context.Context, config *bootstrap.Config, logger *zap.Sugared
 		d.initAuthClient,
 		d.initPayClient,
 		d.initLeaWashPublisher,
+		d.initBrokerUserCreator,
 		d.initLogic,
 		d.initLeaWashConsumer,
 		d.initHttpApi,
@@ -161,6 +163,7 @@ func (d *deps) initLogic(ctx context.Context) (err error) {
 		LeaWashPublisher:             d.leaWashPublisher,
 		PayClient:                    d.payClient,
 		AuthClient:                   d.authClient,
+		BrokerUserCreator:            d.brokerUserCreator,
 	}
 
 	d.logic, err = logic.NewLogic(ctx, conf)
@@ -174,6 +177,17 @@ func (d *deps) initLogic(ctx context.Context) (err error) {
 // initLeaWashConsumer ...
 func (d *deps) initLeaWashConsumer(ctx context.Context) (err error) {
 	d.leaWashConsumer, err = leawash.NewLeaWashConsumer(d.logger, d.rabbitMqClient, d.logic, d.leaWashPublisher)
+	if err != nil {
+		d.logger.Fatalln("new rabbit conn: ", err)
+	}
+	d.logger.Debug("connected to rabbit")
+
+	return nil
+}
+
+// initBrokerUserCreator ...
+func (d *deps) initBrokerUserCreator(ctx context.Context) (err error) {
+	d.brokerUserCreator, err = leawash.NewBrokerUserCreator(d.rabbitMqClient)
 	if err != nil {
 		d.logger.Fatalln("new rabbit conn: ", err)
 	}

@@ -10,20 +10,20 @@ import (
 
 // Logic ...
 type Logic interface {
-	// admin
-	GetOrCreateAdminIfNotExists(ctx context.Context, auth *logicEntities.Auth) (*logicEntities.SbpAdmin, error)
-	GetSbpAdmin(ctx context.Context, auth *logicEntities.Auth) (*logicEntities.SbpAdmin, error)
+	// user
+	CreateUser(ctx context.Context, auth *logicEntities.Auth) (*logicEntities.User, error)
+	GetUser(ctx context.Context, auth *logicEntities.Auth) (*logicEntities.User, error)
 
 	// auth
 	Auth(token string) (*logicEntities.Auth, error)
 	SignUp(ctx context.Context) (*logicEntities.Token, error)
 
-	// wash server
-	CreateWashServer(ctx context.Context, admin logicEntities.SbpAdmin, s logicEntities.RegisterWashServer) (logicEntities.WashServer, error)
-	UpdateWashServer(ctx context.Context, admin logicEntities.SbpAdmin, updateWashServer logicEntities.UpdateWashServer) error
-	DeleteWashServer(ctx context.Context, admin logicEntities.SbpAdmin, id uuid.UUID) error
-	GetWashServer(ctx context.Context, id uuid.UUID) (logicEntities.WashServer, error)
-	GetWashServerList(ctx context.Context, pagination logicEntities.Pagination) ([]logicEntities.WashServer, error)
+	// wash
+	CreateWash(ctx context.Context, registerWash logicEntities.RegisterWash) (logicEntities.Wash, error)
+	UpdateWash(ctx context.Context, updateWash logicEntities.UpdateWash) error
+	DeleteWash(ctx context.Context, id uuid.UUID, ownerId uuid.UUID) error
+	GetWash(ctx context.Context, id uuid.UUID) (logicEntities.Wash, error)
+	GetWashList(ctx context.Context, pagination logicEntities.Pagination) ([]logicEntities.Wash, error)
 
 	// payment
 	Pay(ctx context.Context, req logicEntities.PayRequest) (*logicEntities.PayResponse, error)

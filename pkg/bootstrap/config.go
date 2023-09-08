@@ -42,6 +42,7 @@ type RabbitMQConfig struct {
 	Port     string `env:"RABBIT_SERVICE_PORT" envDefault:"5672"`
 	User     string `env:"RABBIT_SERVICE_USER" envDefault:"sbp_admin"`
 	Password string `env:"RABBIT_SERVICE_PASSWORD" envDefault:"sbp_admin"`
+	Secure   bool   `env:"RABBIT_SERVICE_SECURE" envDefault:"true"`
 }
 
 func NewConfig(configFiles ...string) (*Config, error) {
