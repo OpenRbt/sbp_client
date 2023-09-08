@@ -164,6 +164,7 @@ func (d *deps) initLogic(ctx context.Context) (err error) {
 		PayClient:                    d.payClient,
 		AuthClient:                   d.authClient,
 		BrokerUserCreator:            d.brokerUserCreator,
+		PasswordLength:               d.config.PasswordLength,
 	}
 
 	d.logic, err = logic.NewLogic(ctx, conf)

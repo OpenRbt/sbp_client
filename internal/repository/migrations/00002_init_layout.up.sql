@@ -19,7 +19,9 @@ create table washes (
     terminal_key text,
     terminal_password text,
     description text not null,
-    deleted boolean default false not null
+    deleted boolean default false not null,
+    created_at timestamp default now(),
+    updated_at timestamp default now()
 );
 
 -- transactions

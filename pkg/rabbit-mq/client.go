@@ -76,7 +76,7 @@ func NewRabbitMqClient(config bootstrap.RabbitMQConfig, logger *zap.SugaredLogge
 	}
 
 	// http
-	host := rabbitUrl + ":15672"
+	host := fmt.Sprintf("%s:%s", rabbitUrl, config.PortWeb)
 	path := ""
 	shemes := []string{"http"}
 	transport := httptransport.New(host, path, shemes)
