@@ -35,6 +35,12 @@ func (o *PayReader) ReadResponse(response runtime.ClientResponse, consumer runti
 			return nil, err
 		}
 		return nil, result
+	case 403:
+		result := NewPayForbidden()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	default:
 		return nil, runtime.NewAPIError("[POST /pay] pay", response, response.Code())
 	}
@@ -165,6 +171,74 @@ func (o *PayBadRequest) GetPayload() *models.Error {
 }
 
 func (o *PayBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.Error)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewPayForbidden creates a PayForbidden with default headers values
+func NewPayForbidden() *PayForbidden {
+	return &PayForbidden{}
+}
+
+/*
+PayForbidden describes a response with status code 403, with default header values.
+
+Access denied
+*/
+type PayForbidden struct {
+	Payload *models.Error
+}
+
+// IsSuccess returns true when this pay forbidden response has a 2xx status code
+func (o *PayForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this pay forbidden response has a 3xx status code
+func (o *PayForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this pay forbidden response has a 4xx status code
+func (o *PayForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this pay forbidden response has a 5xx status code
+func (o *PayForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this pay forbidden response a status code equal to that given
+func (o *PayForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the pay forbidden response
+func (o *PayForbidden) Code() int {
+	return 403
+}
+
+func (o *PayForbidden) Error() string {
+	return fmt.Sprintf("[POST /pay][%d] payForbidden  %+v", 403, o.Payload)
+}
+
+func (o *PayForbidden) String() string {
+	return fmt.Sprintf("[POST /pay][%d] payForbidden  %+v", 403, o.Payload)
+}
+
+func (o *PayForbidden) GetPayload() *models.Error {
+	return o.Payload
+}
+
+func (o *PayForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(models.Error)
 

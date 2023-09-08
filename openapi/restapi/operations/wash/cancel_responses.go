@@ -88,6 +88,53 @@ func (o *CancelBadRequest) WriteResponse(rw http.ResponseWriter, producer runtim
 
 func (o *CancelBadRequest) CancelResponder() {}
 
+// CancelForbiddenCode is the HTTP code returned for type CancelForbidden
+const CancelForbiddenCode int = 403
+
+/*
+CancelForbidden Access denied
+
+swagger:response cancelForbidden
+*/
+type CancelForbidden struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *models.Error `json:"body,omitempty"`
+}
+
+// NewCancelForbidden creates CancelForbidden with default headers values
+func NewCancelForbidden() *CancelForbidden {
+
+	return &CancelForbidden{}
+}
+
+// WithPayload adds the payload to the cancel forbidden response
+func (o *CancelForbidden) WithPayload(payload *models.Error) *CancelForbidden {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the cancel forbidden response
+func (o *CancelForbidden) SetPayload(payload *models.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CancelForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(403)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
+func (o *CancelForbidden) CancelResponder() {}
+
 type CancelNotImplementedResponder struct {
 	middleware.Responder
 }

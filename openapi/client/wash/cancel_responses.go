@@ -35,6 +35,12 @@ func (o *CancelReader) ReadResponse(response runtime.ClientResponse, consumer ru
 			return nil, err
 		}
 		return nil, result
+	case 403:
+		result := NewCancelForbidden()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	default:
 		return nil, runtime.NewAPIError("[POST /cancel] cancel", response, response.Code())
 	}
@@ -153,6 +159,74 @@ func (o *CancelBadRequest) GetPayload() *models.Error {
 }
 
 func (o *CancelBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.Error)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewCancelForbidden creates a CancelForbidden with default headers values
+func NewCancelForbidden() *CancelForbidden {
+	return &CancelForbidden{}
+}
+
+/*
+CancelForbidden describes a response with status code 403, with default header values.
+
+Access denied
+*/
+type CancelForbidden struct {
+	Payload *models.Error
+}
+
+// IsSuccess returns true when this cancel forbidden response has a 2xx status code
+func (o *CancelForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this cancel forbidden response has a 3xx status code
+func (o *CancelForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this cancel forbidden response has a 4xx status code
+func (o *CancelForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this cancel forbidden response has a 5xx status code
+func (o *CancelForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this cancel forbidden response a status code equal to that given
+func (o *CancelForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the cancel forbidden response
+func (o *CancelForbidden) Code() int {
+	return 403
+}
+
+func (o *CancelForbidden) Error() string {
+	return fmt.Sprintf("[POST /cancel][%d] cancelForbidden  %+v", 403, o.Payload)
+}
+
+func (o *CancelForbidden) String() string {
+	return fmt.Sprintf("[POST /cancel][%d] cancelForbidden  %+v", 403, o.Payload)
+}
+
+func (o *CancelForbidden) GetPayload() *models.Error {
+	return o.Payload
+}
+
+func (o *CancelForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(models.Error)
 

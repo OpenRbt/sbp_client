@@ -63,6 +63,12 @@ func init() {
             "schema": {
               "$ref": "#/definitions/error"
             }
+          },
+          "403": {
+            "description": "Access denied",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
           }
         }
       }
@@ -157,6 +163,12 @@ func init() {
             "schema": {
               "$ref": "#/definitions/error"
             }
+          },
+          "403": {
+            "description": "Access denied",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
           }
         }
       }
@@ -213,6 +225,12 @@ func init() {
               "$ref": "#/definitions/error"
             }
           },
+          "403": {
+            "description": "Access denied",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
           "500": {
             "description": "Internal error",
             "schema": {
@@ -246,6 +264,12 @@ func init() {
           },
           "400": {
             "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "403": {
+            "description": "Access denied",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -289,6 +313,12 @@ func init() {
           },
           "400": {
             "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "403": {
+            "description": "Access denied",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -344,6 +374,12 @@ func init() {
               "$ref": "#/definitions/error"
             }
           },
+          "403": {
+            "description": "Access denied",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
           "404": {
             "description": "Wash not exists",
             "schema": {
@@ -387,6 +423,12 @@ func init() {
           },
           "400": {
             "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "403": {
+            "description": "Access denied",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -661,6 +703,12 @@ func init() {
             "schema": {
               "$ref": "#/definitions/error"
             }
+          },
+          "403": {
+            "description": "Access denied",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
           }
         }
       }
@@ -755,6 +803,12 @@ func init() {
             "schema": {
               "$ref": "#/definitions/error"
             }
+          },
+          "403": {
+            "description": "Access denied",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
           }
         }
       }
@@ -811,6 +865,12 @@ func init() {
               "$ref": "#/definitions/error"
             }
           },
+          "403": {
+            "description": "Access denied",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
           "500": {
             "description": "Internal error",
             "schema": {
@@ -844,6 +904,12 @@ func init() {
           },
           "400": {
             "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "403": {
+            "description": "Access denied",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -887,6 +953,12 @@ func init() {
           },
           "400": {
             "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "403": {
+            "description": "Access denied",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -942,6 +1014,12 @@ func init() {
               "$ref": "#/definitions/error"
             }
           },
+          "403": {
+            "description": "Access denied",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
           "404": {
             "description": "Wash not exists",
             "schema": {
@@ -985,6 +1063,12 @@ func init() {
           },
           "400": {
             "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "403": {
+            "description": "Access denied",
             "schema": {
               "$ref": "#/definitions/error"
             }
