@@ -22,7 +22,7 @@ type leaWashPublisher struct {
 // NewLeaWashPublisher ...
 func NewLeaWashPublisher(rabbitMqClient *rabbitMq.RabbitMqClient) (*leaWashPublisher, error) {
 	if rabbitMqClient == nil {
-		return nil, errors.New("NewLeaWashPublisher: rabbitMqClient = nil")
+		return nil, errors.New("create lea_wash_publisher failed: rabbitMqClient = nil")
 	}
 
 	service := logicEntities.ServiceSbpClient
@@ -38,16 +38,15 @@ func NewLeaWashPublisher(rabbitMqClient *rabbitMq.RabbitMqClient) (*leaWashPubli
 
 // SendToLeaError ...
 func (leaWashPublisher *leaWashPublisher) SendToLeaError(
-	serviceKey string,
-	serverID string,
+	washID string,
 	postID string,
 	orderID string,
 	errorDesc string,
 	errorCode int64,
 ) error {
 
-	return leaWashPublisher.SendToLea(serviceKey, string(logicEntities.MessageTypePaymentError), &logicEntities.PayError{
-		ServerID:  serverID,
+	return leaWashPublisher.SendToLea(washID, string(logicEntities.MessageTypePaymentError), &logicEntities.PayError{
+		WashID:    washID,
 		PostID:    postID,
 		OrderID:   orderID,
 		ErrorCode: errorCode,
@@ -56,15 +55,15 @@ func (leaWashPublisher *leaWashPublisher) SendToLeaError(
 }
 
 // SendToLea ...
-func (leaWashPublisher *leaWashPublisher) SendToLea(serviceKey string, messageType string, messageStruct interface{}) error {
+func (leaWashPublisher *leaWashPublisher) SendToLea(washID string, messageType string, messageStruct interface{}) error {
 	if messageStruct == nil {
-		return errors.New("messageStruct = nil")
+		return errors.New("send to lea failed: message = nil")
 	}
 
 	ms := messageStruct
 	service := logicEntities.ServiceLeaCentralWash
 	mt := shareBusinessEntities.MessageType(messageType)
-	rk := shareBusinessEntities.RoutingKey(serviceKey)
+	rk := shareBusinessEntities.RoutingKey(washID)
 
 	return leaWashPublisher.publisher.Send(ms, service, rk, mt)
 }

@@ -34,6 +34,39 @@ func init() {
     "version": "1.0.0"
   },
   "paths": {
+    "/cancel": {
+      "post": {
+        "security": [
+          {
+            "authKey": []
+          }
+        ],
+        "tags": [
+          "wash"
+        ],
+        "operationId": "cancel",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/cancel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/health_check": {
       "get": {
         "security": [
@@ -64,7 +97,7 @@ func init() {
           {}
         ],
         "tags": [
-          "wash_servers"
+          "wash"
         ],
         "operationId": "notification",
         "parameters": [
@@ -92,7 +125,62 @@ func init() {
         }
       }
     },
-    "/wash-server/": {
+    "/pay": {
+      "post": {
+        "security": [
+          {
+            "authKey": []
+          }
+        ],
+        "tags": [
+          "wash"
+        ],
+        "operationId": "pay",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Pay"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/payResponse"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/signup": {
+      "post": {
+        "security": [
+          {}
+        ],
+        "tags": [
+          "wash"
+        ],
+        "operationId": "signup",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/FirebaseToken"
+            }
+          }
+        }
+      }
+    },
+    "/wash/": {
       "put": {
         "security": [
           {
@@ -100,7 +188,7 @@ func init() {
           }
         ],
         "tags": [
-          "wash_servers"
+          "wash"
         ],
         "operationId": "create",
         "parameters": [
@@ -108,7 +196,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/WashServerCreate"
+              "$ref": "#/definitions/WashCreate"
             }
           }
         ],
@@ -116,7 +204,7 @@ func init() {
           "200": {
             "description": "Success creation",
             "schema": {
-              "$ref": "#/definitions/WashServer"
+              "$ref": "#/definitions/Wash"
             }
           },
           "400": {
@@ -140,7 +228,7 @@ func init() {
           }
         ],
         "tags": [
-          "wash_servers"
+          "wash"
         ],
         "operationId": "delete",
         "parameters": [
@@ -148,7 +236,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/WashServerDelete"
+              "$ref": "#/definitions/WashDelete"
             }
           }
         ],
@@ -163,7 +251,7 @@ func init() {
             }
           },
           "404": {
-            "description": "WashServer not exists",
+            "description": "Wash not exists",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -183,7 +271,7 @@ func init() {
           }
         ],
         "tags": [
-          "wash_servers"
+          "wash"
         ],
         "operationId": "update",
         "parameters": [
@@ -191,7 +279,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/WashServerUpdate"
+              "$ref": "#/definitions/WashUpdate"
             }
           }
         ],
@@ -206,7 +294,7 @@ func init() {
             }
           },
           "404": {
-            "description": "WashServer not exists",
+            "description": "Wash not exists",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -220,7 +308,7 @@ func init() {
         }
       }
     },
-    "/wash-server/list": {
+    "/wash/list": {
       "get": {
         "security": [
           {
@@ -228,7 +316,7 @@ func init() {
           }
         ],
         "tags": [
-          "wash_servers"
+          "wash"
         ],
         "operationId": "list",
         "parameters": [
@@ -246,7 +334,7 @@ func init() {
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/WashServer"
+                "$ref": "#/definitions/Wash"
               }
             }
           },
@@ -257,7 +345,7 @@ func init() {
             }
           },
           "404": {
-            "description": "WashServer not exists",
+            "description": "Wash not exists",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -271,7 +359,7 @@ func init() {
         }
       }
     },
-    "/wash-server/{id}": {
+    "/wash/{id}": {
       "get": {
         "security": [
           {
@@ -279,9 +367,9 @@ func init() {
           }
         ],
         "tags": [
-          "wash_servers"
+          "wash"
         ],
-        "operationId": "getWashServer",
+        "operationId": "getWash",
         "parameters": [
           {
             "type": "string",
@@ -294,7 +382,7 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/WashServer"
+              "$ref": "#/definitions/Wash"
             }
           },
           "400": {
@@ -304,7 +392,7 @@ func init() {
             }
           },
           "404": {
-            "description": "WashServer not exists",
+            "description": "Wash not exists",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -320,6 +408,14 @@ func init() {
     }
   },
   "definitions": {
+    "FirebaseToken": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        }
+      }
+    },
     "Notification": {
       "type": "object",
       "properties": {
@@ -378,15 +474,18 @@ func init() {
         "amount": {
           "type": "integer"
         },
+        "orderId": {
+          "type": "string"
+        },
         "postId": {
           "type": "string"
         },
-        "serverId": {
+        "washId": {
           "type": "string"
         }
       }
     },
-    "WashServer": {
+    "Wash": {
       "type": "object",
       "properties": {
         "description": {
@@ -398,7 +497,7 @@ func init() {
         "name": {
           "type": "string"
         },
-        "service_key": {
+        "password": {
           "type": "string"
         },
         "terminal_key": {
@@ -409,7 +508,7 @@ func init() {
         }
       }
     },
-    "WashServerCreate": {
+    "WashCreate": {
       "required": [
         "name"
       ],
@@ -428,7 +527,7 @@ func init() {
         }
       }
     },
-    "WashServerDelete": {
+    "WashDelete": {
       "type": "object",
       "required": [
         "id"
@@ -439,7 +538,7 @@ func init() {
         }
       }
     },
-    "WashServerUpdate": {
+    "WashUpdate": {
       "type": "object",
       "properties": {
         "description": {
@@ -463,6 +562,12 @@ func init() {
       "type": "object",
       "properties": {
         "orderID": {
+          "type": "string"
+        },
+        "postID": {
+          "type": "string"
+        },
+        "washID": {
           "type": "string"
         }
       }
@@ -527,6 +632,39 @@ func init() {
     "version": "1.0.0"
   },
   "paths": {
+    "/cancel": {
+      "post": {
+        "security": [
+          {
+            "authKey": []
+          }
+        ],
+        "tags": [
+          "wash"
+        ],
+        "operationId": "cancel",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/cancel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/health_check": {
       "get": {
         "security": [
@@ -557,7 +695,7 @@ func init() {
           {}
         ],
         "tags": [
-          "wash_servers"
+          "wash"
         ],
         "operationId": "notification",
         "parameters": [
@@ -585,7 +723,62 @@ func init() {
         }
       }
     },
-    "/wash-server/": {
+    "/pay": {
+      "post": {
+        "security": [
+          {
+            "authKey": []
+          }
+        ],
+        "tags": [
+          "wash"
+        ],
+        "operationId": "pay",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Pay"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/payResponse"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/signup": {
+      "post": {
+        "security": [
+          {}
+        ],
+        "tags": [
+          "wash"
+        ],
+        "operationId": "signup",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/FirebaseToken"
+            }
+          }
+        }
+      }
+    },
+    "/wash/": {
       "put": {
         "security": [
           {
@@ -593,7 +786,7 @@ func init() {
           }
         ],
         "tags": [
-          "wash_servers"
+          "wash"
         ],
         "operationId": "create",
         "parameters": [
@@ -601,7 +794,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/WashServerCreate"
+              "$ref": "#/definitions/WashCreate"
             }
           }
         ],
@@ -609,7 +802,7 @@ func init() {
           "200": {
             "description": "Success creation",
             "schema": {
-              "$ref": "#/definitions/WashServer"
+              "$ref": "#/definitions/Wash"
             }
           },
           "400": {
@@ -633,7 +826,7 @@ func init() {
           }
         ],
         "tags": [
-          "wash_servers"
+          "wash"
         ],
         "operationId": "delete",
         "parameters": [
@@ -641,7 +834,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/WashServerDelete"
+              "$ref": "#/definitions/WashDelete"
             }
           }
         ],
@@ -656,7 +849,7 @@ func init() {
             }
           },
           "404": {
-            "description": "WashServer not exists",
+            "description": "Wash not exists",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -676,7 +869,7 @@ func init() {
           }
         ],
         "tags": [
-          "wash_servers"
+          "wash"
         ],
         "operationId": "update",
         "parameters": [
@@ -684,7 +877,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/WashServerUpdate"
+              "$ref": "#/definitions/WashUpdate"
             }
           }
         ],
@@ -699,7 +892,7 @@ func init() {
             }
           },
           "404": {
-            "description": "WashServer not exists",
+            "description": "Wash not exists",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -713,7 +906,7 @@ func init() {
         }
       }
     },
-    "/wash-server/list": {
+    "/wash/list": {
       "get": {
         "security": [
           {
@@ -721,7 +914,7 @@ func init() {
           }
         ],
         "tags": [
-          "wash_servers"
+          "wash"
         ],
         "operationId": "list",
         "parameters": [
@@ -739,7 +932,7 @@ func init() {
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/WashServer"
+                "$ref": "#/definitions/Wash"
               }
             }
           },
@@ -750,7 +943,7 @@ func init() {
             }
           },
           "404": {
-            "description": "WashServer not exists",
+            "description": "Wash not exists",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -764,7 +957,7 @@ func init() {
         }
       }
     },
-    "/wash-server/{id}": {
+    "/wash/{id}": {
       "get": {
         "security": [
           {
@@ -772,9 +965,9 @@ func init() {
           }
         ],
         "tags": [
-          "wash_servers"
+          "wash"
         ],
-        "operationId": "getWashServer",
+        "operationId": "getWash",
         "parameters": [
           {
             "type": "string",
@@ -787,7 +980,7 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/WashServer"
+              "$ref": "#/definitions/Wash"
             }
           },
           "400": {
@@ -797,7 +990,7 @@ func init() {
             }
           },
           "404": {
-            "description": "WashServer not exists",
+            "description": "Wash not exists",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -813,6 +1006,14 @@ func init() {
     }
   },
   "definitions": {
+    "FirebaseToken": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        }
+      }
+    },
     "Notification": {
       "type": "object",
       "properties": {
@@ -871,15 +1072,18 @@ func init() {
         "amount": {
           "type": "integer"
         },
+        "orderId": {
+          "type": "string"
+        },
         "postId": {
           "type": "string"
         },
-        "serverId": {
+        "washId": {
           "type": "string"
         }
       }
     },
-    "WashServer": {
+    "Wash": {
       "type": "object",
       "properties": {
         "description": {
@@ -891,7 +1095,7 @@ func init() {
         "name": {
           "type": "string"
         },
-        "service_key": {
+        "password": {
           "type": "string"
         },
         "terminal_key": {
@@ -902,7 +1106,7 @@ func init() {
         }
       }
     },
-    "WashServerCreate": {
+    "WashCreate": {
       "required": [
         "name"
       ],
@@ -921,7 +1125,7 @@ func init() {
         }
       }
     },
-    "WashServerDelete": {
+    "WashDelete": {
       "type": "object",
       "required": [
         "id"
@@ -932,7 +1136,7 @@ func init() {
         }
       }
     },
-    "WashServerUpdate": {
+    "WashUpdate": {
       "type": "object",
       "properties": {
         "description": {
@@ -956,6 +1160,12 @@ func init() {
       "type": "object",
       "properties": {
         "orderID": {
+          "type": "string"
+        },
+        "postID": {
+          "type": "string"
+        },
+        "washID": {
           "type": "string"
         }
       }

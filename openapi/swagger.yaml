@@ -19,23 +19,23 @@ security:
   - authKey: []
 paths:
 
-  # /signup:
-  #   post:
-  #     tags:
-  #       - wash_servers
-  #     security:
-  #       - {}
-  #     operationId: signup
-  #     responses:
-  #       200:
-  #         description: OK
-  #         schema:
-  #           $ref: "#/definitions/FirebaseToken"
+  /signup:
+    post:
+      tags:
+        - wash
+      security:
+        - {}
+      operationId: signup
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/FirebaseToken"
 
   /notification:
     post:
       tags:
-        - wash_servers
+        - wash
       security:
         - {}
       operationId: notification
@@ -70,13 +70,13 @@ paths:
               ok:
                 type: boolean
 
-  /wash-server/{id}:
+  /wash/{id}:
     get:
       tags:
-        - wash_servers
+        - wash
       security:
         - authKey: []
-      operationId: getWashServer
+      operationId: getWash
       parameters:
         - name: id
           in: path
@@ -86,13 +86,13 @@ paths:
         200:
           description: OK
           schema:
-            $ref: "#/definitions/WashServer"
+            $ref: "#/definitions/Wash"
         400:
           description: Bad request
           schema:
             $ref: "#/definitions/error"
         404:
-          description: WashServer not exists
+          description: Wash not exists
           schema:
             $ref: "#/definitions/error"
         500:
@@ -100,10 +100,10 @@ paths:
           schema:
             $ref: "#/definitions/error"
 
-  /wash-server/:
+  /wash/:
     put:
       tags:
-        - wash_servers
+        - wash
       security:
         - authKey: []
       operationId: create
@@ -111,12 +111,12 @@ paths:
         - name: body
           in: body
           schema:
-            $ref: "#/definitions/WashServerCreate"
+            $ref: "#/definitions/WashCreate"
       responses:
         200:
           description: Success creation
           schema:
-            $ref: "#/definitions/WashServer"
+            $ref: "#/definitions/Wash"
         400:
           description: Bad request
           schema:
@@ -127,7 +127,7 @@ paths:
             $ref: "#/definitions/error"
     patch:
       tags:
-        - wash_servers
+        - wash
       security:
         - authKey: []
       operationId: update
@@ -135,7 +135,7 @@ paths:
         - name: body
           in: body
           schema:
-            $ref: "#/definitions/WashServerUpdate"
+            $ref: "#/definitions/WashUpdate"
       responses:
         204:
           description: Success update
@@ -144,7 +144,7 @@ paths:
           schema:
             $ref: "#/definitions/error"
         404:
-          description: WashServer not exists
+          description: Wash not exists
           schema:
             $ref: "#/definitions/error"
         500:
@@ -153,7 +153,7 @@ paths:
             $ref: "#/definitions/error"
     delete:
       tags:
-        - wash_servers
+        - wash
       security:
         - authKey: []
       operationId: delete
@@ -161,7 +161,7 @@ paths:
         - name: body
           in: body
           schema:
-            $ref: "#/definitions/WashServerDelete"
+            $ref: "#/definitions/WashDelete"
       responses:
         204:
           description: OK
@@ -170,7 +170,7 @@ paths:
           schema:
             $ref: "#/definitions/error"
         404:
-          description: WashServer not exists
+          description: Wash not exists
           schema:
             $ref: "#/definitions/error"
         500:
@@ -178,10 +178,10 @@ paths:
           schema:
             $ref: "#/definitions/error"
 
-  /wash-server/list:
+  /wash/list:
     get:
       tags:
-        - wash_servers
+        - wash
       security:
         - authKey: []
       operationId: list
@@ -196,13 +196,13 @@ paths:
           schema:
             type: array
             items: 
-              $ref: "#/definitions/WashServer"
+              $ref: "#/definitions/Wash"
         400:
           description: Bad request
           schema:
             $ref: "#/definitions/error"
         404:
-          description: WashServer not exists
+          description: Wash not exists
           schema:
             $ref: "#/definitions/error"
         500:
@@ -210,53 +210,57 @@ paths:
           schema:
             $ref: "#/definitions/error"
 
-  # /pay:
-  #   post:
-  #     tags:
-  #       - wash_servers
-  #     security:
-  #       - authKey: []
-  #     operationId: pay
-  #     parameters:
-  #       - name: body
-  #         in: body
-  #         schema:
-  #           $ref: "#/definitions/Pay"
-  #     responses:
-  #       200:
-  #         description: OK
-  #         schema:
-  #           $ref: "#/definitions/payResponse"
-  #       400:
-  #         description: Bad request
-  #         schema:
-  #           $ref: "#/definitions/error"
+  /pay:
+    post:
+      tags:
+        - wash
+      security:
+        - authKey: []
+      operationId: pay
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/Pay"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/payResponse"
+        400:
+          description: Bad request
+          schema:
+            $ref: "#/definitions/error"
 
-  # /cancel:
-  #   post:
-  #     tags:
-  #       - wash_servers
-  #     security:
-  #       - authKey: []
-  #     operationId: cancel
-  #     parameters:
-  #       - name: body
-  #         in: body
-  #         schema:
-  #           $ref: "#/definitions/cancel"
-  #     responses:
-  #       200:
-  #         description: OK
-  #       400:
-  #         description: Bad request
-  #         schema:
-  #           $ref: "#/definitions/error"
+  /cancel:
+    post:
+      tags:
+        - wash
+      security:
+        - authKey: []
+      operationId: cancel
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/cancel"
+      responses:
+        200:
+          description: OK
+        400:
+          description: Bad request
+          schema:
+            $ref: "#/definitions/error"
 
 
 definitions:
   cancel:
     type: object
     properties:
+      washID:
+        type: string
+      postID:
+        type: string
       orderID:
         type: string
 
@@ -272,9 +276,11 @@ definitions:
   Pay:
     type: object
     properties:
-      serverId:
+      washId:
         type: string
       postId:
+        type: string
+      orderId:
         type: string
       amount:
         type: integer
@@ -292,23 +298,23 @@ definitions:
       message:
         type: string
 
-  WashServer:
+  Wash:
     type: object
     properties:
       id:
         type: string
+      password:
+        type: string
       name:
         type: string
       description:
-        type: string
-      service_key:
         type: string
       terminal_key:
         type: string
       terminal_password:
         type: string
 
-  WashServerCreate:
+  WashCreate:
     properties:
       name:
         type: string
@@ -321,7 +327,7 @@ definitions:
     required:
       - name
 
-  WashServerUpdate:
+  WashUpdate:
     type: object
     properties:
       id:
@@ -335,7 +341,7 @@ definitions:
       terminal_password:
         type: string
 
-  WashServerDelete:
+  WashDelete:
     type: object
     properties:
       id:
@@ -380,8 +386,8 @@ definitions:
         type: integer
         format: int64
 
-  # FirebaseToken:
-  #   type: object
-  #   properties: 
-  #     value:
-  #       type: string
+  FirebaseToken:
+    type: object
+    properties: 
+      value:
+        type: string

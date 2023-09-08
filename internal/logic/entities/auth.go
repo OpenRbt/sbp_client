@@ -1,5 +1,11 @@
 package entities
 
+// AuthExtended
+type AuthExtended struct {
+	Auth
+	User
+}
+
 // Auth ...
 type Auth struct {
 	UID          string

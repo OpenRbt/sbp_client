@@ -20,11 +20,14 @@ type Pay struct {
 	// amount
 	Amount int64 `json:"amount,omitempty"`
 
+	// order Id
+	OrderID string `json:"orderId,omitempty"`
+
 	// post Id
 	PostID string `json:"postId,omitempty"`
 
-	// server Id
-	ServerID string `json:"serverId,omitempty"`
+	// wash Id
+	WashID string `json:"washId,omitempty"`
 }
 
 // Validate validates this pay

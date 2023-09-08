@@ -4,59 +4,62 @@ import (
 	restConverter "sbp/internal/api/rest/converter"
 	logicEntities "sbp/internal/logic/entities"
 
-	// openapiEntities "sbp/openapi/models"
-	washServers "sbp/openapi/restapi/operations/wash_servers"
+	openapiEntities "sbp/openapi/models"
+	washes "sbp/openapi/restapi/operations/wash"
 )
 
-// // Cancel ...
-// func (handler *Handler) Cancel(params washServers.CancelParams, auth *logicEntities.Auth) washServers.CancelResponder {
-// 	req := logicEntities.PayСancellationRequest{
-// 		OrderID: params.Body.OrderID,
-// 	}
-// 	_, err := handler.logic.Cancel(params.HTTPRequest.Context(), req)
-// 	switch {
-// 	case err == nil:
-// 		return washServers.NewCancelOK()
-// 	default:
-// 		handler.logger.Error(err)
-// 		return washServers.NewCancelBadRequest()
-// 	}
-// }
+// Cancel ...
+func (handler *Handler) Cancel(params washes.CancelParams, auth *logicEntities.AuthExtended) washes.CancelResponder {
+	req := logicEntities.PayСancellationRequest{
+		WashID:  params.Body.WashID,
+		PostID:  params.Body.PostID,
+		OrderID: params.Body.OrderID,
+	}
+	_, err := handler.logic.Cancel(params.HTTPRequest.Context(), req)
+	switch {
+	case err == nil:
+		return washes.NewCancelOK()
+	default:
+		handler.logger.Error(err)
+		return washes.NewCancelBadRequest()
+	}
+}
 
-// // Pay ...
-// func (handler *Handler) Pay(params washServers.PayParams, auth *logicEntities.Auth) washServers.PayResponder {
-// 	req := logicEntities.PayRequest{
-// 		Amount:   params.Body.Amount,
-// 		ServerID: params.Body.ServerID,
-// 		PostID:   params.Body.PostID,
-// 	}
-// 	resp, err := handler.logic.Pay(params.HTTPRequest.Context(), req)
-// 	switch {
-// 	case err == nil:
-// 		payResp := openapiEntities.PayResponse{
-// 			URL:     resp.UrlPay,
-// 			OrderID: resp.OrderID,
-// 		}
-// 		return washServers.NewPayOK().WithPayload(&payResp)
-// 	default:
-// 		errCode := int32(0)
-// 		message := err.Error()
-// 		handler.logger.Error(err)
-// 		return washServers.NewPayBadRequest().WithPayload(&openapiEntities.Error{
-// 			Code:    &errCode,
-// 			Message: &message,
-// 		})
-// 	}
-// }
+// Pay ...
+func (handler *Handler) Pay(params washes.PayParams, auth *logicEntities.AuthExtended) washes.PayResponder {
+	req := logicEntities.PayRequest{
+		Amount:  params.Body.Amount,
+		WashID:  params.Body.WashID,
+		PostID:  params.Body.PostID,
+		OrderID: params.Body.OrderID,
+	}
+	resp, err := handler.logic.Pay(params.HTTPRequest.Context(), req)
+	switch {
+	case err == nil:
+		payResp := openapiEntities.PayResponse{
+			OrderID: resp.OrderID,
+			URL:     resp.UrlPay,
+		}
+		return washes.NewPayOK().WithPayload(&payResp)
+	default:
+		errCode := int32(0)
+		message := err.Error()
+		handler.logger.Error(err)
+		return washes.NewPayBadRequest().WithPayload(&openapiEntities.Error{
+			Code:    &errCode,
+			Message: &message,
+		})
+	}
+}
 
 // Notif ...
-func (handler *Handler) Notif(params washServers.NotificationParams, auth *logicEntities.Auth) washServers.NotificationResponder {
+func (handler *Handler) Notif(params washes.NotificationParams, auth *logicEntities.AuthExtended) washes.NotificationResponder {
 	registerNotif := restConverter.СonvertRegisterNotificationFromRest(*params.Body)
 	err := handler.logic.Notification(params.HTTPRequest.Context(), registerNotif)
 	if err != nil {
 		handler.logger.Error(err)
-		return washServers.NewNotificationInternalServerError()
+		return washes.NewNotificationInternalServerError()
 	}
 
-	return washServers.NewNotificationOK().WithPayload("OK")
+	return washes.NewNotificationOK().WithPayload("OK")
 }

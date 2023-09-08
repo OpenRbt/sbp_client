@@ -2,7 +2,7 @@ package logic
 
 import (
 	"context"
-	"crypto/rand"
+	"fmt"
 	logicEntities "sbp/internal/logic/entities"
 	"time"
 
@@ -17,7 +17,7 @@ type PaymentLogic struct {
 	payClient                    PayClient
 	repository                   PayRepository
 	leaWashPublisher             LeaWashPublisher
-	washServerLogic              *WashServerLogic
+	washLogic                    *WashLogic
 }
 
 // PayClient ... tinkoff now
@@ -30,8 +30,8 @@ type PayClient interface {
 
 // LeaWashPublisher
 type LeaWashPublisher interface {
-	SendToLea(serviceKey string, messageType string, messageStruct interface{}) error
-	SendToLeaError(serviceKey string, serverID string, postID string, orderID string, errorDesc string, errorCode int64) error
+	SendToLea(washID string, messageType string, messageStruct interface{}) error
+	SendToLeaError(washID string, postID string, orderID string, errorDesc string, errorCode int64) error
 }
 
 // PayRepository ...
@@ -53,7 +53,7 @@ func newPaymentLogic(
 	payClient PayClient,
 	repository PayRepository,
 	leaWashPublisher LeaWashPublisher,
-	washServerLogic *WashServerLogic,
+	washLogic *WashLogic,
 ) (*PaymentLogic, error) {
 
 	return &PaymentLogic{
@@ -61,43 +61,39 @@ func newPaymentLogic(
 		notificationExpirationPeriod: notificationExpirationPeriod,
 		payClient:                    payClient,
 		repository:                   repository,
-		washServerLogic:              washServerLogic,
+		washLogic:                    washLogic,
 		leaWashPublisher:             leaWashPublisher,
 	}, nil
 }
 
 // Pay ...
 func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.PayRequest) (*logicEntities.PayResponse, error) {
-	// get server uuid
-	id, err := uuid.FromString(payRequest.ServerID)
+	// get wash uuid
+	id, err := uuid.FromString(payRequest.WashID)
 	if err != nil {
 		return nil, err
 	}
 
-	// get wash server terminal
-	server, err := logic.washServerLogic.GetWashServer(ctx, id)
+	// get wash wash terminal
+	wash, err := logic.washLogic.GetWash(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	var transactionID uuid.UUID
+	var orderID uuid.UUID
 	if payRequest.OrderID != "" {
-		transactionID = uuid.FromStringOrNil(payRequest.OrderID)
+		orderID = uuid.FromStringOrNil(payRequest.OrderID)
 	}
 
-	if transactionID == uuid.Nil {
-		// generate transaction_id
-		transactionID, err = generateTransactionID()
-		if err != nil {
-			return nil, err
-		}
+	if orderID == uuid.Nil {
+		return nil, fmt.Errorf("payment failed: orderID = nil (wash_id: %s, post_id: %s )", payRequest.WashID, payRequest.PostID)
 	}
 
 	// payment init
 	paymentCreate := logicEntities.PaymentCreate{
-		TerminalKey: server.TerminalKey,
+		TerminalKey: wash.TerminalKey,
 		Amount:      payRequest.Amount,
-		OrderID:     transactionID.String(),
+		OrderID:     orderID.String(),
 	}
 	paymentInit, err := logic.payClient.Init(paymentCreate)
 	if err != nil {
@@ -106,10 +102,10 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 
 	// get QR code
 	// paymentCreds := logicEntities.PaymentCreds{
-	// 	TerminalKey: server.TerminalKey,
+	// 	TerminalKey: wash.TerminalKey,
 	// 	PaymentID:   paymentInit.PaymentID,
 	// }
-	// resp, err := logic.payClient.GetQr(paymentCreds, server.TerminalPassword)
+	// resp, err := logic.payClient.GetQr(paymentCreds, wash.TerminalPassword)
 	// if err != nil {
 	// 	return nil, err
 	// }
@@ -118,13 +114,13 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 	// }
 
 	// add payment to db
-	transactionStatus, err := logicEntities.TransactionStatusFromString(paymentInit.Status)
+	transactionStatus := logicEntities.TransactionStatusFromString(paymentInit.Status)
 	if err != nil {
 		logic.logger.Error(err)
 	}
 	transactionCreate := logicEntities.TransactionCreate{
-		ID:        transactionID,
-		ServerID:  payRequest.ServerID,
+		ID:        orderID,
+		WashID:    payRequest.WashID,
 		PostID:    payRequest.PostID,
 		Amount:    payRequest.Amount,
 		PaymentID: paymentInit.PaymentID,
@@ -143,12 +139,12 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 	// }
 	payResponse := &logicEntities.PayResponse{
 		PostID:  payRequest.PostID,
-		OrderID: transactionID.String(),
+		OrderID: orderID.String(),
 		UrlPay:  paymentInit.Url,
 	}
 	//
 	messageTypePaymentResponse := string(logicEntities.MessageTypePaymentResponse)
-	err = logic.leaWashPublisher.SendToLea(server.ServiceKey, messageTypePaymentResponse, payResponse)
+	err = logic.leaWashPublisher.SendToLea(wash.ID.String(), messageTypePaymentResponse, payResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -169,24 +165,24 @@ func (logic *PaymentLogic) Notification(ctx context.Context, notification logicE
 	}
 
 	// get terminal
-	serverID, err := uuid.FromString(transaction.ServerID)
+	washID, err := uuid.FromString(transaction.WashID)
 	if err != nil {
 		return err
 	}
-	server, err := logic.washServerLogic.GetWashServer(ctx, serverID)
+	wash, err := logic.washLogic.GetWash(ctx, washID)
 	if err != nil {
 		return err
 	}
 
 	// check notification
-	if !logic.payClient.IsNotificationCorrect(notification, server.TerminalPassword) {
+	if !logic.payClient.IsNotificationCorrect(notification, wash.TerminalPassword) {
 		return logicEntities.ErrNotification
 	}
 
 	// update transaction
-	transactionStatus, err := logicEntities.TransactionStatusFromString(notification.Status)
-	if err != nil {
-		logic.logger.Error(err)
+	transactionStatus := logicEntities.TransactionStatusFromString(notification.Status)
+	if transactionStatus == logicEntities.TransactionStatusUnknown {
+		logic.logger.Errorf("Notification error: notification status '%s' is unknown", notification.Status)
 	}
 	err = logic.repository.UpdateTransaction(ctx, logicEntities.TransactionUpdate{
 		ID:        id,
@@ -199,13 +195,13 @@ func (logic *PaymentLogic) Notification(ctx context.Context, notification logicE
 
 	// send broker message
 	payNotifcation := logicEntities.PayNotifcation{
-		ServerID: transaction.ServerID,
-		PostID:   transaction.PostID,
-		OrderID:  transaction.ID.String(),
-		Status:   notification.Status,
+		WashID:  transaction.WashID,
+		PostID:  transaction.PostID,
+		OrderID: transaction.ID.String(),
+		Status:  notification.Status,
 	}
 	messageTypePaymentNotification := string(logicEntities.MessageTypePaymentNotification)
-	err = logic.leaWashPublisher.SendToLea(server.ServiceKey, messageTypePaymentNotification, payNotifcation)
+	err = logic.leaWashPublisher.SendToLea(wash.ID.String(), messageTypePaymentNotification, payNotifcation)
 	if err != nil {
 		logic.logger.Error(err)
 	}
@@ -227,18 +223,18 @@ func (logic *PaymentLogic) Cancel(ctx context.Context, req logicEntities.PayСan
 		return resendNeaded, err
 	}
 
-	// get server by server_id
-	serverID, err := uuid.FromString(transaction.ServerID)
+	// get wash by wash_id
+	washID, err := uuid.FromString(transaction.WashID)
 	if err != nil {
 		return resendNeaded, err
 	}
-	server, err := logic.washServerLogic.GetWashServer(ctx, serverID)
+	wash, err := logic.washLogic.GetWash(ctx, washID)
 	if err != nil {
 		return resendNeaded, err
 	}
 
 	// update transaction status canceling
-	if transaction.Status != string(logicEntities.TransactionStatusСanceling) {
+	if transaction.Status != logicEntities.TransactionStatusСanceling {
 		err = logic.repository.UpdateTransaction(ctx, logicEntities.TransactionUpdate{
 			ID:        transaction.ID,
 			Status:    logicEntities.TransactionStatusСanceling,
@@ -251,10 +247,10 @@ func (logic *PaymentLogic) Cancel(ctx context.Context, req logicEntities.PayСan
 
 	// cancel by pay_сlient
 	paymentRegisterNotification := logicEntities.PaymentCreds{
-		TerminalKey: server.TerminalKey,
+		TerminalKey: wash.TerminalKey,
 		PaymentID:   transaction.PaymentID,
 	}
-	_, err = logic.payClient.Cancel(paymentRegisterNotification, server.TerminalPassword)
+	_, err = logic.payClient.Cancel(paymentRegisterNotification, wash.TerminalPassword)
 	if err != nil {
 		return !resendNeaded, err
 	}
@@ -286,7 +282,7 @@ func (logic *PaymentLogic) SyncAllPayments(ctx context.Context) error {
 
 	for _, pt := range confirmedNotSyncedTransactions {
 		// check expiration
-		if time.Until(pt.DataCreate) >= logic.notificationExpirationPeriod {
+		if time.Until(pt.CreatedAt) >= logic.notificationExpirationPeriod {
 			// cancel
 			err = logic.repository.UpdateTransaction(ctx, logicEntities.TransactionUpdate{
 				ID:        pt.ID,
@@ -298,8 +294,8 @@ func (logic *PaymentLogic) SyncAllPayments(ctx context.Context) error {
 			}
 		}
 
-		// get server
-		server, err := logic.washServerLogic.GetWashServer(ctx, uuid.FromStringOrNil(pt.ServerID))
+		// get wash
+		wash, err := logic.washLogic.GetWash(ctx, uuid.FromStringOrNil(pt.WashID))
 		if err != nil {
 			return err
 		}
@@ -307,14 +303,14 @@ func (logic *PaymentLogic) SyncAllPayments(ctx context.Context) error {
 		// send to lea
 		paidStatus := string(logicEntities.TransactionStatusConfirmed)
 		payNotifcation := logicEntities.PayNotifcation{
-			ServerID: pt.ServerID,
-			PostID:   pt.PostID,
-			OrderID:  pt.ID.String(),
-			Status:   paidStatus,
+			WashID:  pt.WashID,
+			PostID:  pt.PostID,
+			OrderID: pt.ID.String(),
+			Status:  paidStatus,
 		}
-		serviceKey := server.ServiceKey
+
 		messageTypePaymentNotification := string(logicEntities.MessageTypePaymentNotification)
-		err = logic.leaWashPublisher.SendToLea(serviceKey, messageTypePaymentNotification, payNotifcation)
+		err = logic.leaWashPublisher.SendToLea(wash.ID.String(), messageTypePaymentNotification, payNotifcation)
 		if err != nil {
 			return err
 		}
@@ -348,31 +344,4 @@ func (logic *PaymentLogic) SyncAllPayments(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-// generateTransactionID ...
-func generateTransactionID() (uuid.UUID, error) {
-	// Генерируем случайные байты для UUID
-	randomBytes := make([]byte, 15)
-	_, err := rand.Read(randomBytes)
-	if err != nil {
-		return uuid.UUID{}, err
-	}
-
-	// Получаем текущее время
-	now := time.Now()
-
-	// Преобразуем текущее время в байты
-	timeBytes := now.UTC().UnixNano()
-
-	// Копируем байты времени в начало случайных байтов
-	randomBytes = append(randomBytes, byte(timeBytes))
-
-	// Создаем UUID из байтов
-	uuid, err := uuid.FromBytes(randomBytes)
-	if err != nil {
-		return uuid, err
-	}
-
-	return uuid, nil
 }

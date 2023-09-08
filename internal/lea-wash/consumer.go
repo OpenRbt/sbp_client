@@ -72,12 +72,12 @@ func createHandler(logger *zap.SugaredLogger, washHandler washHandler, publisher
 
 				payResp, err := washHandler.Pay(ctx, req)
 				if err != nil {
-					err = publisher.SendToLeaError(req.ServiceKey, req.ServerID, req.PostID, req.OrderID, err.Error(), logicEntities.ErrorPaymentRequestFailed)
+					err = publisher.SendToLeaError(req.WashID, req.PostID, req.OrderID, err.Error(), logicEntities.ErrorPaymentRequestFailed)
 					return err
 				}
 
 				if payResp != nil {
-					return publisher.SendToLea(req.ServiceKey, string(logicEntities.MessageTypePaymentResponse), payResp)
+					return publisher.SendToLea(req.WashID, string(logicEntities.MessageTypePaymentResponse), payResp)
 				}
 
 				return errors.New("payment_resp = nil")
@@ -93,7 +93,7 @@ func createHandler(logger *zap.SugaredLogger, washHandler washHandler, publisher
 				resendNeaded, err := washHandler.Cancel(ctx, req)
 				if err != nil {
 					if resendNeaded {
-						err = publisher.SendToLeaError(req.ServiceKey, req.ServerID, req.PostID, req.OrderID, err.Error(), logicEntities.ErrorPaymentСancellationFailed)
+						err = publisher.SendToLeaError(req.WashID, req.PostID, req.OrderID, err.Error(), logicEntities.ErrorPaymentСancellationFailed)
 					}
 					return err
 				}

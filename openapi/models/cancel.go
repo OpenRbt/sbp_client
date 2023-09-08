@@ -19,6 +19,12 @@ type Cancel struct {
 
 	// order ID
 	OrderID string `json:"orderID,omitempty"`
+
+	// post ID
+	PostID string `json:"postID,omitempty"`
+
+	// wash ID
+	WashID string `json:"washID,omitempty"`
 }
 
 // Validate validates this cancel

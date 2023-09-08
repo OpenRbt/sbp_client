@@ -21,7 +21,7 @@ import (
 
 	"sbp/internal/logic/entities"
 	"sbp/openapi/restapi/operations/standard"
-	"sbp/openapi/restapi/operations/wash_servers"
+	"sbp/openapi/restapi/operations/wash"
 )
 
 // NewWashSbpAPI creates a new WashSbp instance
@@ -46,30 +46,39 @@ func NewWashSbpAPI(spec *loads.Document) *WashSbpAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
-		WashServersCreateHandler: wash_servers.CreateHandlerFunc(func(params wash_servers.CreateParams, principal *entities.Auth) wash_servers.CreateResponder {
-			return wash_servers.CreateNotImplemented()
+		WashCancelHandler: wash.CancelHandlerFunc(func(params wash.CancelParams, principal *entities.AuthExtended) wash.CancelResponder {
+			return wash.CancelNotImplemented()
 		}),
-		WashServersDeleteHandler: wash_servers.DeleteHandlerFunc(func(params wash_servers.DeleteParams, principal *entities.Auth) wash_servers.DeleteResponder {
-			return wash_servers.DeleteNotImplemented()
+		WashCreateHandler: wash.CreateHandlerFunc(func(params wash.CreateParams, principal *entities.AuthExtended) wash.CreateResponder {
+			return wash.CreateNotImplemented()
 		}),
-		WashServersGetWashServerHandler: wash_servers.GetWashServerHandlerFunc(func(params wash_servers.GetWashServerParams, principal *entities.Auth) wash_servers.GetWashServerResponder {
-			return wash_servers.GetWashServerNotImplemented()
+		WashDeleteHandler: wash.DeleteHandlerFunc(func(params wash.DeleteParams, principal *entities.AuthExtended) wash.DeleteResponder {
+			return wash.DeleteNotImplemented()
 		}),
-		StandardHealthCheckHandler: standard.HealthCheckHandlerFunc(func(params standard.HealthCheckParams, principal *entities.Auth) standard.HealthCheckResponder {
+		WashGetWashHandler: wash.GetWashHandlerFunc(func(params wash.GetWashParams, principal *entities.AuthExtended) wash.GetWashResponder {
+			return wash.GetWashNotImplemented()
+		}),
+		StandardHealthCheckHandler: standard.HealthCheckHandlerFunc(func(params standard.HealthCheckParams, principal *entities.AuthExtended) standard.HealthCheckResponder {
 			return standard.HealthCheckNotImplemented()
 		}),
-		WashServersListHandler: wash_servers.ListHandlerFunc(func(params wash_servers.ListParams, principal *entities.Auth) wash_servers.ListResponder {
-			return wash_servers.ListNotImplemented()
+		WashListHandler: wash.ListHandlerFunc(func(params wash.ListParams, principal *entities.AuthExtended) wash.ListResponder {
+			return wash.ListNotImplemented()
 		}),
-		WashServersNotificationHandler: wash_servers.NotificationHandlerFunc(func(params wash_servers.NotificationParams, principal *entities.Auth) wash_servers.NotificationResponder {
-			return wash_servers.NotificationNotImplemented()
+		WashNotificationHandler: wash.NotificationHandlerFunc(func(params wash.NotificationParams, principal *entities.AuthExtended) wash.NotificationResponder {
+			return wash.NotificationNotImplemented()
 		}),
-		WashServersUpdateHandler: wash_servers.UpdateHandlerFunc(func(params wash_servers.UpdateParams, principal *entities.Auth) wash_servers.UpdateResponder {
-			return wash_servers.UpdateNotImplemented()
+		WashPayHandler: wash.PayHandlerFunc(func(params wash.PayParams, principal *entities.AuthExtended) wash.PayResponder {
+			return wash.PayNotImplemented()
+		}),
+		WashSignupHandler: wash.SignupHandlerFunc(func(params wash.SignupParams, principal *entities.AuthExtended) wash.SignupResponder {
+			return wash.SignupNotImplemented()
+		}),
+		WashUpdateHandler: wash.UpdateHandlerFunc(func(params wash.UpdateParams, principal *entities.AuthExtended) wash.UpdateResponder {
+			return wash.UpdateNotImplemented()
 		}),
 
 		// Applies when the "Authorization" header is set
-		AuthKeyAuth: func(token string) (*entities.Auth, error) {
+		AuthKeyAuth: func(token string) (*entities.AuthExtended, error) {
 			return nil, errors.NotImplemented("api key auth (authKey) Authorization from header param [Authorization] has not yet been implemented")
 		},
 		// default authorizer is authorized meaning no requests are blocked
@@ -112,25 +121,31 @@ type WashSbpAPI struct {
 
 	// AuthKeyAuth registers a function that takes a token and returns a principal
 	// it performs authentication based on an api key Authorization provided in the header
-	AuthKeyAuth func(string) (*entities.Auth, error)
+	AuthKeyAuth func(string) (*entities.AuthExtended, error)
 
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
 
-	// WashServersCreateHandler sets the operation handler for the create operation
-	WashServersCreateHandler wash_servers.CreateHandler
-	// WashServersDeleteHandler sets the operation handler for the delete operation
-	WashServersDeleteHandler wash_servers.DeleteHandler
-	// WashServersGetWashServerHandler sets the operation handler for the get wash server operation
-	WashServersGetWashServerHandler wash_servers.GetWashServerHandler
+	// WashCancelHandler sets the operation handler for the cancel operation
+	WashCancelHandler wash.CancelHandler
+	// WashCreateHandler sets the operation handler for the create operation
+	WashCreateHandler wash.CreateHandler
+	// WashDeleteHandler sets the operation handler for the delete operation
+	WashDeleteHandler wash.DeleteHandler
+	// WashGetWashHandler sets the operation handler for the get wash operation
+	WashGetWashHandler wash.GetWashHandler
 	// StandardHealthCheckHandler sets the operation handler for the health check operation
 	StandardHealthCheckHandler standard.HealthCheckHandler
-	// WashServersListHandler sets the operation handler for the list operation
-	WashServersListHandler wash_servers.ListHandler
-	// WashServersNotificationHandler sets the operation handler for the notification operation
-	WashServersNotificationHandler wash_servers.NotificationHandler
-	// WashServersUpdateHandler sets the operation handler for the update operation
-	WashServersUpdateHandler wash_servers.UpdateHandler
+	// WashListHandler sets the operation handler for the list operation
+	WashListHandler wash.ListHandler
+	// WashNotificationHandler sets the operation handler for the notification operation
+	WashNotificationHandler wash.NotificationHandler
+	// WashPayHandler sets the operation handler for the pay operation
+	WashPayHandler wash.PayHandler
+	// WashSignupHandler sets the operation handler for the signup operation
+	WashSignupHandler wash.SignupHandler
+	// WashUpdateHandler sets the operation handler for the update operation
+	WashUpdateHandler wash.UpdateHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -212,26 +227,35 @@ func (o *WashSbpAPI) Validate() error {
 		unregistered = append(unregistered, "AuthorizationAuth")
 	}
 
-	if o.WashServersCreateHandler == nil {
-		unregistered = append(unregistered, "wash_servers.CreateHandler")
+	if o.WashCancelHandler == nil {
+		unregistered = append(unregistered, "wash.CancelHandler")
 	}
-	if o.WashServersDeleteHandler == nil {
-		unregistered = append(unregistered, "wash_servers.DeleteHandler")
+	if o.WashCreateHandler == nil {
+		unregistered = append(unregistered, "wash.CreateHandler")
 	}
-	if o.WashServersGetWashServerHandler == nil {
-		unregistered = append(unregistered, "wash_servers.GetWashServerHandler")
+	if o.WashDeleteHandler == nil {
+		unregistered = append(unregistered, "wash.DeleteHandler")
+	}
+	if o.WashGetWashHandler == nil {
+		unregistered = append(unregistered, "wash.GetWashHandler")
 	}
 	if o.StandardHealthCheckHandler == nil {
 		unregistered = append(unregistered, "standard.HealthCheckHandler")
 	}
-	if o.WashServersListHandler == nil {
-		unregistered = append(unregistered, "wash_servers.ListHandler")
+	if o.WashListHandler == nil {
+		unregistered = append(unregistered, "wash.ListHandler")
 	}
-	if o.WashServersNotificationHandler == nil {
-		unregistered = append(unregistered, "wash_servers.NotificationHandler")
+	if o.WashNotificationHandler == nil {
+		unregistered = append(unregistered, "wash.NotificationHandler")
 	}
-	if o.WashServersUpdateHandler == nil {
-		unregistered = append(unregistered, "wash_servers.UpdateHandler")
+	if o.WashPayHandler == nil {
+		unregistered = append(unregistered, "wash.PayHandler")
+	}
+	if o.WashSignupHandler == nil {
+		unregistered = append(unregistered, "wash.SignupHandler")
+	}
+	if o.WashUpdateHandler == nil {
+		unregistered = append(unregistered, "wash.UpdateHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -332,18 +356,22 @@ func (o *WashSbpAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/cancel"] = wash.NewCancel(o.context, o.WashCancelHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
-	o.handlers["PUT"]["/wash-server"] = wash_servers.NewCreate(o.context, o.WashServersCreateHandler)
+	o.handlers["PUT"]["/wash"] = wash.NewCreate(o.context, o.WashCreateHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
-	o.handlers["DELETE"]["/wash-server"] = wash_servers.NewDelete(o.context, o.WashServersDeleteHandler)
+	o.handlers["DELETE"]["/wash"] = wash.NewDelete(o.context, o.WashDeleteHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/wash-server/{id}"] = wash_servers.NewGetWashServer(o.context, o.WashServersGetWashServerHandler)
+	o.handlers["GET"]["/wash/{id}"] = wash.NewGetWash(o.context, o.WashGetWashHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -351,15 +379,23 @@ func (o *WashSbpAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/wash-server/list"] = wash_servers.NewList(o.context, o.WashServersListHandler)
+	o.handlers["GET"]["/wash/list"] = wash.NewList(o.context, o.WashListHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/notification"] = wash_servers.NewNotification(o.context, o.WashServersNotificationHandler)
+	o.handlers["POST"]["/notification"] = wash.NewNotification(o.context, o.WashNotificationHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/pay"] = wash.NewPay(o.context, o.WashPayHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/signup"] = wash.NewSignup(o.context, o.WashSignupHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/wash-server"] = wash_servers.NewUpdate(o.context, o.WashServersUpdateHandler)
+	o.handlers["PATCH"]["/wash"] = wash.NewUpdate(o.context, o.WashUpdateHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

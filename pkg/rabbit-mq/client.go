@@ -32,12 +32,22 @@ func NewRabbitMqClient(config bootstrap.RabbitMQConfig, logger *zap.SugaredLogge
 	rabbitUrl := config.Url
 	rabbitPort := config.Port
 
-	connString := fmt.Sprintf("amqps://%s:%s@%s:%s/",
-		rabbitUser,
-		rabbitPassword,
-		rabbitUrl,
-		rabbitPort,
-	)
+	connString := ""
+	if config.Secure {
+		connString = fmt.Sprintf("amqps://%s:%s@%s:%s/",
+			rabbitUser,
+			rabbitPassword,
+			rabbitUrl,
+			rabbitPort,
+		)
+	} else {
+		connString = fmt.Sprintf("amqp://%s:%s@%s:%s/",
+			rabbitUser,
+			rabbitPassword,
+			rabbitUrl,
+			rabbitPort,
+		)
+	}
 
 	rabbitConf := rabbitmq.Config{
 		SASL: []amqp.Authentication{
@@ -126,7 +136,7 @@ func (c *RabbitMqClient) NewConsumer(exchangeName string, routingKey string, han
 }
 
 // CreateRabbitUser ...
-func (c *RabbitMqClient) CreateRabbitUser(exchangeName string, userId string, userKey string) (err error) {
+func (c *RabbitMqClient) CreateRabbitUser(exchangeName string, login string, password string) (err error) {
 	ctx := context.TODO()
 
 	tags := ""
@@ -135,10 +145,10 @@ func (c *RabbitMqClient) CreateRabbitUser(exchangeName string, userId string, us
 	// create user ...
 	createUserParams := &rabbitmqGeneratedOperations.CreateUserParams{
 		Body: &rabbitmqGenerateEntities.CreateUser{
-			Password: &userKey,
+			Password: &password,
 			Tags:     &tags,
 		},
-		UserID:     userId,
+		UserID:     login,
 		Context:    ctx,
 		HTTPClient: nil,
 	}
@@ -151,11 +161,11 @@ func (c *RabbitMqClient) CreateRabbitUser(exchangeName string, userId string, us
 	// set user perms
 	setUserPermsParams := &rabbitmqGeneratedOperations.SetUserPermsParams{
 		Body: &rabbitmqGenerateEntities.ManagePermissions{
-			Configure: fmt.Sprintf("%s.*", userId),
-			Read:      fmt.Sprintf("(%s)|(%s).*", exchangeName, userId),
-			Write:     fmt.Sprintf("(%s)|(%s).*", exchangeName, userId),
+			Configure: fmt.Sprintf("%s.*", login),
+			Read:      fmt.Sprintf("(%s)|(%s).*", exchangeName, login),
+			Write:     fmt.Sprintf("(%s)|(%s).*", exchangeName, login),
 		},
-		UserID:     userId,
+		UserID:     login,
 		Vhost:      vhost,
 		Context:    ctx,
 		HTTPClient: nil,
