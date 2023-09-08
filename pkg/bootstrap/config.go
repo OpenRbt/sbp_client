@@ -15,6 +15,7 @@ type Config struct {
 	AllowedOrigins               string        `env:"HTTP_ALLOWED_ORIGINS" envDefault:"*"`
 	Host                         string        `env:"HTTP_HOST"  envDefault:""`
 	LogLevel                     string        `env:"LOG_LEVEL" envDefault:""`
+	PasswordLength               int           `env:"PASSWORD_LENGTH" envDefault:"10"`
 	PaymentSyncTimeOut           time.Duration `env:"PAYMENT_SYNC_TIMEOUT" envDefault:"5m"`
 	NotificationExpirationPeriod time.Duration `env:"NOTIFICATION_EXPIRATION_PERIOD" envDefault:"1h"`
 	PaymentURLExpirationPeriod   time.Duration `env:"PAYMENT_URL_EXPIRATION_PERIOD" envDefault:"1h"`
@@ -40,6 +41,7 @@ type FirebaseConfig struct {
 type RabbitMQConfig struct {
 	Url      string `env:"RABBIT_SERVICE_URL" envDefault:"localhost"`
 	Port     string `env:"RABBIT_SERVICE_PORT" envDefault:"5672"`
+	PortWeb  string `env:"RABBIT_SERVICE_PORT_WEB" envDefault:"15672"`
 	User     string `env:"RABBIT_SERVICE_USER" envDefault:"sbp_admin"`
 	Password string `env:"RABBIT_SERVICE_PASSWORD" envDefault:"sbp_admin"`
 	Secure   bool   `env:"RABBIT_SERVICE_SECURE" envDefault:"true"`

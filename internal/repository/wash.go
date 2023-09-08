@@ -17,7 +17,7 @@ func (s *Repository) CreateWash(ctx context.Context, newWash logicEntities.Regis
 	var registredServer repEntities.Wash
 
 	err := s.db.NewSession(nil).
-		InsertInto("wash_servers").
+		InsertInto("washes").
 		Columns("owner_id", "password", "title", "description", "terminal_key", "terminal_password").
 		Record(repEntities.RegisterWash{
 			OwnerID:          newWash.OwnerID,
@@ -42,7 +42,7 @@ func (s *Repository) GetWash(ctx context.Context, id uuid.UUID) (logicEntities.W
 
 	err := s.db.NewSession(nil).
 		Select("*").
-		From("wash_servers").
+		From("washes").
 		Where("id = ? AND NOT deleted", uuid.NullUUID{UUID: id, Valid: true}).
 		LoadOneContext(ctx, &dbWash)
 
@@ -67,7 +67,7 @@ func (s *Repository) UpdateWash(ctx context.Context, updateWash logicEntities.Up
 	}
 
 	updateStatement := tx.
-		Update("wash_servers").
+		Update("washes").
 		Where("id = ?", dbUpdateWash.ID)
 
 	if dbUpdateWash.Name != nil {
@@ -103,7 +103,7 @@ func (s *Repository) DeleteWash(ctx context.Context, id uuid.UUID) error {
 	}
 
 	deleteStatement := tx.
-		Update("wash_servers").
+		Update("washes").
 		Where("id = ? AND NOT DELETED", dbDeleteWash.ID).
 		Set("deleted", true)
 
@@ -122,7 +122,7 @@ func (s *Repository) GetWashList(ctx context.Context, pagination logicEntities.P
 
 	count, err := s.db.NewSession(nil).
 		Select("*").
-		From("wash_servers").
+		From("washes").
 		Where("NOT DELETED").
 		Limit(uint64(pagination.Limit)).
 		Offset(uint64(pagination.Offset)).
