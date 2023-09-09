@@ -76,6 +76,6 @@ func (c *RabbitMqClient) CreatePublisher(exchangeName string) (*Publisher, error
 }
 
 // CreateUser ...
-func (c *RabbitMqClient) CreateUser(exchangeName string, login string, password string) error {
-	return c.rabbitMqClient.CreateRabbitUser(exchangeName, login, password)
+func (c *RabbitMqClient) CreateUser(readExchangeName string, writeExchangeName string, login string, password string) error {
+	return c.rabbitMqClient.CreateRabbitUser(readExchangeName, writeExchangeName, login, password)
 }

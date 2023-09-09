@@ -7,7 +7,8 @@ create table users (
     role user_role DEFAULT 'user' NOT NULL,
     deleted boolean default false not null,
     created_at timestamp default now(),
-    updated_at timestamp default now()
+    updated_at timestamp default now(),
+    CONSTRAINT users_un UNIQUE (identity_uid)
 );
 
 -- washes
@@ -21,7 +22,8 @@ create table washes (
     description text not null,
     deleted boolean default false not null,
     created_at timestamp default now(),
-    updated_at timestamp default now()
+    updated_at timestamp default now(),
+    CONSTRAINT unique_terminal_key_terminal_password UNIQUE (terminal_key, terminal_password)
 );
 
 -- transactions

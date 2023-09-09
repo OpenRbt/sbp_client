@@ -11,8 +11,7 @@ import (
 // Logic ...
 type Logic interface {
 	// user
-	CreateUser(ctx context.Context, auth *logicEntities.Auth) (*logicEntities.User, error)
-	GetUser(ctx context.Context, auth *logicEntities.Auth) (*logicEntities.User, error)
+	GetOrCreateUser(ctx context.Context, auth *logicEntities.Auth) (*logicEntities.User, error)
 
 	// auth
 	Auth(token string) (*logicEntities.Auth, error)

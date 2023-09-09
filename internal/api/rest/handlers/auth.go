@@ -12,18 +12,22 @@ import (
 func (handler Handler) Auth(token string) (*logicEntities.AuthExtended, error) {
 	auth, err := handler.logic.Auth(token)
 	if err != nil {
+		handler.logger.Errorf("auth failed: %s", err.Error())
 		return &logicEntities.AuthExtended{}, nil
 	}
 	if auth == nil {
+		handler.logger.Errorf("auth failed: %s", err.Error())
 		return &logicEntities.AuthExtended{}, nil
 	}
 
 	ctx := context.TODO()
-	user, err := handler.logic.CreateUser(ctx, auth)
+	user, err := handler.logic.GetOrCreateUser(ctx, auth)
 	if err != nil {
+		handler.logger.Errorf("auth failed: %s", err.Error())
 		return &logicEntities.AuthExtended{}, nil
 	}
 	if user == nil {
+		handler.logger.Errorf("auth failed: %s", err.Error())
 		return &logicEntities.AuthExtended{}, nil
 	}
 
