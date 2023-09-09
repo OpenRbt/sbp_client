@@ -12,6 +12,7 @@ import (
 func (handler *Handler) Cancel(params washes.CancelParams, auth *logicEntities.AuthExtended) washes.CancelResponder {
 	// auth
 	if !auth.IsAdmin() {
+		handler.logger.Errorf("auth failed: user '%s' is not admin", auth.User.ID.String())
 		return washes.NewCancelForbidden().WithPayload(&openapiEntities.Error{
 			Code:    &ErrAccessDeniedCode,
 			Message: &ErrAccessDenied,
@@ -28,7 +29,7 @@ func (handler *Handler) Cancel(params washes.CancelParams, auth *logicEntities.A
 	case err == nil:
 		return washes.NewCancelOK()
 	default:
-		handler.logger.Error(err)
+		handler.logger.Errorf("cancel payment failed: %w", err)
 		return washes.NewCancelBadRequest()
 	}
 }
@@ -37,6 +38,7 @@ func (handler *Handler) Cancel(params washes.CancelParams, auth *logicEntities.A
 func (handler *Handler) Pay(params washes.PayParams, auth *logicEntities.AuthExtended) washes.PayResponder {
 	// auth
 	if !auth.IsAdmin() {
+		handler.logger.Errorf("auth failed: user '%s' is not admin", auth.User.ID.String())
 		return washes.NewPayForbidden().WithPayload(&openapiEntities.Error{
 			Code:    &ErrAccessDeniedCode,
 			Message: &ErrAccessDenied,
@@ -61,7 +63,7 @@ func (handler *Handler) Pay(params washes.PayParams, auth *logicEntities.AuthExt
 	default:
 		errCode := int32(0)
 		message := err.Error()
-		handler.logger.Error(err)
+		handler.logger.Errorf("payment request failed: %w", err)
 		return washes.NewPayBadRequest().WithPayload(&openapiEntities.Error{
 			Code:    &errCode,
 			Message: &message,
@@ -74,7 +76,7 @@ func (handler *Handler) Notif(params washes.NotificationParams, auth *logicEntit
 	registerNotif := restConverter.СonvertRegisterNotificationFromRest(*params.Body)
 	err := handler.logic.Notification(params.HTTPRequest.Context(), registerNotif)
 	if err != nil {
-		handler.logger.Error(err)
+		handler.logger.Errorf("notify request failed: %w", err)
 		return washes.NewNotificationInternalServerError()
 	}
 

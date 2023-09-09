@@ -54,8 +54,8 @@ func (s *Repository) CreateUser(ctx context.Context, identity string) (logicEnti
 	return repConverter.ConvertUserFromDB(dbUser), tx.Commit()
 }
 
-// GetOrCreateAdminIfNotExists ...
-func (s *Repository) GetOrCreateAdminIfNotExists(ctx context.Context, identity string) (logicEntities.User, error) {
+// GetOrCreateUser ...
+func (s *Repository) GetOrCreateUser(ctx context.Context, identity string) (logicEntities.User, error) {
 	dbUser, err := s.GetUser(ctx, identity)
 
 	if err != nil {

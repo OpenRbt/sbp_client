@@ -136,7 +136,7 @@ func (c *RabbitMqClient) NewConsumer(exchangeName string, routingKey string, han
 }
 
 // CreateRabbitUser ...
-func (c *RabbitMqClient) CreateRabbitUser(exchangeName string, login string, password string) (err error) {
+func (c *RabbitMqClient) CreateRabbitUser(readExchangeName string, writeExchangeName string, login string, password string) (err error) {
 	ctx := context.TODO()
 
 	tags := ""
@@ -162,8 +162,8 @@ func (c *RabbitMqClient) CreateRabbitUser(exchangeName string, login string, pas
 	setUserPermsParams := &rabbitmqGeneratedOperations.SetUserPermsParams{
 		Body: &rabbitmqGenerateEntities.ManagePermissions{
 			Configure: fmt.Sprintf("%s.*", login),
-			Read:      fmt.Sprintf("(%s)|(%s).*", exchangeName, login),
-			Write:     fmt.Sprintf("(%s)|(%s).*", exchangeName, login),
+			Read:      fmt.Sprintf("(%s)|(%s).*", readExchangeName, login),
+			Write:     fmt.Sprintf("(%s)|(%s).*", writeExchangeName, login),
 		},
 		UserID:     login,
 		Vhost:      vhost,

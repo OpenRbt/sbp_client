@@ -16,6 +16,7 @@ import (
 func (handler Handler) GetWash(params wash.GetWashParams, auth *logicEntities.AuthExtended) wash.GetWashResponder {
 	// auth
 	if !auth.IsAdmin() {
+		handler.logger.Errorf("auth failed: user '%s' is not admin", auth.User.ID.String())
 		return washes.NewGetWashForbidden().WithPayload(&openapiEntities.Error{
 			Code:    &ErrAccessDeniedCode,
 			Message: &ErrAccessDenied,
@@ -24,6 +25,7 @@ func (handler Handler) GetWash(params wash.GetWashParams, auth *logicEntities.Au
 	//
 	id, err := uuid.FromString(params.ID)
 	if err != nil {
+		handler.logger.Errorf("get wash request failed: %s", err.Error())
 		return wash.NewGetWashBadRequest()
 	}
 
@@ -32,8 +34,10 @@ func (handler Handler) GetWash(params wash.GetWashParams, auth *logicEntities.Au
 	case err == nil:
 		return wash.NewGetWashOK().WithPayload(restConverter.СonvertWashToRest(res))
 	case errors.Is(err, logicEntities.ErrNotFound):
+		handler.logger.Errorf("get wash request failed: %s", err.Error())
 		return wash.NewGetWashNotFound()
 	default:
+		handler.logger.Errorf("get wash request failed: %s", err.Error())
 		return wash.NewGetWashInternalServerError()
 	}
 }
@@ -42,6 +46,7 @@ func (handler Handler) GetWash(params wash.GetWashParams, auth *logicEntities.Au
 func (handler Handler) CreateWash(params wash.CreateParams, auth *logicEntities.AuthExtended) wash.CreateResponder {
 	// auth
 	if !auth.IsAdmin() {
+		handler.logger.Errorf("auth failed: user '%s' is not admin", auth.User.ID.String())
 		return washes.NewCreateForbidden().WithPayload(&openapiEntities.Error{
 			Code:    &ErrAccessDeniedCode,
 			Message: &ErrAccessDenied,
@@ -54,8 +59,10 @@ func (handler Handler) CreateWash(params wash.CreateParams, auth *logicEntities.
 	if err != nil {
 		log.Println(err)
 		if errors.Is(err, logicEntities.ErrNotFound) {
+			handler.logger.Errorf("create wash request failed: %s", err.Error())
 			return wash.NewCreateBadRequest()
 		} else {
+			handler.logger.Errorf("create wash request failed: %s", err.Error())
 			return wash.NewCreateInternalServerError()
 		}
 	}
@@ -67,11 +74,13 @@ func (handler Handler) CreateWash(params wash.CreateParams, auth *logicEntities.
 func (handler Handler) UpdateWash(params wash.UpdateParams, auth *logicEntities.AuthExtended) wash.UpdateResponder {
 	// auth
 	if !auth.IsAdmin() {
+		handler.logger.Errorf("auth failed: user '%s' is not admin", auth.User.ID.String())
 		return washes.NewUpdateForbidden()
 	}
 	//
 	updateWashFromRest, err := restConverter.СonvertUpdateWashFromRest(*params.Body)
 	if err != nil {
+		handler.logger.Errorf("update wash request failed: %s", err.Error())
 		return wash.NewUpdateBadRequest()
 	}
 	updateWashFromRest.OwnerID = auth.User.ID
@@ -80,8 +89,10 @@ func (handler Handler) UpdateWash(params wash.UpdateParams, auth *logicEntities.
 	case err == nil:
 		return wash.NewUpdateNoContent()
 	case errors.Is(err, logicEntities.ErrNotFound):
+		handler.logger.Errorf("update wash request failed: %s", err.Error())
 		return wash.NewUpdateNotFound()
 	default:
+		handler.logger.Errorf("update wash request failed: %s", err.Error())
 		return wash.NewUpdateInternalServerError()
 	}
 }
@@ -90,6 +101,7 @@ func (handler Handler) UpdateWash(params wash.UpdateParams, auth *logicEntities.
 func (handler Handler) DeleteWash(params wash.DeleteParams, auth *logicEntities.AuthExtended) wash.DeleteResponder {
 	// auth
 	if !auth.IsAdmin() {
+		handler.logger.Errorf("auth failed: user '%s' is not admin", auth.User.ID.String())
 		return washes.NewDeleteForbidden().WithPayload(&openapiEntities.Error{
 			Code:    &ErrAccessDeniedCode,
 			Message: &ErrAccessDenied,
@@ -99,6 +111,7 @@ func (handler Handler) DeleteWash(params wash.DeleteParams, auth *logicEntities.
 	ctx := params.HTTPRequest.Context()
 	washId, err := restConverter.СonvertDeleteWashFromRest(*params.Body)
 	if err != nil {
+		handler.logger.Errorf("delete wash request failed: %s", err.Error())
 		return wash.NewDeleteBadRequest()
 	}
 	err = handler.logic.DeleteWash(ctx, auth.User.ID, washId)
@@ -106,8 +119,10 @@ func (handler Handler) DeleteWash(params wash.DeleteParams, auth *logicEntities.
 	case err == nil:
 		return wash.NewDeleteNoContent()
 	case errors.Is(err, logicEntities.ErrNotFound):
+		handler.logger.Errorf("delete wash request failed: %s", err.Error())
 		return wash.NewDeleteNotFound()
 	default:
+		handler.logger.Errorf("delete wash request failed: %s", err.Error())
 		return wash.NewDeleteInternalServerError()
 	}
 }
@@ -116,6 +131,7 @@ func (handler Handler) DeleteWash(params wash.DeleteParams, auth *logicEntities.
 func (handler Handler) GetWashList(params wash.ListParams, auth *logicEntities.AuthExtended) wash.ListResponder {
 	// auth
 	if !auth.IsAdmin() {
+		handler.logger.Errorf("auth failed: user '%s' is not admin", auth.User.ID.String())
 		return washes.NewListForbidden().WithPayload(&openapiEntities.Error{
 			Code:    &ErrAccessDeniedCode,
 			Message: &ErrAccessDenied,
@@ -132,6 +148,7 @@ func (handler Handler) GetWashList(params wash.ListParams, auth *logicEntities.A
 	case len(res) == 0:
 		return wash.NewListNotFound()
 	default:
+		handler.logger.Errorf("get wash list request failed: %s", err.Error())
 		return wash.NewListInternalServerError()
 	}
 }

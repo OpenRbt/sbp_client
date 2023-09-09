@@ -19,5 +19,5 @@ func NewBrokerUserCreator(rabbitMqClient *rabbitMq.RabbitMqClient) (*brokerUserC
 
 // CreateUser ...
 func (c *brokerUserCreator) CreateUser(login string, password string) error {
-	return c.rabbitMqClient.CreateUser(string(logicEntities.ServiceLeaCentralWash), login, password)
+	return c.rabbitMqClient.CreateUser(string(logicEntities.ServiceLeaCentralWash), string(logicEntities.ServiceSbpClient), login, password)
 }
