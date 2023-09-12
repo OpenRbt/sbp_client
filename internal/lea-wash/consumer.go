@@ -5,11 +5,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
+	leEntities "sbp/internal/lea-wash/entities"
+
 	"sbp/internal/logic"
-	logicEntities "sbp/internal/logic/entities"
 	rabbitMq "sbp/internal/rabbit-mq"
 
 	shareBusinessEntities "github.com/OpenRbt/share_business/wash_rabbit/entity/vo"
+
+	leConverter "sbp/internal/lea-wash/converter"
+	logicEntities "sbp/internal/logic/entities"
+
 	"go.uber.org/zap"
 )
 
@@ -22,8 +28,8 @@ type leaWashConsumer struct {
 
 // washHandler ...
 type washHandler interface {
-	Pay(ctx context.Context, payRequest logicEntities.PayRequest) (payResponse *logicEntities.PayResponse, err error)
-	Cancel(ctx context.Context, req logicEntities.PayСancellationRequest) (resendNeaded bool, err error)
+	Pay(ctx context.Context, payRequest logicEntities.PaymentRequest) (payResponse *logicEntities.PaymentResponse, err error)
+	Cancel(ctx context.Context, req logicEntities.PaymentСancellationRequest) (resendNeaded bool, err error)
 }
 
 // NewLeaWashConsumer ...
@@ -32,8 +38,8 @@ func NewLeaWashConsumer(logger *zap.SugaredLogger, client *rabbitMq.RabbitMqClie
 		return nil, errors.New("NewLeaWashConsumer: client = nil")
 	}
 
-	exchangeName := logicEntities.ServiceSbpClient
-	routingKey := logicEntities.RoutingKeySbpClient
+	exchangeName := leEntities.ExchangeNameSbpClient
+	routingKey := leEntities.RoutingKeySbpClient
 
 	handler, err := createHandler(logger, washHandler, publisher)
 	if err != nil {
@@ -62,38 +68,42 @@ func createHandler(logger *zap.SugaredLogger, washHandler washHandler, publisher
 	return func(ctx context.Context, d rabbitMq.RbqMessage) error {
 		messageType := shareBusinessEntities.MessageType(d.Type)
 		switch messageType {
-		case logicEntities.MessageTypePaymentRequest:
+		case leEntities.MessageTypePaymentRequest:
 			{
-				var req logicEntities.PayRequest
+				var req leEntities.PaymentRequest
 				err := json.Unmarshal(d.Body, &req)
 				if err != nil {
 					return err
 				}
 
-				payResp, err := washHandler.Pay(ctx, req)
+				sbpRequest := leConverter.PaymentRequestToSbp(req)
+				payResp, err := washHandler.Pay(ctx, sbpRequest)
+				if payResp == nil {
+					err = publisher.SendToLeaPaymentFailedResponse(sbpRequest.WashID, sbpRequest.PostID, sbpRequest.OrderID)
+					return errors.New("payment_resp = nil")
+				}
 				if err != nil {
-					err = publisher.SendToLeaError(req.WashID, req.PostID, req.OrderID, err.Error(), logicEntities.ErrorPaymentRequestFailed)
+					err = publisher.SendToLeaPaymentFailedResponse(sbpRequest.WashID, sbpRequest.PostID, sbpRequest.OrderID)
 					return err
 				}
 
-				if payResp != nil {
-					return publisher.SendToLea(req.WashID, string(logicEntities.MessageTypePaymentResponse), payResp)
-				}
+				return publisher.SendToLeaPaymentResponse(*payResp)
 
-				return errors.New("payment_resp = nil")
 			}
-		case logicEntities.MessageTypePaymentСancellationRequest:
+		case leEntities.MessageTypePaymentСancellationRequest:
 			{
-				var req logicEntities.PayСancellationRequest
+				var req leEntities.PaymentСancellationRequest
 				err := json.Unmarshal(d.Body, &req)
 				if err != nil {
 					return err
 				}
 
-				resendNeaded, err := washHandler.Cancel(ctx, req)
+				sbpRequest := leConverter.PaymentСancellationRequestToSbp(req)
+				resendNeaded, err := washHandler.Cancel(ctx, sbpRequest)
 				if err != nil {
 					if resendNeaded {
-						err = publisher.SendToLeaError(req.WashID, req.PostID, req.OrderID, err.Error(), logicEntities.ErrorPaymentСancellationFailed)
+						err = publisher.SendToLeaPaymentFailedResponse(sbpRequest.WashID, sbpRequest.PostID, sbpRequest.OrderID)
+						return err
 					}
 					return err
 				}

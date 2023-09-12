@@ -1,7 +1,7 @@
 package leawash
 
 import (
-	logicEntities "sbp/internal/logic/entities"
+	leEntities "sbp/internal/lea-wash/entities"
 	rabbitMq "sbp/internal/rabbit-mq"
 )
 
@@ -19,5 +19,9 @@ func NewBrokerUserCreator(rabbitMqClient *rabbitMq.RabbitMqClient) (*brokerUserC
 
 // CreateUser ...
 func (c *brokerUserCreator) CreateUser(login string, password string) error {
-	return c.rabbitMqClient.CreateUser(string(logicEntities.ServiceLeaCentralWash), string(logicEntities.ServiceSbpClient), login, password)
+	return c.rabbitMqClient.CreateUser(
+		string(leEntities.ExchangeNameLeaCentralWash),
+		string(leEntities.ExchangeNameSbpClient),
+		login,
+		password)
 }

@@ -30,8 +30,9 @@ type PayClient interface {
 
 // LeaWashPublisher
 type LeaWashPublisher interface {
-	SendToLea(washID string, messageType string, messageStruct interface{}) error
-	SendToLeaError(washID string, postID string, orderID string, errorDesc string, errorCode int64) error
+	SendToLeaPaymentResponse(logicEntities.PaymentResponse) error
+	SendToLeaPaymentNotification(logicEntities.PaymentNotifcation) error
+	SendToLeaPaymentFailedResponse(washID string, postID string, orderID string) error
 }
 
 // PayRepository ...
@@ -67,7 +68,7 @@ func newPaymentLogic(
 }
 
 // Pay ...
-func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.PayRequest) (*logicEntities.PayResponse, error) {
+func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.PaymentRequest) (*logicEntities.PaymentResponse, error) {
 	// get wash uuid
 	id, err := uuid.FromString(payRequest.WashID)
 	if err != nil {
@@ -132,24 +133,25 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 	}
 
 	// send broker message
-	// payResponse := &logicEntities.PayResponse{
+	// payResponse := logicEntities.PaymentResponse{
+	//  WashID:  transactionCreate.WashID,
 	//  PostID:  payRequest.PostID,
 	// 	OrderID: resp.OrderID,
 	// 	UrlPay:  resp.UrlPay,
 	// }
-	payResponse := &logicEntities.PayResponse{
+	payResponse := logicEntities.PaymentResponse{
+		WashID:  transactionCreate.WashID,
 		PostID:  payRequest.PostID,
 		OrderID: orderID.String(),
 		UrlPay:  paymentInit.Url,
 	}
 	//
-	messageTypePaymentResponse := string(logicEntities.MessageTypePaymentResponse)
-	err = logic.leaWashPublisher.SendToLea(wash.ID.String(), messageTypePaymentResponse, payResponse)
+	err = logic.leaWashPublisher.SendToLeaPaymentResponse(payResponse)
 	if err != nil {
 		return nil, err
 	}
 
-	return payResponse, nil
+	return &payResponse, nil
 }
 
 // Notification ...
@@ -194,14 +196,13 @@ func (logic *PaymentLogic) Notification(ctx context.Context, notification logicE
 	}
 
 	// send broker message
-	payNotifcation := logicEntities.PayNotifcation{
+	paymentNotifcation := logicEntities.PaymentNotifcation{
 		WashID:  transaction.WashID,
 		PostID:  transaction.PostID,
 		OrderID: transaction.ID.String(),
 		Status:  notification.Status,
 	}
-	messageTypePaymentNotification := string(logicEntities.MessageTypePaymentNotification)
-	err = logic.leaWashPublisher.SendToLea(wash.ID.String(), messageTypePaymentNotification, payNotifcation)
+	err = logic.leaWashPublisher.SendToLeaPaymentNotification(paymentNotifcation)
 	if err != nil {
 		logic.logger.Error(err)
 	}
@@ -210,7 +211,7 @@ func (logic *PaymentLogic) Notification(ctx context.Context, notification logicE
 }
 
 // Cancel ...
-func (logic *PaymentLogic) Cancel(ctx context.Context, req logicEntities.PayСancellationRequest) (resendNeaded bool, err error) {
+func (logic *PaymentLogic) Cancel(ctx context.Context, req logicEntities.PaymentСancellationRequest) (resendNeaded bool, err error) {
 
 	resendNeaded = true
 	// get transaction by order_id
@@ -302,15 +303,14 @@ func (logic *PaymentLogic) SyncAllPayments(ctx context.Context) error {
 
 		// send to lea
 		paidStatus := string(logicEntities.TransactionStatusConfirmed)
-		payNotifcation := logicEntities.PayNotifcation{
-			WashID:  pt.WashID,
+		paymentNotifcation := logicEntities.PaymentNotifcation{
+			WashID:  wash.ID.String(),
 			PostID:  pt.PostID,
 			OrderID: pt.ID.String(),
 			Status:  paidStatus,
 		}
 
-		messageTypePaymentNotification := string(logicEntities.MessageTypePaymentNotification)
-		err = logic.leaWashPublisher.SendToLea(wash.ID.String(), messageTypePaymentNotification, payNotifcation)
+		err = logic.leaWashPublisher.SendToLeaPaymentNotification(paymentNotifcation)
 		if err != nil {
 			return err
 		}
@@ -335,7 +335,7 @@ func (logic *PaymentLogic) SyncAllPayments(ctx context.Context) error {
 		return err
 	}
 	for _, ct := range cancelingTransactions {
-		_, err := logic.Cancel(ctx, logicEntities.PayСancellationRequest{
+		_, err := logic.Cancel(ctx, logicEntities.PaymentСancellationRequest{
 			OrderID: ct.ID.String(),
 		})
 		if err != nil {

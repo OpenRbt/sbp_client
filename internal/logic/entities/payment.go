@@ -1,5 +1,37 @@
 package entities
 
+// PaymentRequest ...
+type PaymentRequest struct {
+	Amount  int64
+	WashID  string
+	PostID  string
+	OrderID string
+}
+
+// PaymentResponse ...
+type PaymentResponse struct {
+	WashID  string
+	PostID  string
+	OrderID string
+	UrlPay  string
+	Failed  bool
+}
+
+// PaymentСancellationRequest ...
+type PaymentСancellationRequest struct {
+	WashID  string
+	PostID  string
+	OrderID string
+}
+
+// PaymentNotifcation ...
+type PaymentNotifcation struct {
+	WashID  string
+	PostID  string
+	OrderID string
+	Status  string
+}
+
 // PaymentCreds ...
 type PaymentCreds struct {
 	TerminalKey string
@@ -15,9 +47,9 @@ type PaymentCreate struct {
 
 // PaymentInfo
 type PaymentInfo struct {
-	PaymentID string `json:"payment_id"`
-	Success   bool   `json:"success"`
-	OrderID   string `json:"order_id"`
+	PaymentID string
+	Success   bool
+	OrderID   string
 }
 
 // PaymentInit ...
@@ -45,14 +77,14 @@ type PaymentGetQr struct {
 // PaymentRegisterNotification ...
 type PaymentRegisterNotification struct {
 	PaymentInfo
-	TerminalKey string `json:"terminal_key"`
-	Status      string `json:"status"`
-	Amount      int    `json:"amount"`
-	CardId      int    `json:"card_id"`
-	ErrorCode   string `json:"error_code"`
-	ExpDate     string `json:"exp_date"`
-	Pan         string `json:"pan"`
-	Token       string `json:"token"`
+	TerminalKey string
+	Status      string
+	Amount      int
+	CardId      int
+	ErrorCode   string
+	ExpDate     string
+	Pan         string
+	Token       string
 }
 
 type InitPaymentResp struct {

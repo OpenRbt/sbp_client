@@ -2,11 +2,14 @@ package leawash
 
 import (
 	"errors"
+	leEntities "sbp/internal/lea-wash/entities"
 	"sbp/internal/logic"
 
-	logicEntities "sbp/internal/logic/entities"
-
 	rabbitMq "sbp/internal/rabbit-mq"
+
+	leConverter "sbp/internal/lea-wash/converter"
+
+	logicEntities "sbp/internal/logic/entities"
 
 	shareBusinessEntities "github.com/OpenRbt/share_business/wash_rabbit/entity/vo"
 )
@@ -25,8 +28,8 @@ func NewLeaWashPublisher(rabbitMqClient *rabbitMq.RabbitMqClient) (*leaWashPubli
 		return nil, errors.New("create lea_wash_publisher failed: rabbitMqClient = nil")
 	}
 
-	service := logicEntities.ServiceSbpClient
-	p, err := rabbitMqClient.CreatePublisher(string(service))
+	exchangeName := leEntities.ExchangeNameSbpClient
+	p, err := rabbitMqClient.CreatePublisher(string(exchangeName))
 	if err != nil {
 		return nil, err
 	}
@@ -36,34 +39,40 @@ func NewLeaWashPublisher(rabbitMqClient *rabbitMq.RabbitMqClient) (*leaWashPubli
 	}, nil
 }
 
-// SendToLeaError ...
-func (leaWashPublisher *leaWashPublisher) SendToLeaError(
-	washID string,
-	postID string,
-	orderID string,
-	errorDesc string,
-	errorCode int64,
-) error {
-
-	return leaWashPublisher.SendToLea(washID, string(logicEntities.MessageTypePaymentError), &logicEntities.PayError{
-		WashID:    washID,
-		PostID:    postID,
-		OrderID:   orderID,
-		ErrorCode: errorCode,
-		ErrorDesc: errorDesc,
-	})
+// SendToLeaPaymentResponse ...
+func (leaWashPublisher *leaWashPublisher) SendToLeaPaymentResponse(message logicEntities.PaymentResponse) error {
+	leaMessage := leConverter.PaymentResponseToLea(message)
+	return leaWashPublisher.sendToLea(leaMessage.WashID, string(leEntities.MessageTypePaymentResponse), leaMessage)
 }
 
-// SendToLea ...
-func (leaWashPublisher *leaWashPublisher) SendToLea(washID string, messageType string, messageStruct interface{}) error {
+// SendToLeaPaymentResponse ...
+func (leaWashPublisher *leaWashPublisher) SendToLeaPaymentFailedResponse(washID string, postID string, orderID string) error {
+	paymentResponse := logicEntities.PaymentResponse{
+		WashID:  washID,
+		PostID:  postID,
+		OrderID: orderID,
+		UrlPay:  "",
+		Failed:  true,
+	}
+	return leaWashPublisher.SendToLeaPaymentResponse(paymentResponse)
+}
+
+// SendToLeaPaymentNotification ...
+func (leaWashPublisher *leaWashPublisher) SendToLeaPaymentNotification(message logicEntities.PaymentNotifcation) error {
+	leaMessage := leConverter.PaymentNotifcationToLea(message)
+	return leaWashPublisher.sendToLea(leaMessage.WashID, string(leEntities.MessageTypePaymentNotification), leaMessage)
+}
+
+// sendToLea ...
+func (leaWashPublisher *leaWashPublisher) sendToLea(washID string, messageType string, messageStruct interface{}) error {
 	if messageStruct == nil {
 		return errors.New("send to lea failed: message = nil")
 	}
 
 	ms := messageStruct
-	service := logicEntities.ServiceLeaCentralWash
+	exchangeName := leEntities.ExchangeNameLeaCentralWash
 	mt := shareBusinessEntities.MessageType(messageType)
 	rk := shareBusinessEntities.RoutingKey(washID)
 
-	return leaWashPublisher.publisher.Send(ms, service, rk, mt)
+	return leaWashPublisher.publisher.Send(ms, exchangeName, rk, mt)
 }
