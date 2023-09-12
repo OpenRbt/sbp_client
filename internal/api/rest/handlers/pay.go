@@ -19,7 +19,7 @@ func (handler *Handler) Cancel(params washes.CancelParams, auth *logicEntities.A
 		})
 	}
 	//
-	req := logicEntities.PayСancellationRequest{
+	req := logicEntities.PaymentСancellationRequest{
 		WashID:  params.Body.WashID,
 		PostID:  params.Body.PostID,
 		OrderID: params.Body.OrderID,
@@ -46,7 +46,7 @@ func (handler *Handler) Pay(params washes.PayParams, auth *logicEntities.AuthExt
 	}
 	//
 	//
-	req := logicEntities.PayRequest{
+	req := logicEntities.PaymentRequest{
 		Amount:  params.Body.Amount,
 		WashID:  params.Body.WashID,
 		PostID:  params.Body.PostID,
