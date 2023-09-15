@@ -1,5 +1,7 @@
 package entities
 
+import "strings"
+
 type transactionStatus string
 
 const (
@@ -34,6 +36,7 @@ func (s transactionStatus) String() string {
 
 // TransactionStatusFromString ...
 func TransactionStatusFromString(s string) transactionStatus {
+	s = strings.ToLower(s)
 	status := transactionStatus(s)
 	ok := validTransactionStatuses[status]
 	if !ok {
