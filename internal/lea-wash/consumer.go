@@ -73,16 +73,21 @@ func createHandler(logger *zap.SugaredLogger, washHandler washHandler, publisher
 				var req leEntities.PaymentRequest
 				err := json.Unmarshal(d.Body, &req)
 				if err != nil {
+					logger.Debugf("lea payment request error: '%s'", err.Error())
 					return err
 				}
+
+				logger.Debugf("lea payment request from wash_id: '%s', post_id: '%s'", req.WashID, req.PostID)
 
 				sbpRequest := leConverter.PaymentRequestToSbp(req)
 				payResp, err := washHandler.Pay(ctx, sbpRequest)
 				if payResp == nil {
+					logger.Debug("lea payment request error: 'payment_resp = nil'")
 					err = publisher.SendToLeaPaymentFailedResponse(sbpRequest.WashID, sbpRequest.PostID, sbpRequest.OrderID)
-					return errors.New("payment_resp = nil")
+					return err
 				}
 				if err != nil {
+					logger.Debugf("lea payment request error: '%s'", err.Error())
 					err = publisher.SendToLeaPaymentFailedResponse(sbpRequest.WashID, sbpRequest.PostID, sbpRequest.OrderID)
 					return err
 				}
@@ -95,12 +100,16 @@ func createHandler(logger *zap.SugaredLogger, washHandler washHandler, publisher
 				var req leEntities.PaymentСancellationRequest
 				err := json.Unmarshal(d.Body, &req)
 				if err != nil {
+					logger.Debugf("lea payment cancellation request error: '%s'", err.Error())
 					return err
 				}
+
+				logger.Debugf("lea payment cancellation request from wash_id: '%s', post_id: '%s'", req.WashID, req.PostID)
 
 				sbpRequest := leConverter.PaymentСancellationRequestToSbp(req)
 				resendNeaded, err := washHandler.Cancel(ctx, sbpRequest)
 				if err != nil {
+					logger.Debugf("lea payment cancellation request error: '%s'", err.Error())
 					if resendNeaded {
 						err = publisher.SendToLeaPaymentFailedResponse(sbpRequest.WashID, sbpRequest.PostID, sbpRequest.OrderID)
 						return err
