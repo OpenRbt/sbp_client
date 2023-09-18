@@ -28,8 +28,22 @@ func NewLeaWashPublisher(rabbitMqClient *rabbitMq.RabbitMqClient) (*leaWashPubli
 		return nil, errors.New("create lea_wash_publisher failed: rabbitMqClient = nil")
 	}
 
-	exchangeName := leEntities.ExchangeNameSbpClient
-	p, err := rabbitMqClient.CreatePublisher(string(exchangeName))
+	// create exchange
+	sbpClientExchangeName := string(leEntities.ExchangeNameSbpClient)
+	leaClientExchangeName := string(leEntities.ExchangeNameLeaCentralWash)
+	// sbp
+	err := rabbitMqClient.CreateExchangeName(sbpClientExchangeName)
+	if err != nil {
+		return nil, err
+	}
+	// lea
+	err = rabbitMqClient.CreateExchangeName(leaClientExchangeName)
+	if err != nil {
+		return nil, err
+	}
+
+	// create publisher
+	p, err := rabbitMqClient.CreatePublisher(sbpClientExchangeName)
 	if err != nil {
 		return nil, err
 	}
