@@ -72,6 +72,36 @@ paths:
           description: bad request
         500:
           description: error
+  /api/exchanges/{vhost}/{exchange_name}:
+    put:
+      operationId: createNewExchange
+      description: create a new exchange
+      security:
+        - Auth: [ ]
+      parameters:
+        - in: path
+          name: vhost
+          required: true
+          type: string
+        - in: path
+          name: exchange_name
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/ExchangeProperties"
+      responses:
+        201:
+          description: ok
+        204:
+          description: ok
+        400:
+          description: bad request
+        500:
+          description: error      
+          
 definitions:
   CreateUser:
     type: object
@@ -92,3 +122,14 @@ definitions:
         type: string
       read:
         type: string
+  ExchangeProperties:
+    type: object
+    properties:
+      type:
+        type: string
+      auto_delete:
+        type: boolean
+      durable:
+        type: boolean
+      internal:
+        type: boolean

@@ -30,11 +30,53 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	CreateNewExchange(params *CreateNewExchangeParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*CreateNewExchangeCreated, *CreateNewExchangeNoContent, error)
+
 	CreateUser(params *CreateUserParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*CreateUserCreated, *CreateUserNoContent, error)
 
 	SetUserPerms(params *SetUserPermsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*SetUserPermsCreated, *SetUserPermsNoContent, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+CreateNewExchange create a new exchange
+*/
+func (a *Client) CreateNewExchange(params *CreateNewExchangeParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*CreateNewExchangeCreated, *CreateNewExchangeNoContent, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewCreateNewExchangeParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "createNewExchange",
+		Method:             "PUT",
+		PathPattern:        "/api/exchanges/{vhost}/{exchange_name}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &CreateNewExchangeReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, nil, err
+	}
+	switch value := result.(type) {
+	case *CreateNewExchangeCreated:
+		return value, nil, nil
+	case *CreateNewExchangeNoContent:
+		return nil, value, nil
+	}
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for operations: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*

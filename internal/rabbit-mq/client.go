@@ -16,7 +16,7 @@ import (
 	rabbitmqClient "sbp/pkg/rabbit-mq"
 )
 
-const layer = "lea-cw-client"
+const layer = "rabbit-mq"
 
 // ServerID...
 type ServerID string
@@ -78,4 +78,9 @@ func (c *RabbitMqClient) CreatePublisher(exchangeName string) (*Publisher, error
 // CreateUser ...
 func (c *RabbitMqClient) CreateUser(readExchangeName string, writeExchangeName string, login string, password string) error {
 	return c.rabbitMqClient.CreateRabbitUser(readExchangeName, writeExchangeName, login, password)
+}
+
+// CreateExchangeName ...
+func (c *RabbitMqClient) CreateExchangeName(exchangeName string) error {
+	return c.rabbitMqClient.CreateExchangeName(exchangeName)
 }

@@ -135,6 +135,32 @@ func (c *RabbitMqClient) NewConsumer(exchangeName string, routingKey string, han
 	return consumer, err
 }
 
+// CreateExchangeName ...
+func (c *RabbitMqClient) CreateExchangeName(exchangeName string) error {
+	ctx := context.TODO()
+
+	// create user ...
+	createNewExchangeParams := &rabbitmqGeneratedOperations.CreateNewExchangeParams{
+		Body: &rabbitmqGenerateEntities.ExchangeProperties{
+			AutoDelete: false,
+			Durable:    true,
+			Internal:   false,
+			Type:       "direct",
+		},
+		ExchangeName: exchangeName,
+		Vhost:        "/",
+		Context:      ctx,
+		HTTPClient:   nil,
+	}
+
+	_, _, err := c.httpApi.Operations.CreateNewExchange(createNewExchangeParams, c.httpAuth)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // CreateRabbitUser ...
 func (c *RabbitMqClient) CreateRabbitUser(readExchangeName string, writeExchangeName string, login string, password string) (err error) {
 	ctx := context.TODO()
