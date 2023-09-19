@@ -102,17 +102,17 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 	}
 
 	// get QR code
-	// paymentCreds := logicEntities.PaymentCreds{
-	// 	TerminalKey: wash.TerminalKey,
-	// 	PaymentID:   paymentInit.PaymentID,
-	// }
-	// resp, err := logic.payClient.GetQr(paymentCreds, wash.TerminalPassword)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// if resp.ErrorCode != "0" {
-	// 	return nil, fmt.Errorf("pay client internal error: %s, %s", resp.ErrorCode, resp.Message)
-	// }
+	paymentCreds := logicEntities.PaymentCreds{
+		TerminalKey: wash.TerminalKey,
+		PaymentID:   paymentInit.PaymentID,
+	}
+	resp, err := logic.payClient.GetQr(paymentCreds, wash.TerminalPassword)
+	if err != nil {
+		return nil, err
+	}
+	if resp.ErrorCode != "0" {
+		return nil, fmt.Errorf("pay client internal error: %s, %s", resp.ErrorCode, resp.Message)
+	}
 
 	// add payment to db
 	transactionStatus := logicEntities.TransactionStatusFromString(paymentInit.Status)
@@ -133,18 +133,20 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 	}
 
 	// send broker message
-	// payResponse := logicEntities.PaymentResponse{
-	//  WashID:  transactionCreate.WashID,
-	//  PostID:  payRequest.PostID,
-	// 	OrderID: resp.OrderID,
-	// 	UrlPay:  resp.UrlPay,
-	// }
 	payResponse := logicEntities.PaymentResponse{
 		WashID:  transactionCreate.WashID,
 		PostID:  payRequest.PostID,
-		OrderID: orderID.String(),
-		UrlPay:  paymentInit.Url,
+		OrderID: resp.OrderID,
+		UrlPay:  resp.UrlPay,
 	}
+
+	// for tests whithout qr
+	// payResponse := logicEntities.PaymentResponse{
+	// 	WashID:  transactionCreate.WashID,
+	// 	PostID:  payRequest.PostID,
+	// 	OrderID: orderID.String(),
+	// 	UrlPay:  paymentInit.Url,
+	// }
 	//
 	err = logic.leaWashPublisher.SendToLeaPaymentResponse(payResponse)
 	if err != nil {
