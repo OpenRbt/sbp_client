@@ -1,13 +1,13 @@
-package restconverter
+package payclientconverter
 
 import (
 	logicEntities "sbp/internal/logic/entities"
-	openapiEntities "sbp/openapi/models"
+	tinkoffEntities "sbp/internal/tinkoff/models"
 )
 
-// СonvertRegisterNotificationFromRest ...
-func СonvertRegisterNotificationFromRest(req openapiEntities.Notification) logicEntities.PaymentNotification {
-	return logicEntities.PaymentNotification{
+// PaymentNotificationToPayClient ...
+func PaymentNotificationToPayClient(req logicEntities.PaymentNotification) tinkoffEntities.Notification {
+	return tinkoffEntities.Notification{
 		AccountToken:     req.AccountToken,
 		BankMemberID:     req.BankMemberID,
 		BankMemberName:   req.BankMemberName,

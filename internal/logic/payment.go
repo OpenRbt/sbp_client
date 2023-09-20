@@ -25,7 +25,7 @@ type PayClient interface {
 	Init(req logicEntities.PaymentCreate) (logicEntities.PaymentInit, error)
 	GetQr(req logicEntities.PaymentCreds, password string) (logicEntities.PaymentGetQr, error)
 	Cancel(req logicEntities.PaymentCreds, password string) (logicEntities.PaymentCancel, error)
-	IsNotificationCorrect(req logicEntities.PaymentRegisterNotification, password string) bool
+	IsNotificationCorrect(req logicEntities.PaymentNotification, password string) bool
 }
 
 // LeaWashPublisher
@@ -198,7 +198,7 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 }
 
 // Notification ...
-func (logic *PaymentLogic) Notification(ctx context.Context, notification logicEntities.PaymentRegisterNotification) error {
+func (logic *PaymentLogic) Notification(ctx context.Context, notification logicEntities.PaymentNotification) error {
 	errorPrefix := "Notification error:"
 	// get transaction
 	id, err := uuid.FromString(notification.OrderID)

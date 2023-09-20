@@ -380,28 +380,47 @@ definitions:
   Notification:
     type: object
     properties:
-      TerminalKey:
-        type: string
-      OrderId:
-        type: string
       Success:
-        type: boolean
-      Status:
-        type: string
-      PaymentId:
-        type: integer
-      ErrorCode:
-        type: string
+          type: boolean  
       Amount:
-        type: integer
+          type: integer   
       CardId:
-        type: integer
-      Pan:
-        type: string
+          type: integer   
+      PaymentID:
+          type: string
+      OrderID:
+          type: string
+      TerminalKey:
+          type: string
+      Status:
+          type: string
+      ErrorCode:
+          type: string
       ExpDate:
+          type: string
+      Pan:
+          type: string
+      RequestKey:
         type: string
+        description: Идентификатор запроса на привязку счета
       Token:
-        type: string 
+        type: string
+        description: Подпись запроса
+      NotificationType:
+        type: string
+        description: Код ошибки (<= 20 символов)
+      AccountToken:
+        type: string
+        description: Идентификатор привязки счета, назначаемый банком-эмитентом
+      BankMemberId:
+        type: string
+        description: Идентификатор банка-эмитента клиента, который будет совершать оплату по привязанному счету
+      BankMemberName:
+        type: string
+        description: Наименование банка-эмитента
+      Message:
+        type: string
+        description: Краткое описание ошибки 
 
   Pagination:
     type: object

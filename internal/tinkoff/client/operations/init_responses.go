@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
-	"sbp/internal/pay-client/tinkoff/models"
+	"sbp/internal/tinkoff/models"
 )
 
 // InitReader is a Reader for the Init structure.

@@ -74,17 +74,25 @@ type PaymentGetQr struct {
 	Message   string
 }
 
-// PaymentRegisterNotification ...
-type PaymentRegisterNotification struct {
-	PaymentInfo
-	TerminalKey string
-	Status      string
-	Amount      int
-	CardId      int
-	ErrorCode   string
-	ExpDate     string
-	Pan         string
-	Token       string
+// PaymentNotification ....
+type PaymentNotification struct {
+	AccountToken     string
+	BankMemberID     string
+	BankMemberName   string
+	ErrorCode        string
+	ExpDate          string
+	Message          string
+	NotificationType string
+	OrderID          string
+	Pan              string
+	PaymentID        string
+	RequestKey       string
+	Status           string
+	TerminalKey      string
+	Token            string
+	Amount           int64
+	CardID           int64
+	Success          bool
 }
 
 type InitPaymentResp struct {
