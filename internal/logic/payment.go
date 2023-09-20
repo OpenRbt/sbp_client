@@ -69,16 +69,17 @@ func newPaymentLogic(
 
 // Pay ...
 func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.PaymentRequest) (*logicEntities.PaymentResponse, error) {
+	errorPrefix := "Pay error:"
 	// get wash uuid
 	id, err := uuid.FromString(payRequest.WashID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s wash_id=%s is not correct, error:%s", errorPrefix, payRequest.WashID, err.Error())
 	}
 
 	// get wash wash terminal
 	wash, err := logic.washLogic.GetWash(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s wash not found by id=%s, error:%s", errorPrefix, payRequest.WashID, err.Error())
 	}
 
 	var orderID uuid.UUID
@@ -87,7 +88,12 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 	}
 
 	if orderID == uuid.Nil {
-		return nil, fmt.Errorf("payment failed: orderID = nil (wash_id: %s, post_id: %s )", payRequest.WashID, payRequest.PostID)
+		return nil, fmt.Errorf(
+			"%s orderID = nil (wash_id=%s, post_id=%s, transaction_id=%s)",
+			errorPrefix,
+			payRequest.WashID,
+			payRequest.OrderID,
+			payRequest.PostID)
 	}
 
 	// payment init
@@ -98,7 +104,13 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 	}
 	paymentInit, err := logic.payClient.Init(paymentCreate)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(
+			"%s payment init failed (wash_id=%s, post_id=%s, transaction_id=%s), error: %s",
+			errorPrefix,
+			payRequest.WashID,
+			payRequest.PostID,
+			paymentInit.PaymentID,
+			err.Error())
 	}
 
 	// get QR code
@@ -108,16 +120,33 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 	}
 	resp, err := logic.payClient.GetQr(paymentCreds, wash.TerminalPassword)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(
+			"%s get qr failed (wash_id=%s, post_id=%s, transaction_id=%s), error: %s",
+			errorPrefix,
+			payRequest.WashID,
+			payRequest.PostID,
+			paymentInit.PaymentID,
+			err.Error())
 	}
 	if resp.ErrorCode != "0" {
-		return nil, fmt.Errorf("pay client internal error: %s, %s", resp.ErrorCode, resp.Message)
+		return nil, fmt.Errorf(
+			"%s get qr failed (wash_id=%s, post_id=%s, transaction_id=%s), error: %s",
+			errorPrefix,
+			payRequest.WashID,
+			payRequest.PostID,
+			paymentInit.PaymentID,
+			resp.Message)
 	}
 
 	// add payment to db
 	transactionStatus := logicEntities.TransactionStatusFromString(paymentInit.Status)
 	if err != nil {
-		logic.logger.Error(err)
+		logic.logger.Errorf(
+			"%s failed get transaction status=%s from string (transaction_id=%s), error: %s",
+			errorPrefix,
+			paymentInit.Status,
+			paymentInit.PaymentID,
+			err.Error())
 	}
 	transactionCreate := logicEntities.TransactionCreate{
 		ID:        orderID,
@@ -129,7 +158,13 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 	}
 	err = logic.repository.CreateTransaction(ctx, transactionCreate)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(
+			"%s create transaction failed (wash_id=%s, post_id=%s, transaction_id=%s), error: %s",
+			errorPrefix,
+			payRequest.WashID,
+			payRequest.PostID,
+			paymentInit.PaymentID,
+			resp.Message)
 	}
 
 	// send broker message
@@ -150,7 +185,13 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 	//
 	err = logic.leaWashPublisher.SendToLeaPaymentResponse(payResponse)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(
+			"%s send to lea payment response failed (wash_id=%s, post_id=%s, transaction_id=%s), error: %s",
+			errorPrefix,
+			payRequest.WashID,
+			payRequest.PostID,
+			paymentInit.PaymentID,
+			resp.Message)
 	}
 
 	return &payResponse, nil
@@ -158,35 +199,36 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 
 // Notification ...
 func (logic *PaymentLogic) Notification(ctx context.Context, notification logicEntities.PaymentRegisterNotification) error {
+	errorPrefix := "Notification error:"
 	// get transaction
 	id, err := uuid.FromString(notification.OrderID)
 	if err != nil {
-		return err
+		return fmt.Errorf("%s order_id=%s is not correct, error:%s", errorPrefix, notification.OrderID, err.Error())
 	}
 	transaction, err := logic.repository.GetTransaction(ctx, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("%s transaction not found by id=%s, error:%s", errorPrefix, id, err.Error())
 	}
 
 	// get terminal
 	washID, err := uuid.FromString(transaction.WashID)
 	if err != nil {
-		return err
+		return fmt.Errorf("%s wash_id=%s is not correct, error:%s", errorPrefix, transaction.WashID, err.Error())
 	}
 	wash, err := logic.washLogic.GetWash(ctx, washID)
 	if err != nil {
-		return err
+		return fmt.Errorf("%s wash not found by id=%s", errorPrefix, washID)
 	}
 
 	// check notification
 	if !logic.payClient.IsNotificationCorrect(notification, wash.TerminalPassword) {
-		return logicEntities.ErrNotification
+		return fmt.Errorf("%s notification is not correct (wash_id=%s, notification=%+#v)", errorPrefix, washID, notification)
 	}
 
 	// update transaction
 	transactionStatus := logicEntities.TransactionStatusFromString(notification.Status)
 	if transactionStatus == logicEntities.TransactionStatusUnknown {
-		logic.logger.Errorf("Notification error: notification status '%s' is unknown", notification.Status)
+		logic.logger.Errorf("%s notification status '%s' is unknown", errorPrefix, notification.Status)
 	}
 	err = logic.repository.UpdateTransaction(ctx, logicEntities.TransactionUpdate{
 		ID:        id,
@@ -194,7 +236,7 @@ func (logic *PaymentLogic) Notification(ctx context.Context, notification logicE
 		PaymentID: nil,
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("%s update trasaction failed (trasaction_id=%s) error: %s", errorPrefix, notification.OrderID, err.Error())
 	}
 
 	// send broker message
@@ -206,7 +248,7 @@ func (logic *PaymentLogic) Notification(ctx context.Context, notification logicE
 	}
 	err = logic.leaWashPublisher.SendToLeaPaymentNotification(paymentNotifcation)
 	if err != nil {
-		logic.logger.Error(err)
+		logic.logger.Errorf("%s send notification to lea failed (transaction_id=%s) error: %s", errorPrefix, notification.OrderID, err.Error())
 	}
 
 	return nil
@@ -214,26 +256,26 @@ func (logic *PaymentLogic) Notification(ctx context.Context, notification logicE
 
 // Cancel ...
 func (logic *PaymentLogic) Cancel(ctx context.Context, req logicEntities.PaymentСancellationRequest) (resendNeaded bool, err error) {
-
+	errorPrefix := "Cancel error:"
 	resendNeaded = true
 	// get transaction by order_id
 	id, err := uuid.FromString(req.OrderID)
 	if err != nil {
-		return resendNeaded, err
+		return resendNeaded, fmt.Errorf("%s transaction_id not correct (trasaction_id=%s) error: %s", errorPrefix, req.OrderID, err.Error())
 	}
 	transaction, err := logic.repository.GetTransaction(ctx, id)
 	if err != nil {
-		return resendNeaded, err
+		return resendNeaded, fmt.Errorf("%s get trasaction failed (trasaction_id=%s) error: %s", errorPrefix, req.OrderID, err.Error())
 	}
 
 	// get wash by wash_id
 	washID, err := uuid.FromString(transaction.WashID)
 	if err != nil {
-		return resendNeaded, err
+		return resendNeaded, fmt.Errorf("%s wash_id not correct (wash_id=%s) error: %s", errorPrefix, transaction.WashID, err.Error())
 	}
 	wash, err := logic.washLogic.GetWash(ctx, washID)
 	if err != nil {
-		return resendNeaded, err
+		return resendNeaded, fmt.Errorf("%s get wash failed (wash_id=%s) error: %s", errorPrefix, washID, err.Error())
 	}
 
 	// update transaction status canceling
@@ -244,7 +286,7 @@ func (logic *PaymentLogic) Cancel(ctx context.Context, req logicEntities.Payment
 			PaymentID: nil,
 		})
 		if err != nil {
-			return resendNeaded, err
+			return resendNeaded, fmt.Errorf("%s set canceling status for trasaction failed (trasaction_id=%s) error: %s", errorPrefix, transaction.ID, err.Error())
 		}
 	}
 
@@ -255,7 +297,7 @@ func (logic *PaymentLogic) Cancel(ctx context.Context, req logicEntities.Payment
 	}
 	_, err = logic.payClient.Cancel(paymentRegisterNotification, wash.TerminalPassword)
 	if err != nil {
-		return !resendNeaded, err
+		return !resendNeaded, fmt.Errorf("%s cancel pay_client_payment failed (trasaction_id=%s) error: %s", errorPrefix, transaction.ID, err.Error())
 	}
 
 	//  update transaction status canceled
@@ -265,7 +307,7 @@ func (logic *PaymentLogic) Cancel(ctx context.Context, req logicEntities.Payment
 		PaymentID: nil,
 	})
 	if err != nil {
-		return !resendNeaded, err
+		return !resendNeaded, fmt.Errorf("%s set canceled status for trasaction failed (trasaction_id=%s) error: %s", errorPrefix, transaction.ID, err.Error())
 	}
 
 	return !resendNeaded, nil
@@ -273,14 +315,14 @@ func (logic *PaymentLogic) Cancel(ctx context.Context, req logicEntities.Payment
 
 // SyncAllPayments ...
 func (logic *PaymentLogic) SyncAllPayments(ctx context.Context) error {
-
+	errorPrefix := "SyncAllPayments error:"
 	// confirmed not synced
 	confirmedNotSyncedStatus := logicEntities.TransactionStatusConfirmedNotSynced
 	confirmedNotSyncedTransactions, err := logic.repository.GetTransactionsByStatus(ctx, logicEntities.TransactionsGet{
 		Status: confirmedNotSyncedStatus,
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("%s get trasactions whith status 'confirmed_not_synced' failed, error: %s", errorPrefix, err.Error())
 	}
 
 	for _, pt := range confirmedNotSyncedTransactions {
@@ -293,14 +335,14 @@ func (logic *PaymentLogic) SyncAllPayments(ctx context.Context) error {
 				PaymentID: nil,
 			})
 			if err != nil {
-				return err
+				return fmt.Errorf("%s set canceling status for trasaction failed (trasaction_id=%s) error: %s", errorPrefix, pt.ID.String(), err.Error())
 			}
 		}
 
 		// get wash
 		wash, err := logic.washLogic.GetWash(ctx, uuid.FromStringOrNil(pt.WashID))
 		if err != nil {
-			return err
+			return fmt.Errorf("%s get wash failed (wash_id=%s) error: %s", errorPrefix, pt.WashID, err.Error())
 		}
 
 		// send to lea
@@ -314,7 +356,7 @@ func (logic *PaymentLogic) SyncAllPayments(ctx context.Context) error {
 
 		err = logic.leaWashPublisher.SendToLeaPaymentNotification(paymentNotifcation)
 		if err != nil {
-			return err
+			return fmt.Errorf("%s send notification to lea failed (transaction_id=%s) error: %s", errorPrefix, pt.ID.String(), err.Error())
 		}
 
 		// update status in db
@@ -324,7 +366,7 @@ func (logic *PaymentLogic) SyncAllPayments(ctx context.Context) error {
 			PaymentID: nil,
 		})
 		if err != nil {
-			return err
+			return fmt.Errorf("%s set confirmed status for trasaction failed (trasaction_id=%s) error: %s", errorPrefix, pt.ID.String(), err.Error())
 		}
 	}
 
@@ -334,7 +376,7 @@ func (logic *PaymentLogic) SyncAllPayments(ctx context.Context) error {
 		Status: cancelingStatus,
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("%s get trasactions whith status 'canceling' failed, error: %s", errorPrefix, err.Error())
 	}
 	for _, ct := range cancelingTransactions {
 		_, err := logic.Cancel(ctx, logicEntities.PaymentСancellationRequest{

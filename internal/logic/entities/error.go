@@ -6,5 +6,5 @@ var (
 	ErrAccessDenied = errors.New("access denied")
 	ErrNotFound     = errors.New("entity not found")
 	ErrUserNotOwner = errors.New("user not owner")
-	ErrNotification = errors.New("notification is nor correct")
+	ErrNotification = errors.New("notification is not correct")
 )
