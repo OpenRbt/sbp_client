@@ -136,6 +136,7 @@ func (pc *PayClient) IsNotificationCorrect(req logicEntities.PaymentRegisterNoti
 	// generate token
 	tokkenGenerator, err := NewTokkenGenerator(password)
 	if err != nil {
+		pc.l.Errorf("IsNotificationCorrect error: %s", err.Error())
 		return false
 	}
 
