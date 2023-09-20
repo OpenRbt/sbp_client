@@ -1,6 +1,9 @@
 package rest
 
 import (
+	"bytes"
+	"fmt"
+	"io"
 	"net/http"
 	"path"
 
@@ -135,7 +138,23 @@ func healthCheck(params standard.HealthCheckParams, profile *logicEntities.AuthE
 func (api *restApi) setMiddleware() error {
 	//
 	middlewares := func(handler http.Handler) http.Handler {
-		return handler
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Читаем тело запроса
+			body, err := io.ReadAll(r.Body)
+			if err != nil {
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+
+			// Выводим тело запроса в консоль
+			fmt.Printf("Request Body: %s\n", string(body))
+
+			// Восстанавливаем оригинальный поток тела запроса
+			r.Body = io.NopCloser(bytes.NewBuffer(body))
+
+			// Передаем управление следующему обработчику
+			handler.ServeHTTP(w, r)
+		})
 	}
 
 	handler := api.swaggerApi.Serve(middlewares)
