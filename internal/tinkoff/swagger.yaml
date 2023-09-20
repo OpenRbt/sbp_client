@@ -169,32 +169,9 @@ definitions:
   Notification:
     type: object
     properties:
-      Success:
-          type: boolean  
-      Amount:
-          type: integer   
-      CardId:
-          type: integer   
-      PaymentID:
-          type: string
-      OrderID:
-          type: string
-      TerminalKey:
-          type: string
-      Status:
-          type: string
-      ErrorCode:
-          type: string
-      ExpDate:
-          type: string
-      Pan:
-          type: string
       RequestKey:
         type: string
         description: Идентификатор запроса на привязку счета
-      Token:
-        type: string
-        description: Подпись запроса
       NotificationType:
         type: string
         description: Код ошибки (<= 20 символов)
@@ -207,6 +184,33 @@ definitions:
       BankMemberName:
         type: string
         description: Наименование банка-эмитента
+      TerminalKey:
+        type: string
+      Amount:
+        type: integer
+      OrderId:
+        type: string
+      Success:
+        type: boolean
+      Status:
+        type: string
+      PaymentId:
+        type: string
+      ErrorCode:
+        type: string
+      PaymentURL:
+        type: string
       Message:
         type: string
-        description: Краткое описание ошибки
+      Details:
+        type: string
+      RebillId:
+        type: string
+      CardId:
+        type: integer
+      Pan:
+        type: string
+      ExpDate:
+        type: string
+      Token:
+        type: string
