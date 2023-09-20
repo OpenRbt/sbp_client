@@ -34,26 +34,35 @@ type Notification struct {
 	// card Id
 	CardID int64 `json:"CardId,omitempty"`
 
+	// details
+	Details string `json:"Details,omitempty"`
+
 	// error code
 	ErrorCode string `json:"ErrorCode,omitempty"`
 
 	// exp date
 	ExpDate string `json:"ExpDate,omitempty"`
 
-	// Краткое описание ошибки
+	// message
 	Message string `json:"Message,omitempty"`
 
 	// Код ошибки (<= 20 символов)
 	NotificationType string `json:"NotificationType,omitempty"`
 
-	// order ID
-	OrderID string `json:"OrderID,omitempty"`
+	// order Id
+	OrderID string `json:"OrderId,omitempty"`
 
 	// pan
 	Pan string `json:"Pan,omitempty"`
 
-	// payment ID
-	PaymentID string `json:"PaymentID,omitempty"`
+	// payment Id
+	PaymentID string `json:"PaymentId,omitempty"`
+
+	// payment URL
+	PaymentURL string `json:"PaymentURL,omitempty"`
+
+	// rebill Id
+	RebillID string `json:"RebillId,omitempty"`
 
 	// Идентификатор запроса на привязку счета
 	RequestKey string `json:"RequestKey,omitempty"`
@@ -67,7 +76,7 @@ type Notification struct {
 	// terminal key
 	TerminalKey string `json:"TerminalKey,omitempty"`
 
-	// Подпись запроса
+	// token
 	Token string `json:"Token,omitempty"`
 }
 
@@ -90,26 +99,35 @@ func (m *Notification) UnmarshalJSON(data []byte) error {
 		// card Id
 		CardID int64 `json:"CardId,omitempty"`
 
+		// details
+		Details string `json:"Details,omitempty"`
+
 		// error code
 		ErrorCode string `json:"ErrorCode,omitempty"`
 
 		// exp date
 		ExpDate string `json:"ExpDate,omitempty"`
 
-		// Краткое описание ошибки
+		// message
 		Message string `json:"Message,omitempty"`
 
 		// Код ошибки (<= 20 символов)
 		NotificationType string `json:"NotificationType,omitempty"`
 
-		// order ID
-		OrderID string `json:"OrderID,omitempty"`
+		// order Id
+		OrderID string `json:"OrderId,omitempty"`
 
 		// pan
 		Pan string `json:"Pan,omitempty"`
 
-		// payment ID
-		PaymentID string `json:"PaymentID,omitempty"`
+		// payment Id
+		PaymentID string `json:"PaymentId,omitempty"`
+
+		// payment URL
+		PaymentURL string `json:"PaymentURL,omitempty"`
+
+		// rebill Id
+		RebillID string `json:"RebillId,omitempty"`
 
 		// Идентификатор запроса на привязку счета
 		RequestKey string `json:"RequestKey,omitempty"`
@@ -123,7 +141,7 @@ func (m *Notification) UnmarshalJSON(data []byte) error {
 		// terminal key
 		TerminalKey string `json:"TerminalKey,omitempty"`
 
-		// Подпись запроса
+		// token
 		Token string `json:"Token,omitempty"`
 	}
 
@@ -138,6 +156,7 @@ func (m *Notification) UnmarshalJSON(data []byte) error {
 	m.BankMemberID = props.BankMemberID
 	m.BankMemberName = props.BankMemberName
 	m.CardID = props.CardID
+	m.Details = props.Details
 	m.ErrorCode = props.ErrorCode
 	m.ExpDate = props.ExpDate
 	m.Message = props.Message
@@ -145,6 +164,8 @@ func (m *Notification) UnmarshalJSON(data []byte) error {
 	m.OrderID = props.OrderID
 	m.Pan = props.Pan
 	m.PaymentID = props.PaymentID
+	m.PaymentURL = props.PaymentURL
+	m.RebillID = props.RebillID
 	m.RequestKey = props.RequestKey
 	m.Status = props.Status
 	m.Success = props.Success

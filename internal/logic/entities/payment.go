@@ -79,6 +79,7 @@ type PaymentNotification struct {
 	AccountToken     string
 	BankMemberID     string
 	BankMemberName   string
+	Details          string
 	ErrorCode        string
 	ExpDate          string
 	Message          string
@@ -86,6 +87,8 @@ type PaymentNotification struct {
 	OrderID          string
 	Pan              string
 	PaymentID        string
+	PaymentURL       string
+	RebillID         string
 	RequestKey       string
 	Status           string
 	TerminalKey      string

@@ -479,6 +479,9 @@ func init() {
         "CardId": {
           "type": "integer"
         },
+        "Details": {
+          "type": "string"
+        },
         "ErrorCode": {
           "type": "string"
         },
@@ -486,20 +489,25 @@ func init() {
           "type": "string"
         },
         "Message": {
-          "description": "Краткое описание ошибки",
           "type": "string"
         },
         "NotificationType": {
           "description": "Код ошибки (\u003c= 20 символов)",
           "type": "string"
         },
-        "OrderID": {
+        "OrderId": {
           "type": "string"
         },
         "Pan": {
           "type": "string"
         },
-        "PaymentID": {
+        "PaymentId": {
+          "type": "string"
+        },
+        "PaymentURL": {
+          "type": "string"
+        },
+        "RebillId": {
           "type": "string"
         },
         "RequestKey": {
@@ -516,7 +524,6 @@ func init() {
           "type": "string"
         },
         "Token": {
-          "description": "Подпись запроса",
           "type": "string"
         }
       }
@@ -1144,6 +1151,9 @@ func init() {
         "CardId": {
           "type": "integer"
         },
+        "Details": {
+          "type": "string"
+        },
         "ErrorCode": {
           "type": "string"
         },
@@ -1151,20 +1161,25 @@ func init() {
           "type": "string"
         },
         "Message": {
-          "description": "Краткое описание ошибки",
           "type": "string"
         },
         "NotificationType": {
           "description": "Код ошибки (\u003c= 20 символов)",
           "type": "string"
         },
-        "OrderID": {
+        "OrderId": {
           "type": "string"
         },
         "Pan": {
           "type": "string"
         },
-        "PaymentID": {
+        "PaymentId": {
+          "type": "string"
+        },
+        "PaymentURL": {
+          "type": "string"
+        },
+        "RebillId": {
           "type": "string"
         },
         "RequestKey": {
@@ -1181,7 +1196,6 @@ func init() {
           "type": "string"
         },
         "Token": {
-          "description": "Подпись запроса",
           "type": "string"
         }
       }
