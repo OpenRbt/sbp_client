@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
-	"sbp/internal/pay-client/tinkoff/models"
+	"sbp/internal/tinkoff/models"
 )
 
 // CancelReader is a Reader for the Cancel structure.

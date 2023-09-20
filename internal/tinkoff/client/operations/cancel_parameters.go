@@ -15,7 +15,7 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"sbp/internal/pay-client/tinkoff/models"
+	"sbp/internal/tinkoff/models"
 )
 
 // NewCancelParams creates a new CancelParams object,

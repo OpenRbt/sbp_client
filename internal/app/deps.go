@@ -8,7 +8,7 @@ import (
 	authClient "sbp/internal/auth-client/firebase"
 	leawash "sbp/internal/lea-wash"
 	logic "sbp/internal/logic"
-	payClient "sbp/internal/pay-client/tinkoff"
+	payClient "sbp/internal/pay-client"
 	rabbitmq "sbp/internal/rabbit-mq"
 	repository "sbp/internal/repository"
 	server "sbp/internal/server"

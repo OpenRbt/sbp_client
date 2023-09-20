@@ -189,3 +189,24 @@ definitions:
           type: string
       Pan:
           type: string
+      RequestKey:
+        type: string
+        description: Идентификатор запроса на привязку счета
+      Token:
+        type: string
+        description: Подпись запроса
+      NotificationType:
+        type: string
+        description: Код ошибки (<= 20 символов)
+      AccountToken:
+        type: string
+        description: Идентификатор привязки счета, назначаемый банком-эмитентом
+      BankMemberId:
+        type: string
+        description: Идентификатор банка-эмитента клиента, который будет совершать оплату по привязанному счету
+      BankMemberName:
+        type: string
+        description: Наименование банка-эмитента
+      Message:
+        type: string
+        description: Краткое описание ошибки

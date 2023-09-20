@@ -19,8 +19,17 @@ import (
 // swagger:model Notification
 type Notification struct {
 
+	// Идентификатор привязки счета, назначаемый банком-эмитентом
+	AccountToken string `json:"AccountToken,omitempty"`
+
 	// amount
 	Amount int64 `json:"Amount,omitempty"`
+
+	// Идентификатор банка-эмитента клиента, который будет совершать оплату по привязанному счету
+	BankMemberID string `json:"BankMemberId,omitempty"`
+
+	// Наименование банка-эмитента
+	BankMemberName string `json:"BankMemberName,omitempty"`
 
 	// card Id
 	CardID int64 `json:"CardId,omitempty"`
@@ -31,6 +40,12 @@ type Notification struct {
 	// exp date
 	ExpDate string `json:"ExpDate,omitempty"`
 
+	// Краткое описание ошибки
+	Message string `json:"Message,omitempty"`
+
+	// Код ошибки (<= 20 символов)
+	NotificationType string `json:"NotificationType,omitempty"`
+
 	// order ID
 	OrderID string `json:"OrderID,omitempty"`
 
@@ -40,6 +55,9 @@ type Notification struct {
 	// payment ID
 	PaymentID string `json:"PaymentID,omitempty"`
 
+	// Идентификатор запроса на привязку счета
+	RequestKey string `json:"RequestKey,omitempty"`
+
 	// status
 	Status string `json:"Status,omitempty"`
 
@@ -48,14 +66,26 @@ type Notification struct {
 
 	// terminal key
 	TerminalKey string `json:"TerminalKey,omitempty"`
+
+	// Подпись запроса
+	Token string `json:"Token,omitempty"`
 }
 
 // UnmarshalJSON unmarshals this object while disallowing additional properties from JSON
 func (m *Notification) UnmarshalJSON(data []byte) error {
 	var props struct {
 
+		// Идентификатор привязки счета, назначаемый банком-эмитентом
+		AccountToken string `json:"AccountToken,omitempty"`
+
 		// amount
 		Amount int64 `json:"Amount,omitempty"`
+
+		// Идентификатор банка-эмитента клиента, который будет совершать оплату по привязанному счету
+		BankMemberID string `json:"BankMemberId,omitempty"`
+
+		// Наименование банка-эмитента
+		BankMemberName string `json:"BankMemberName,omitempty"`
 
 		// card Id
 		CardID int64 `json:"CardId,omitempty"`
@@ -66,6 +96,12 @@ func (m *Notification) UnmarshalJSON(data []byte) error {
 		// exp date
 		ExpDate string `json:"ExpDate,omitempty"`
 
+		// Краткое описание ошибки
+		Message string `json:"Message,omitempty"`
+
+		// Код ошибки (<= 20 символов)
+		NotificationType string `json:"NotificationType,omitempty"`
+
 		// order ID
 		OrderID string `json:"OrderID,omitempty"`
 
@@ -75,6 +111,9 @@ func (m *Notification) UnmarshalJSON(data []byte) error {
 		// payment ID
 		PaymentID string `json:"PaymentID,omitempty"`
 
+		// Идентификатор запроса на привязку счета
+		RequestKey string `json:"RequestKey,omitempty"`
+
 		// status
 		Status string `json:"Status,omitempty"`
 
@@ -83,6 +122,9 @@ func (m *Notification) UnmarshalJSON(data []byte) error {
 
 		// terminal key
 		TerminalKey string `json:"TerminalKey,omitempty"`
+
+		// Подпись запроса
+		Token string `json:"Token,omitempty"`
 	}
 
 	dec := json.NewDecoder(bytes.NewReader(data))
@@ -91,16 +133,23 @@ func (m *Notification) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
+	m.AccountToken = props.AccountToken
 	m.Amount = props.Amount
+	m.BankMemberID = props.BankMemberID
+	m.BankMemberName = props.BankMemberName
 	m.CardID = props.CardID
 	m.ErrorCode = props.ErrorCode
 	m.ExpDate = props.ExpDate
+	m.Message = props.Message
+	m.NotificationType = props.NotificationType
 	m.OrderID = props.OrderID
 	m.Pan = props.Pan
 	m.PaymentID = props.PaymentID
+	m.RequestKey = props.RequestKey
 	m.Status = props.Status
 	m.Success = props.Success
 	m.TerminalKey = props.TerminalKey
+	m.Token = props.Token
 	return nil
 }
 

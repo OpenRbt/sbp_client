@@ -27,5 +27,5 @@ type Logic interface {
 	// payment
 	Pay(ctx context.Context, req logicEntities.PaymentRequest) (*logicEntities.PaymentResponse, error)
 	Cancel(ctx context.Context, req logicEntities.PaymentСancellationRequest) (resendNeaded bool, err error)
-	Notification(ctx context.Context, notification logicEntities.PaymentRegisterNotification) error
+	Notification(ctx context.Context, notification logicEntities.PaymentNotification) error
 }

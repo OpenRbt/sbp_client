@@ -461,8 +461,20 @@ func init() {
     "Notification": {
       "type": "object",
       "properties": {
+        "AccountToken": {
+          "description": "Идентификатор привязки счета, назначаемый банком-эмитентом",
+          "type": "string"
+        },
         "Amount": {
           "type": "integer"
+        },
+        "BankMemberId": {
+          "description": "Идентификатор банка-эмитента клиента, который будет совершать оплату по привязанному счету",
+          "type": "string"
+        },
+        "BankMemberName": {
+          "description": "Наименование банка-эмитента",
+          "type": "string"
         },
         "CardId": {
           "type": "integer"
@@ -473,14 +485,26 @@ func init() {
         "ExpDate": {
           "type": "string"
         },
-        "OrderId": {
+        "Message": {
+          "description": "Краткое описание ошибки",
+          "type": "string"
+        },
+        "NotificationType": {
+          "description": "Код ошибки (\u003c= 20 символов)",
+          "type": "string"
+        },
+        "OrderID": {
           "type": "string"
         },
         "Pan": {
           "type": "string"
         },
-        "PaymentId": {
-          "type": "integer"
+        "PaymentID": {
+          "type": "string"
+        },
+        "RequestKey": {
+          "description": "Идентификатор запроса на привязку счета",
+          "type": "string"
         },
         "Status": {
           "type": "string"
@@ -492,6 +516,7 @@ func init() {
           "type": "string"
         },
         "Token": {
+          "description": "Подпись запроса",
           "type": "string"
         }
       }
@@ -1101,8 +1126,20 @@ func init() {
     "Notification": {
       "type": "object",
       "properties": {
+        "AccountToken": {
+          "description": "Идентификатор привязки счета, назначаемый банком-эмитентом",
+          "type": "string"
+        },
         "Amount": {
           "type": "integer"
+        },
+        "BankMemberId": {
+          "description": "Идентификатор банка-эмитента клиента, который будет совершать оплату по привязанному счету",
+          "type": "string"
+        },
+        "BankMemberName": {
+          "description": "Наименование банка-эмитента",
+          "type": "string"
         },
         "CardId": {
           "type": "integer"
@@ -1113,14 +1150,26 @@ func init() {
         "ExpDate": {
           "type": "string"
         },
-        "OrderId": {
+        "Message": {
+          "description": "Краткое описание ошибки",
+          "type": "string"
+        },
+        "NotificationType": {
+          "description": "Код ошибки (\u003c= 20 символов)",
+          "type": "string"
+        },
+        "OrderID": {
           "type": "string"
         },
         "Pan": {
           "type": "string"
         },
-        "PaymentId": {
-          "type": "integer"
+        "PaymentID": {
+          "type": "string"
+        },
+        "RequestKey": {
+          "description": "Идентификатор запроса на привязку счета",
+          "type": "string"
         },
         "Status": {
           "type": "string"
@@ -1132,6 +1181,7 @@ func init() {
           "type": "string"
         },
         "Token": {
+          "description": "Подпись запроса",
           "type": "string"
         }
       }

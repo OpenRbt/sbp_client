@@ -4,10 +4,10 @@ import (
 	"context"
 	logic "sbp/internal/logic"
 	logicEntities "sbp/internal/logic/entities"
-	tinkoffClient "sbp/internal/pay-client/tinkoff/client"
-	tinkoffOperations "sbp/internal/pay-client/tinkoff/client/operations"
-	tinkoffConverter "sbp/internal/pay-client/tinkoff/converter"
-	tinkoffEntities "sbp/internal/pay-client/tinkoff/models"
+	converter "sbp/internal/pay-client/converter"
+	tinkoffClient "sbp/internal/tinkoff/client"
+	tinkoffOperations "sbp/internal/tinkoff/client/operations"
+	tinkoffEntities "sbp/internal/tinkoff/models"
 	"time"
 
 	httpTransport "github.com/go-openapi/runtime/client"
@@ -59,7 +59,7 @@ func (pc *PayClient) Init(req logicEntities.PaymentCreate) (logicEntities.Paymen
 	if err != nil {
 		return logicEntities.PaymentInit{}, err
 	}
-	model := tinkoffConverter.ConvertInitFromResponse(*res.Payload)
+	model := converter.PaymentInitResponseToLogic(*res.Payload)
 
 	return model, nil
 }
@@ -80,6 +80,7 @@ func (pc *PayClient) GetQr(paymentCreds logicEntities.PaymentCreds, password str
 		TerminalKey: paymentCreds.TerminalKey,
 		Token:       "",
 	}
+	// token
 	token := tokkenGenerator.generateToken(body, "json")
 	body.Token = token
 
@@ -94,7 +95,7 @@ func (pc *PayClient) GetQr(paymentCreds logicEntities.PaymentCreds, password str
 	if err != nil {
 		return logicEntities.PaymentGetQr{}, err
 	}
-	model := tinkoffConverter.ConvertGetQrFromResponse(*resp.Payload)
+	model := converter.GetQrResponseToLogic(*resp.Payload)
 
 	return model, nil
 }
@@ -126,13 +127,13 @@ func (pc *PayClient) Cancel(req logicEntities.PaymentCreds, password string) (lo
 	if err != nil {
 		return logicEntities.PaymentCancel{}, err
 	}
-	model := tinkoffConverter.ConvertCancelFromResponse(*res.Payload)
+	model := converter.PaymentCancelResponseToLogic(*res.Payload)
 
 	return model, nil
 }
 
 // IsNotificationCorrect ...
-func (pc *PayClient) IsNotificationCorrect(req logicEntities.PaymentRegisterNotification, password string) bool {
+func (pc *PayClient) IsNotificationCorrect(req logicEntities.PaymentNotification, password string) bool {
 	// generate token
 	tokkenGenerator, err := NewTokkenGenerator(password)
 	if err != nil {
@@ -141,6 +142,7 @@ func (pc *PayClient) IsNotificationCorrect(req logicEntities.PaymentRegisterNoti
 	}
 
 	// paymentRegisterNotification ...
-	paymentRegisterNotification := tinkoffConverter.ConvertNotificationFromRequest(req)
-	return tokkenGenerator.checkToken("json", paymentRegisterNotification, req.Token)
+	paymentRegisterNotification := converter.PaymentNotificationToPayClient(req)
+	isTokenValid := tokkenGenerator.checkToken("json", paymentRegisterNotification, req.Token)
+	return isTokenValid
 }
