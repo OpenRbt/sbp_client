@@ -17,64 +17,31 @@ import (
 // swagger:model Notification
 type Notification struct {
 
-	// Идентификатор привязки счета, назначаемый банком-эмитентом
-	AccountToken string `json:"AccountToken,omitempty"`
-
-	// amount
+	// Payment amount
 	Amount int64 `json:"Amount,omitempty"`
 
-	// Идентификатор банка-эмитента клиента, который будет совершать оплату по привязанному счету
-	BankMemberID string `json:"BankMemberId,omitempty"`
-
-	// Наименование банка-эмитента
-	BankMemberName string `json:"BankMemberName,omitempty"`
-
-	// card Id
-	CardID int64 `json:"CardId,omitempty"`
-
-	// details
-	Details string `json:"Details,omitempty"`
-
-	// error code
+	// Error code
 	ErrorCode string `json:"ErrorCode,omitempty"`
 
-	// exp date
-	ExpDate string `json:"ExpDate,omitempty"`
-
-	// message
-	Message string `json:"Message,omitempty"`
-
-	// Код ошибки (<= 20 символов)
-	NotificationType string `json:"NotificationType,omitempty"`
-
-	// order Id
+	// Order ID
 	OrderID string `json:"OrderId,omitempty"`
 
-	// pan
+	// PAN (Primary Account Number)
 	Pan string `json:"Pan,omitempty"`
 
-	// payment Id
-	PaymentID string `json:"PaymentId,omitempty"`
+	// Payment ID
+	PaymentID int64 `json:"PaymentId,omitempty"`
 
-	// payment URL
-	PaymentURL string `json:"PaymentURL,omitempty"`
-
-	// rebill Id
-	RebillID string `json:"RebillId,omitempty"`
-
-	// Идентификатор запроса на привязку счета
-	RequestKey string `json:"RequestKey,omitempty"`
-
-	// status
+	// Payment status
 	Status string `json:"Status,omitempty"`
 
-	// success
+	// Indicates whether the payment was successful
 	Success bool `json:"Success,omitempty"`
 
-	// terminal key
+	// Terminal key
 	TerminalKey string `json:"TerminalKey,omitempty"`
 
-	// token
+	// Payment token
 	Token string `json:"Token,omitempty"`
 }
 

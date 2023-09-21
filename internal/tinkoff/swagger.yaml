@@ -169,48 +169,35 @@ definitions:
   Notification:
     type: object
     properties:
-      RequestKey:
-        type: string
-        description: Идентификатор запроса на привязку счета
-      NotificationType:
-        type: string
-        description: Код ошибки (<= 20 символов)
-      AccountToken:
-        type: string
-        description: Идентификатор привязки счета, назначаемый банком-эмитентом
-      BankMemberId:
-        type: string
-        description: Идентификатор банка-эмитента клиента, который будет совершать оплату по привязанному счету
-      BankMemberName:
-        type: string
-        description: Наименование банка-эмитента
       TerminalKey:
         type: string
-      Amount:
-        type: integer
+        description: Terminal key
       OrderId:
         type: string
+        description: Order ID
       Success:
         type: boolean
+        description: Indicates whether the payment was successful
       Status:
         type: string
+        description: Payment status
       PaymentId:
-        type: string
+        type: integer
+        description: Payment ID
       ErrorCode:
         type: string
-      PaymentURL:
-        type: string
-      Message:
-        type: string
-      Details:
-        type: string
-      RebillId:
-        type: string
-      CardId:
+        description: Error code
+      Amount:
         type: integer
+        description: Payment amount
       Pan:
         type: string
-      ExpDate:
-        type: string
+        description: PAN (Primary Account Number)
       Token:
         type: string
+        description: Payment token
+
+
+
+
+

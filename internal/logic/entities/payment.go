@@ -24,8 +24,8 @@ type PaymentСancellationRequest struct {
 	OrderID string
 }
 
-// PaymentNotifcation ...
-type PaymentNotifcation struct {
+// PaymentNotificationForLea ...
+type PaymentNotificationForLea struct {
 	WashID  string
 	PostID  string
 	OrderID string
@@ -74,28 +74,17 @@ type PaymentGetQr struct {
 	Message   string
 }
 
-// PaymentNotification ....
+// PaymentNotification ...
 type PaymentNotification struct {
-	AccountToken     string
-	BankMemberID     string
-	BankMemberName   string
-	Details          string
-	ErrorCode        string
-	ExpDate          string
-	Message          string
-	NotificationType string
-	OrderID          string
-	Pan              string
-	PaymentID        string
-	PaymentURL       string
-	RebillID         string
-	RequestKey       string
-	Status           string
-	TerminalKey      string
-	Token            string
-	Amount           int64
-	CardID           int64
-	Success          bool
+	Amount      int64
+	ErrorCode   string
+	OrderID     string
+	Pan         string
+	PaymentID   int64
+	Status      string
+	Success     bool
+	TerminalKey string
+	Token       string
 }
 
 type InitPaymentResp struct {
