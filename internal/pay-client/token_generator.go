@@ -42,7 +42,7 @@ func parseRequest(req interface{}, tag string) map[string]string {
 			subStruct := v.Field(i).Interface()
 			r := parseRequest(subStruct, tag)
 			for k, v := range r {
-				resp[k] = v
+				resp[k] = fmt.Sprintf("%v", v)
 			}
 		}
 		// Получаем тег каждого поля
@@ -53,6 +53,7 @@ func parseRequest(req interface{}, tag string) map[string]string {
 			tagAndOpts := strings.Split(tag, ",")
 			onlyTag := strings.ToLower(tagAndOpts[0])
 			resp[onlyTag] = fmt.Sprint(v.Field(i))
+			fmt.Println(onlyTag, ":", fmt.Sprint(v.Field(i)))
 		}
 	}
 

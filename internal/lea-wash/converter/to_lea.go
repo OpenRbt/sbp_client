@@ -18,7 +18,7 @@ func PaymentResponseToLea(e logicEntities.PaymentResponse) leEntities.PaymentRes
 }
 
 // PaymentNotifcation ...
-func PaymentNotifcationToLea(e logicEntities.PaymentNotifcation) leEntities.PaymentNotifcation {
+func PaymentNotifcationToLea(e logicEntities.PaymentNotificationForLea) leEntities.PaymentNotifcation {
 	return leEntities.PaymentNotifcation{
 		WashID:  e.WashID,
 		PostID:  e.PostID,

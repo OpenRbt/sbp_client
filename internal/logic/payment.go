@@ -25,13 +25,13 @@ type PayClient interface {
 	Init(req logicEntities.PaymentCreate) (logicEntities.PaymentInit, error)
 	GetQr(req logicEntities.PaymentCreds, password string) (logicEntities.PaymentGetQr, error)
 	Cancel(req logicEntities.PaymentCreds, password string) (logicEntities.PaymentCancel, error)
-	IsNotificationCorrect(req logicEntities.PaymentNotification, password string) bool
+	IsNotificationCorrect(notification logicEntities.PaymentNotification, password string) bool
 }
 
 // LeaWashPublisher
 type LeaWashPublisher interface {
 	SendToLeaPaymentResponse(logicEntities.PaymentResponse) error
-	SendToLeaPaymentNotification(logicEntities.PaymentNotifcation) error
+	SendToLeaPaymentNotification(logicEntities.PaymentNotificationForLea) error
 	SendToLeaPaymentFailedResponse(washID string, postID string, orderID string) error
 }
 
@@ -240,7 +240,7 @@ func (logic *PaymentLogic) Notification(ctx context.Context, notification logicE
 	}
 
 	// send broker message
-	paymentNotifcation := logicEntities.PaymentNotifcation{
+	paymentNotifcation := logicEntities.PaymentNotificationForLea{
 		WashID:  transaction.WashID,
 		PostID:  transaction.PostID,
 		OrderID: transaction.ID.String(),
@@ -347,7 +347,7 @@ func (logic *PaymentLogic) SyncAllPayments(ctx context.Context) error {
 
 		// send to lea
 		paidStatus := string(logicEntities.TransactionStatusConfirmed)
-		paymentNotifcation := logicEntities.PaymentNotifcation{
+		paymentNotifcation := logicEntities.PaymentNotificationForLea{
 			WashID:  wash.ID.String(),
 			PostID:  pt.PostID,
 			OrderID: pt.ID.String(),

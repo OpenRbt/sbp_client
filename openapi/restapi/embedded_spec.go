@@ -461,69 +461,40 @@ func init() {
     "Notification": {
       "type": "object",
       "properties": {
-        "AccountToken": {
-          "description": "Идентификатор привязки счета, назначаемый банком-эмитентом",
-          "type": "string"
-        },
         "Amount": {
+          "description": "Payment amount",
           "type": "integer"
-        },
-        "BankMemberId": {
-          "description": "Идентификатор банка-эмитента клиента, который будет совершать оплату по привязанному счету",
-          "type": "string"
-        },
-        "BankMemberName": {
-          "description": "Наименование банка-эмитента",
-          "type": "string"
-        },
-        "CardId": {
-          "type": "integer"
-        },
-        "Details": {
-          "type": "string"
         },
         "ErrorCode": {
-          "type": "string"
-        },
-        "ExpDate": {
-          "type": "string"
-        },
-        "Message": {
-          "type": "string"
-        },
-        "NotificationType": {
-          "description": "Код ошибки (\u003c= 20 символов)",
+          "description": "Error code",
           "type": "string"
         },
         "OrderId": {
+          "description": "Order ID",
           "type": "string"
         },
         "Pan": {
+          "description": "PAN (Primary Account Number)",
           "type": "string"
         },
         "PaymentId": {
-          "type": "string"
-        },
-        "PaymentURL": {
-          "type": "string"
-        },
-        "RebillId": {
-          "type": "string"
-        },
-        "RequestKey": {
-          "description": "Идентификатор запроса на привязку счета",
-          "type": "string"
+          "description": "Payment ID",
+          "type": "integer"
         },
         "Status": {
+          "description": "Payment status",
           "type": "string"
         },
         "Success": {
+          "description": "Indicates whether the payment was successful",
           "type": "boolean"
         },
         "TerminalKey": {
+          "description": "Terminal key",
           "type": "string"
         },
         "Token": {
+          "description": "Payment token",
           "type": "string"
         }
       }
@@ -1133,69 +1104,40 @@ func init() {
     "Notification": {
       "type": "object",
       "properties": {
-        "AccountToken": {
-          "description": "Идентификатор привязки счета, назначаемый банком-эмитентом",
-          "type": "string"
-        },
         "Amount": {
+          "description": "Payment amount",
           "type": "integer"
-        },
-        "BankMemberId": {
-          "description": "Идентификатор банка-эмитента клиента, который будет совершать оплату по привязанному счету",
-          "type": "string"
-        },
-        "BankMemberName": {
-          "description": "Наименование банка-эмитента",
-          "type": "string"
-        },
-        "CardId": {
-          "type": "integer"
-        },
-        "Details": {
-          "type": "string"
         },
         "ErrorCode": {
-          "type": "string"
-        },
-        "ExpDate": {
-          "type": "string"
-        },
-        "Message": {
-          "type": "string"
-        },
-        "NotificationType": {
-          "description": "Код ошибки (\u003c= 20 символов)",
+          "description": "Error code",
           "type": "string"
         },
         "OrderId": {
+          "description": "Order ID",
           "type": "string"
         },
         "Pan": {
+          "description": "PAN (Primary Account Number)",
           "type": "string"
         },
         "PaymentId": {
-          "type": "string"
-        },
-        "PaymentURL": {
-          "type": "string"
-        },
-        "RebillId": {
-          "type": "string"
-        },
-        "RequestKey": {
-          "description": "Идентификатор запроса на привязку счета",
-          "type": "string"
+          "description": "Payment ID",
+          "type": "integer"
         },
         "Status": {
+          "description": "Payment status",
           "type": "string"
         },
         "Success": {
+          "description": "Indicates whether the payment was successful",
           "type": "boolean"
         },
         "TerminalKey": {
+          "description": "Terminal key",
           "type": "string"
         },
         "Token": {
+          "description": "Payment token",
           "type": "string"
         }
       }

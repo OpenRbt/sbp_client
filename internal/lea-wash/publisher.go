@@ -72,7 +72,7 @@ func (leaWashPublisher *leaWashPublisher) SendToLeaPaymentFailedResponse(washID 
 }
 
 // SendToLeaPaymentNotification ...
-func (leaWashPublisher *leaWashPublisher) SendToLeaPaymentNotification(message logicEntities.PaymentNotifcation) error {
+func (leaWashPublisher *leaWashPublisher) SendToLeaPaymentNotification(message logicEntities.PaymentNotificationForLea) error {
 	leaMessage := leConverter.PaymentNotifcationToLea(message)
 	return leaWashPublisher.sendToLea(leaMessage.WashID, string(leEntities.MessageTypePaymentNotification), leaMessage)
 }

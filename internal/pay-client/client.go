@@ -2,6 +2,8 @@ package tinkoff
 
 import (
 	"context"
+	"fmt"
+	"reflect"
 	logic "sbp/internal/logic"
 	logicEntities "sbp/internal/logic/entities"
 	converter "sbp/internal/pay-client/converter"
@@ -80,6 +82,7 @@ func (pc *PayClient) GetQr(paymentCreds logicEntities.PaymentCreds, password str
 		TerminalKey: paymentCreds.TerminalKey,
 		Token:       "",
 	}
+
 	// token
 	token := tokkenGenerator.generateToken(body, "json")
 	body.Token = token
@@ -100,6 +103,30 @@ func (pc *PayClient) GetQr(paymentCreds logicEntities.PaymentCreds, password str
 	return model, nil
 }
 
+func structToMap(input interface{}) (map[string]string, error) {
+	result := make(map[string]string)
+	val := reflect.ValueOf(input)
+
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem()
+	}
+
+	if val.Kind() != reflect.Struct {
+		return nil, fmt.Errorf("Input must be a struct or a pointer to a struct")
+	}
+
+	typ := val.Type()
+
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		fieldName := typ.Field(i).Name
+		fieldValue := fmt.Sprintf("%v", field.Interface())
+		result[fieldName] = fieldValue
+	}
+
+	return result, nil
+}
+
 // Cancel ...
 func (pc *PayClient) Cancel(req logicEntities.PaymentCreds, password string) (logicEntities.PaymentCancel, error) {
 	// generate token
@@ -112,6 +139,7 @@ func (pc *PayClient) Cancel(req logicEntities.PaymentCreds, password string) (lo
 		TerminalKey: req.TerminalKey,
 		Token:       "",
 	}
+
 	token := tokkenGenerator.generateToken(tinkoffCancel, "json")
 
 	ctx := context.TODO()
@@ -133,7 +161,7 @@ func (pc *PayClient) Cancel(req logicEntities.PaymentCreds, password string) (lo
 }
 
 // IsNotificationCorrect ...
-func (pc *PayClient) IsNotificationCorrect(req logicEntities.PaymentNotification, password string) bool {
+func (pc *PayClient) IsNotificationCorrect(notification logicEntities.PaymentNotification, password string) bool {
 	// generate token
 	tokkenGenerator, err := NewTokkenGenerator(password)
 	if err != nil {
@@ -141,8 +169,8 @@ func (pc *PayClient) IsNotificationCorrect(req logicEntities.PaymentNotification
 		return false
 	}
 
+	notificationWithJsonTag := converter.PaymentNotificationToPayClient(notification)
 	// paymentRegisterNotification ...
-	paymentRegisterNotification := converter.PaymentNotificationToPayClient(req)
-	isTokenValid := tokkenGenerator.checkToken("json", paymentRegisterNotification, req.Token)
+	isTokenValid := tokkenGenerator.checkToken("json", notificationWithJsonTag, notification.Token)
 	return isTokenValid
 }
