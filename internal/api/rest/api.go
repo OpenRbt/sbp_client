@@ -135,19 +135,20 @@ func healthCheck(params standard.HealthCheckParams, profile *logicEntities.AuthE
 func (api *restApi) setMiddleware() error {
 	//
 	middlewares := func(handler http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// body, err := io.ReadAll(r.Body)
-			// if err != nil {
-			// 	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			// 	return
-			// }
+		return handler
+		// return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// body, err := io.ReadAll(r.Body)
+		// if err != nil {
+		// 	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		// 	return
+		// }
 
-			// fmt.Printf("Request Body: %s\n", string(body))
+		// fmt.Printf("Request Body: %s\n", string(body))
 
-			// r.Body = io.NopCloser(bytes.NewBuffer(body))
+		// r.Body = io.NopCloser(bytes.NewBuffer(body))
 
-			// handler.ServeHTTP(w, r)
-		})
+		// handler.ServeHTTP(w, r)
+		// })
 	}
 
 	handler := api.swaggerApi.Serve(middlewares)
