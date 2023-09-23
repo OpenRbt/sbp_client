@@ -11,6 +11,7 @@ const (
 	TransactionStatusConfirmed          transactionStatus = "confirmed"
 	TransactionStatusСanceling          transactionStatus = "canceling"
 	TransactionStatusСanceled           transactionStatus = "canceled"
+	TransactionStatusRefunded           transactionStatus = "refunded"
 	TransactionStatusUnknown            transactionStatus = "unknown"
 )
 
@@ -22,6 +23,7 @@ var validTransactionStatuses map[transactionStatus]bool = map[transactionStatus]
 	TransactionStatusConfirmed:          true,
 	TransactionStatusСanceling:          true,
 	TransactionStatusСanceled:           true,
+	TransactionStatusRefunded:           true,
 }
 
 // ValidateTransactionStatus ...
