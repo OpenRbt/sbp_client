@@ -1,3 +1,6 @@
+ALTER TABLE public.washes
+DROP CONSTRAINT IF EXISTS unique_terminal_key_terminal_password;
+
 DROP INDEX IF EXISTS idx_unique_terminal_key_terminal_password;
 
 CREATE UNIQUE INDEX idx_unique_terminal_key_terminal_password
