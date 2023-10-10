@@ -6,9 +6,7 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -19,103 +17,32 @@ import (
 // swagger:model Notification
 type Notification struct {
 
-	// amount
+	// Payment amount
 	Amount int64 `json:"Amount,omitempty"`
 
-	// card Id
-	CardID int64 `json:"CardId,omitempty"`
-
-	// error code
+	// Error code
 	ErrorCode string `json:"ErrorCode,omitempty"`
 
-	// exp date
-	ExpDate string `json:"ExpDate,omitempty"`
-
-	// order Id
+	// Order ID
 	OrderID string `json:"OrderId,omitempty"`
 
-	// pan
+	// PAN (Primary Account Number)
 	Pan string `json:"Pan,omitempty"`
 
-	// payment Id
-	PaymentID string `json:"PaymentId,omitempty"`
+	// Payment ID
+	PaymentID int64 `json:"PaymentId,omitempty"`
 
-	// rebillid
-	Rebillid string `json:"Rebillid,omitempty"`
-
-	// status
+	// Payment status
 	Status string `json:"Status,omitempty"`
 
-	// success
+	// Indicates whether the payment was successful
 	Success bool `json:"Success,omitempty"`
 
-	// terminal key
+	// Terminal key
 	TerminalKey string `json:"TerminalKey,omitempty"`
 
-	// token
+	// Payment token
 	Token string `json:"Token,omitempty"`
-}
-
-// UnmarshalJSON unmarshals this object while disallowing additional properties from JSON
-func (m *Notification) UnmarshalJSON(data []byte) error {
-	var props struct {
-
-		// amount
-		Amount int64 `json:"Amount,omitempty"`
-
-		// card Id
-		CardID int64 `json:"CardId,omitempty"`
-
-		// error code
-		ErrorCode string `json:"ErrorCode,omitempty"`
-
-		// exp date
-		ExpDate string `json:"ExpDate,omitempty"`
-
-		// order Id
-		OrderID string `json:"OrderId,omitempty"`
-
-		// pan
-		Pan string `json:"Pan,omitempty"`
-
-		// payment Id
-		PaymentID string `json:"PaymentId,omitempty"`
-
-		// rebillid
-		Rebillid string `json:"Rebillid,omitempty"`
-
-		// status
-		Status string `json:"Status,omitempty"`
-
-		// success
-		Success bool `json:"Success,omitempty"`
-
-		// terminal key
-		TerminalKey string `json:"TerminalKey,omitempty"`
-
-		// token
-		Token string `json:"Token,omitempty"`
-	}
-
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.DisallowUnknownFields()
-	if err := dec.Decode(&props); err != nil {
-		return err
-	}
-
-	m.Amount = props.Amount
-	m.CardID = props.CardID
-	m.ErrorCode = props.ErrorCode
-	m.ExpDate = props.ExpDate
-	m.OrderID = props.OrderID
-	m.Pan = props.Pan
-	m.PaymentID = props.PaymentID
-	m.Rebillid = props.Rebillid
-	m.Status = props.Status
-	m.Success = props.Success
-	m.TerminalKey = props.TerminalKey
-	m.Token = props.Token
-	return nil
 }
 
 // Validate validates this notification

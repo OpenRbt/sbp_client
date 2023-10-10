@@ -6,9 +6,7 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -24,28 +22,6 @@ type PayResponse struct {
 
 	// url
 	URL string `json:"url,omitempty"`
-}
-
-// UnmarshalJSON unmarshals this object while disallowing additional properties from JSON
-func (m *PayResponse) UnmarshalJSON(data []byte) error {
-	var props struct {
-
-		// order ID
-		OrderID string `json:"orderID,omitempty"`
-
-		// url
-		URL string `json:"url,omitempty"`
-	}
-
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.DisallowUnknownFields()
-	if err := dec.Decode(&props); err != nil {
-		return err
-	}
-
-	m.OrderID = props.OrderID
-	m.URL = props.URL
-	return nil
 }
 
 // Validate validates this pay response

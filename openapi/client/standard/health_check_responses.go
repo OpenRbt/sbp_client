@@ -32,7 +32,7 @@ func (o *HealthCheckReader) ReadResponse(response runtime.ClientResponse, consum
 		}
 		return result, nil
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /health_check] healthCheck", response, response.Code())
 	}
 }
 
@@ -81,11 +81,11 @@ func (o *HealthCheckOK) Code() int {
 }
 
 func (o *HealthCheckOK) Error() string {
-	return fmt.Sprintf("[GET /healthCheck][%d] healthCheckOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /health_check][%d] healthCheckOK  %+v", 200, o.Payload)
 }
 
 func (o *HealthCheckOK) String() string {
-	return fmt.Sprintf("[GET /healthCheck][%d] healthCheckOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /health_check][%d] healthCheckOK  %+v", 200, o.Payload)
 }
 
 func (o *HealthCheckOK) GetPayload() *HealthCheckOKBody {

@@ -6,29 +6,27 @@ package standard
 // Editing this file might prove futile when you re-run the generate command
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"sbp/internal/app"
+	"sbp/internal/logic/entities"
 )
 
 // HealthCheckHandlerFunc turns a function with the right signature into a health check handler
-type HealthCheckHandlerFunc func(HealthCheckParams, *app.Auth) HealthCheckResponder
+type HealthCheckHandlerFunc func(HealthCheckParams, *entities.AuthExtended) HealthCheckResponder
 
 // Handle executing the request and returning a response
-func (fn HealthCheckHandlerFunc) Handle(params HealthCheckParams, principal *app.Auth) HealthCheckResponder {
+func (fn HealthCheckHandlerFunc) Handle(params HealthCheckParams, principal *entities.AuthExtended) HealthCheckResponder {
 	return fn(params, principal)
 }
 
 // HealthCheckHandler interface for that can handle valid health check params
 type HealthCheckHandler interface {
-	Handle(HealthCheckParams, *app.Auth) HealthCheckResponder
+	Handle(HealthCheckParams, *entities.AuthExtended) HealthCheckResponder
 }
 
 // NewHealthCheck creates a new http.Handler for the health check operation
@@ -37,7 +35,7 @@ func NewHealthCheck(ctx *middleware.Context, handler HealthCheckHandler) *Health
 }
 
 /*
-	HealthCheck swagger:route GET /healthCheck Standard healthCheck
+	HealthCheck swagger:route GET /health_check Standard healthCheck
 
 HealthCheck health check API
 */
@@ -60,9 +58,9 @@ func (o *HealthCheck) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		*r = *aCtx
 	}
-	var principal *app.Auth
+	var principal *entities.AuthExtended
 	if uprinc != nil {
-		principal = uprinc.(*app.Auth) // this is really a app.Auth, I promise
+		principal = uprinc.(*entities.AuthExtended) // this is really a entities.AuthExtended, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
@@ -82,24 +80,6 @@ type HealthCheckOKBody struct {
 
 	// ok
 	Ok bool `json:"ok,omitempty"`
-}
-
-// UnmarshalJSON unmarshals this object while disallowing additional properties from JSON
-func (o *HealthCheckOKBody) UnmarshalJSON(data []byte) error {
-	var props struct {
-
-		// ok
-		Ok bool `json:"ok,omitempty"`
-	}
-
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.DisallowUnknownFields()
-	if err := dec.Decode(&props); err != nil {
-		return err
-	}
-
-	o.Ok = props.Ok
-	return nil
 }
 
 // Validate validates this health check o k body

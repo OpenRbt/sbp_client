@@ -19,10 +19,23 @@ security:
   - authKey: []
 paths:
 
-  /Notification:
+  /signup:
     post:
       tags:
-        - wash_servers
+        - wash
+      security:
+        - {}
+      operationId: signup
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/FirebaseToken"
+
+  /notification:
+    post:
+      tags:
+        - wash
       security:
         - {}
       operationId: notification
@@ -36,8 +49,12 @@ paths:
           description: OK
           schema:
             type: string
+        500:
+          description: Internal error
+          schema:
+            $ref: "#/definitions/error"
             
-  /healthCheck:
+  /health_check:
     get:
       tags:
         - Standard
@@ -53,13 +70,13 @@ paths:
               ok:
                 type: boolean
 
-  /wash-server/{id}:
+  /wash/{id}:
     get:
       tags:
-        - wash_servers
+        - wash
       security:
         - authKey: []
-      operationId: getWashServer
+      operationId: getWash
       parameters:
         - name: id
           in: path
@@ -69,38 +86,17 @@ paths:
         200:
           description: OK
           schema:
-            $ref: "#/definitions/WashServer"
+            $ref: "#/definitions/Wash"
         400:
           description: Bad request
+          schema:
+            $ref: "#/definitions/error"
+        403:
+          description: Access denied
           schema:
             $ref: "#/definitions/error"
         404:
-          description: WashServer not exists
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: Internal error
-          schema:
-            $ref: "#/definitions/error"
-  /wash-server/:
-    put:
-      tags:
-        - wash_servers
-      security:
-        - authKey: []
-      operationId: add
-      parameters:
-        - name: body
-          in: body
-          schema:
-            $ref: "#/definitions/WashServerAdd"
-      responses:
-        200:
-          description: Success creation
-          schema:
-            $ref: "#/definitions/WashServer"
-        400:
-          description: Bad request
+          description: Wash not exists
           schema:
             $ref: "#/definitions/error"
         500:
@@ -108,9 +104,38 @@ paths:
           schema:
             $ref: "#/definitions/error"
 
+  /wash/:
+    put:
+      tags:
+        - wash
+      security:
+        - authKey: []
+      operationId: create
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/WashCreate"
+      responses:
+        200:
+          description: Success creation
+          schema:
+            $ref: "#/definitions/Wash"
+        400:
+          description: Bad request
+          schema:
+            $ref: "#/definitions/error"
+        403:
+          description: Access denied
+          schema:
+            $ref: "#/definitions/error"
+        500:
+          description: Internal error
+          schema:
+            $ref: "#/definitions/error"
     patch:
       tags:
-        - wash_servers
+        - wash
       security:
         - authKey: []
       operationId: update
@@ -118,7 +143,7 @@ paths:
         - name: body
           in: body
           schema:
-            $ref: "#/definitions/WashServerUpdate"
+            $ref: "#/definitions/WashUpdate"
       responses:
         204:
           description: Success update
@@ -126,18 +151,21 @@ paths:
           description: Bad request
           schema:
             $ref: "#/definitions/error"
+        403:
+          description: Access denied
+          schema:
+            $ref: "#/definitions/error"
         404:
-          description: WashServer not exists
+          description: Wash not exists
           schema:
             $ref: "#/definitions/error"
         500:
           description: Internal error
           schema:
             $ref: "#/definitions/error"
-
     delete:
       tags:
-        - wash_servers
+        - wash
       security:
         - authKey: []
       operationId: delete
@@ -145,7 +173,7 @@ paths:
         - name: body
           in: body
           schema:
-            $ref: "#/definitions/WashServerDelete"
+            $ref: "#/definitions/WashDelete"
       responses:
         204:
           description: OK
@@ -153,8 +181,12 @@ paths:
           description: Bad request
           schema:
             $ref: "#/definitions/error"
+        403:
+          description: Access denied
+          schema:
+            $ref: "#/definitions/error"
         404:
-          description: WashServer not exists
+          description: Wash not exists
           schema:
             $ref: "#/definitions/error"
         500:
@@ -162,10 +194,10 @@ paths:
           schema:
             $ref: "#/definitions/error"
 
-  /wash-server/list:
+  /wash/list:
     get:
       tags:
-        - wash_servers
+        - wash
       security:
         - authKey: []
       operationId: list
@@ -180,13 +212,17 @@ paths:
           schema:
             type: array
             items: 
-              $ref: "#/definitions/WashServer"
+              $ref: "#/definitions/Wash"
         400:
           description: Bad request
           schema:
             $ref: "#/definitions/error"
+        403:
+          description: Access denied
+          schema:
+            $ref: "#/definitions/error"
         404:
-          description: WashServer not exists
+          description: Wash not exists
           schema:
             $ref: "#/definitions/error"
         500:
@@ -197,7 +233,7 @@ paths:
   /pay:
     post:
       tags:
-        - wash_servers
+        - wash
       security:
         - authKey: []
       operationId: pay
@@ -215,11 +251,15 @@ paths:
           description: Bad request
           schema:
             $ref: "#/definitions/error"
+        403:
+          description: Access denied
+          schema:
+            $ref: "#/definitions/error"
 
   /cancel:
     post:
       tags:
-        - wash_servers
+        - wash
       security:
         - authKey: []
       operationId: cancel
@@ -235,12 +275,20 @@ paths:
           description: Bad request
           schema:
             $ref: "#/definitions/error"
+        403:
+          description: Access denied
+          schema:
+            $ref: "#/definitions/error"
 
 
 definitions:
   cancel:
     type: object
     properties:
+      washID:
+        type: string
+      postID:
+        type: string
       orderID:
         type: string
 
@@ -256,9 +304,11 @@ definitions:
   Pay:
     type: object
     properties:
-      serverId:
+      washId:
         type: string
       postId:
+        type: string
+      orderId:
         type: string
       amount:
         type: integer
@@ -276,23 +326,23 @@ definitions:
       message:
         type: string
 
-  WashServer:
+  Wash:
     type: object
     properties:
       id:
         type: string
+      password:
+        type: string
       name:
         type: string
       description:
-        type: string
-      service_key:
         type: string
       terminal_key:
         type: string
       terminal_password:
         type: string
 
-  WashServerAdd:
+  WashCreate:
     properties:
       name:
         type: string
@@ -305,7 +355,7 @@ definitions:
     required:
       - name
 
-  WashServerUpdate:
+  WashUpdate:
     type: object
     properties:
       id:
@@ -319,7 +369,7 @@ definitions:
       terminal_password:
         type: string
 
-  WashServerDelete:
+  WashDelete:
     type: object
     properties:
       id:
@@ -332,27 +382,31 @@ definitions:
     properties:
       TerminalKey:
         type: string
+        description: Terminal key
       OrderId:
         type: string
+        description: Order ID
       Success:
         type: boolean
+        description: Indicates whether the payment was successful
       Status:
         type: string
+        description: Payment status
       PaymentId:
-        type: string
+        type: integer
+        description: Payment ID
       ErrorCode:
         type: string
+        description: Error code
       Amount:
         type: integer
-      CardId:
-        type: integer
+        description: Payment amount
       Pan:
         type: string
-      ExpDate:
-        type: string
+        description: PAN (Primary Account Number)
       Token:
-        type: string 
-
+        type: string
+        description: Payment token
   Pagination:
     type: object
     properties: 
@@ -363,3 +417,9 @@ definitions:
       offset:
         type: integer
         format: int64
+
+  FirebaseToken:
+    type: object
+    properties: 
+      value:
+        type: string

@@ -6,9 +6,7 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -22,37 +20,14 @@ type Pay struct {
 	// amount
 	Amount int64 `json:"amount,omitempty"`
 
+	// order Id
+	OrderID string `json:"orderId,omitempty"`
+
 	// post Id
 	PostID string `json:"postId,omitempty"`
 
-	// server Id
-	ServerID string `json:"serverId,omitempty"`
-}
-
-// UnmarshalJSON unmarshals this object while disallowing additional properties from JSON
-func (m *Pay) UnmarshalJSON(data []byte) error {
-	var props struct {
-
-		// amount
-		Amount int64 `json:"amount,omitempty"`
-
-		// post Id
-		PostID string `json:"postId,omitempty"`
-
-		// server Id
-		ServerID string `json:"serverId,omitempty"`
-	}
-
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.DisallowUnknownFields()
-	if err := dec.Decode(&props); err != nil {
-		return err
-	}
-
-	m.Amount = props.Amount
-	m.PostID = props.PostID
-	m.ServerID = props.ServerID
-	return nil
+	// wash Id
+	WashID string `json:"washId,omitempty"`
 }
 
 // Validate validates this pay

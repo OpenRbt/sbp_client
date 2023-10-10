@@ -46,7 +46,7 @@ func (a *Client) HealthCheck(params *HealthCheckParams, authInfo runtime.ClientA
 	op := &runtime.ClientOperation{
 		ID:                 "healthCheck",
 		Method:             "GET",
-		PathPattern:        "/healthCheck",
+		PathPattern:        "/health_check",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
