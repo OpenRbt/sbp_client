@@ -83,6 +83,7 @@ func createHandler(logger *zap.SugaredLogger, washHandler washHandler, publisher
 				payResp, err := washHandler.Pay(ctx, sbpRequest)
 				if payResp == nil {
 					logger.Debug("lea payment request error: 'payment_resp = nil'")
+					logger.Debugf("lea payment request error: '%s'", err.Error())
 					err = publisher.SendToLeaPaymentFailedResponse(sbpRequest.WashID, sbpRequest.PostID, sbpRequest.OrderID)
 					return err
 				}
