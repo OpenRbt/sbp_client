@@ -3,7 +3,6 @@ package handlers
 import (
 	restConverter "sbp/internal/api/rest/converter"
 	logicEntities "sbp/internal/logic/entities"
-	"strings"
 
 	openapiEntities "sbp/openapi/models"
 	washes "sbp/openapi/restapi/operations/wash"
@@ -79,9 +78,9 @@ func (handler *Handler) Notif(params washes.NotificationParams, auth *logicEntit
 	err := handler.logic.Notification(params.HTTPRequest.Context(), registerNotif)
 	if err != nil {
 		handler.logger.Errorf("notify request failed: %w", err)
-		if strings.HasSuffix(registerNotif.TerminalKey, "DEMO") {
-			return washes.NewNotificationOK().WithPayload("OK")
-		}
+		// if strings.HasSuffix(registerNotif.TerminalKey, "DEMO") {
+		// return washes.NewNotificationOK().WithPayload("OK")
+		// }
 		return washes.NewNotificationBadRequest().WithPayload("bad request")
 	}
 
