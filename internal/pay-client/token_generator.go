@@ -96,5 +96,7 @@ func checksumSha256(s string) string {
 
 // checkToken ...
 func (g tokenGenerator) checkToken(tag string, resp interface{}, token string) bool {
-	return g.generateToken(resp, tag) == token
+	t := g.generateToken(resp, tag)
+	fmt.Printf("token: %s\n", t)
+	return t == token
 }

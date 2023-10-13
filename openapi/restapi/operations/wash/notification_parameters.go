@@ -6,6 +6,9 @@ package wash
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"fmt"
+	"io"
+	"bytes"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -51,7 +54,9 @@ func (o *NotificationParams) BindRequest(r *http.Request, route *middleware.Matc
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
 		var body models.Notification
-		if err := route.Consumer.Consume(r.Body, &body); err != nil {
+		b, _ := io.ReadAll(r.Body)
+		fmt.Println(string(b))
+		if err := route.Consumer.Consume(bytes.NewReader(b), &body); err != nil {
 			res = append(res, errors.NewParseError("body", "body", "", err))
 		} else {
 			// validate body object
