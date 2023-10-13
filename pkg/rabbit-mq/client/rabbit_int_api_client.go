@@ -6,11 +6,17 @@ package client
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"sbp/pkg/rabbit-mq/client/operations"
+	"net/http"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/spec"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
+
+	"sbp/pkg/rabbit-mq/client"
+	"sbp/pkg/rabbit-mq/models"
 )
 
 // Default rabbit int API HTTP client.

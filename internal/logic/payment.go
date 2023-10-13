@@ -103,6 +103,16 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 		OrderID:     orderID.String(),
 	}
 	paymentInit, err := logic.payClient.Init(paymentCreate)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"%s payment init failed (wash_id=%s, post_id=%s, transaction_id=%s), error: %s",
+			errorPrefix,
+			payRequest.WashID,
+			payRequest.PostID,
+			paymentInit.PaymentID,
+			err.Error())
+	}
+
 	if !paymentInit.Success {
 		return nil, fmt.Errorf(
 			"%s payment init failed (wash_id=%s, post_id=%s, transaction_id=%s), errorCode: %s, message: %s, details: %s",
@@ -113,15 +123,6 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 			paymentInit.ErrorCode,
 			paymentInit.Message,
 			paymentInit.Details)
-	}
-	if err != nil {
-		return nil, fmt.Errorf(
-			"%s payment init failed (wash_id=%s, post_id=%s, transaction_id=%s), error: %s",
-			errorPrefix,
-			payRequest.WashID,
-			payRequest.PostID,
-			paymentInit.PaymentID,
-			err.Error())
 	}
 
 	// get QR code
@@ -141,7 +142,7 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 	}
 	if !resp.Success {
 		return nil, fmt.Errorf(
-			"%s payment init failed (wash_id=%s, post_id=%s, transaction_id=%s), errorCode: %s, message: %s, details: %s",
+			"%s get qr failed (wash_id=%s, post_id=%s, transaction_id=%s), errorCode: %s, message: %s, details: %s",
 			errorPrefix,
 			payRequest.WashID,
 			payRequest.PostID,

@@ -6,7 +6,9 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -25,6 +27,32 @@ type Cancel struct {
 
 	// token
 	Token string `json:"Token,omitempty"`
+}
+
+// UnmarshalJSON unmarshals this object while disallowing additional properties from JSON
+func (m *Cancel) UnmarshalJSON(data []byte) error {
+	var props struct {
+
+		// payment Id
+		PaymentID string `json:"PaymentId,omitempty"`
+
+		// terminal key
+		TerminalKey string `json:"TerminalKey,omitempty"`
+
+		// token
+		Token string `json:"Token,omitempty"`
+	}
+
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&props); err != nil {
+		return err
+	}
+
+	m.PaymentID = props.PaymentID
+	m.TerminalKey = props.TerminalKey
+	m.Token = props.Token
+	return nil
 }
 
 // Validate validates this cancel

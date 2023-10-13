@@ -6,7 +6,9 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -46,6 +48,60 @@ type ResponseInit struct {
 
 	// terminal key
 	TerminalKey string `json:"TerminalKey,omitempty"`
+}
+
+// UnmarshalJSON unmarshals this object while disallowing additional properties from JSON
+func (m *ResponseInit) UnmarshalJSON(data []byte) error {
+	var props struct {
+
+		// amount
+		Amount int64 `json:"Amount,omitempty"`
+
+		// details
+		Details string `json:"Details,omitempty"`
+
+		// error code
+		ErrorCode string `json:"ErrorCode,omitempty"`
+
+		// message
+		Message string `json:"Message,omitempty"`
+
+		// order Id
+		OrderID string `json:"OrderId,omitempty"`
+
+		// payment Id
+		PaymentID string `json:"PaymentId,omitempty"`
+
+		// payment URL
+		PaymentURL string `json:"PaymentURL,omitempty"`
+
+		// status
+		Status string `json:"Status,omitempty"`
+
+		// success
+		Success bool `json:"Success,omitempty"`
+
+		// terminal key
+		TerminalKey string `json:"TerminalKey,omitempty"`
+	}
+
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&props); err != nil {
+		return err
+	}
+
+	m.Amount = props.Amount
+	m.Details = props.Details
+	m.ErrorCode = props.ErrorCode
+	m.Message = props.Message
+	m.OrderID = props.OrderID
+	m.PaymentID = props.PaymentID
+	m.PaymentURL = props.PaymentURL
+	m.Status = props.Status
+	m.Success = props.Success
+	m.TerminalKey = props.TerminalKey
+	return nil
 }
 
 // Validate validates this response init
