@@ -14,8 +14,11 @@ func PaymentInitResponseToLogic(response tinkoffEntities.ResponseInit) logicEnti
 			OrderID:   response.OrderID,
 			PaymentID: response.PaymentID,
 		},
-		Status: response.Status,
-		Url:    response.PaymentURL,
+		Status:    response.Status,
+		Url:       response.PaymentURL,
+		ErrorCode: response.ErrorCode,
+		Message:   response.Message,
+		Details:   response.Details,
 	}
 }
 
@@ -30,6 +33,7 @@ func GetQrResponseToLogic(response tinkoffEntities.ResponseGetQr) logicEntities.
 		ErrorCode: response.ErrorCode,
 		Message:   response.Message,
 		UrlPay:    response.Data,
+		Details:   response.Details,
 	}
 }
 
@@ -43,5 +47,7 @@ func PaymentCancelResponseToLogic(response tinkoffEntities.ResponseCancel) logic
 		},
 		Status:    response.Status,
 		ErrorCode: response.ErrorCode,
+		Message:   response.Message,
+		Details:   response.Details,
 	}
 }

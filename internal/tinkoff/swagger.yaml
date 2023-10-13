@@ -124,7 +124,10 @@ definitions:
         type: integer
       PaymentURL:
         type: string
-      
+      Message:
+        type: string
+      Details:
+        type: string
 
   ResponseGetQr:
     type: object
@@ -165,6 +168,10 @@ definitions:
         type: integer
       NewAmount:
         type: integer
+      Message:
+        type: string
+      Details:
+        type: string
 
   Notification:
     type: object

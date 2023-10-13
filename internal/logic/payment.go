@@ -103,6 +103,17 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 		OrderID:     orderID.String(),
 	}
 	paymentInit, err := logic.payClient.Init(paymentCreate)
+	if !paymentInit.Success {
+		return nil, fmt.Errorf(
+			"%s payment init failed (wash_id=%s, post_id=%s, transaction_id=%s), errorCode: %s, message: %s, details: %s",
+			errorPrefix,
+			payRequest.WashID,
+			payRequest.PostID,
+			paymentInit.PaymentID,
+			paymentInit.ErrorCode,
+			paymentInit.Message,
+			paymentInit.Details)
+	}
 	if err != nil {
 		return nil, fmt.Errorf(
 			"%s payment init failed (wash_id=%s, post_id=%s, transaction_id=%s), error: %s",
@@ -128,14 +139,16 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 			paymentInit.PaymentID,
 			err.Error())
 	}
-	if resp.ErrorCode != "0" {
+	if !resp.Success {
 		return nil, fmt.Errorf(
-			"%s get qr failed (wash_id=%s, post_id=%s, transaction_id=%s), error: %s",
+			"%s payment init failed (wash_id=%s, post_id=%s, transaction_id=%s), errorCode: %s, message: %s, details: %s",
 			errorPrefix,
 			payRequest.WashID,
 			payRequest.PostID,
-			paymentInit.PaymentID,
-			resp.Message)
+			resp.PaymentID,
+			resp.ErrorCode,
+			resp.Message,
+			resp.Details)
 	}
 
 	// add payment to db

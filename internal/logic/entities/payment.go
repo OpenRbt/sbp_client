@@ -55,8 +55,11 @@ type PaymentInfo struct {
 // PaymentInit ...
 type PaymentInit struct {
 	PaymentInfo
-	Status string
-	Url    string
+	Status    string
+	Url       string
+	ErrorCode string
+	Message   string
+	Details   string
 }
 
 // PaymentCancel ...
@@ -64,14 +67,17 @@ type PaymentCancel struct {
 	PaymentInfo
 	Status    string
 	ErrorCode string
+	Message   string
+	Details   string
 }
 
 // PaymentGetQr ...
 type PaymentGetQr struct {
 	PaymentInfo
-	ErrorCode string
 	UrlPay    string
+	ErrorCode string
 	Message   string
+	Details   string
 }
 
 // PaymentNotification ...
