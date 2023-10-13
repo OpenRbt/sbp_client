@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	logicEntities "sbp/internal/logic/entities"
+	"strings"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
@@ -125,33 +126,36 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 			paymentInit.Details)
 	}
 
-	// get QR code
-	paymentCreds := logicEntities.PaymentCreds{
-		TerminalKey: wash.TerminalKey,
-		PaymentID:   paymentInit.PaymentID,
+	urlPay := paymentInit.Url
+	if !strings.HasSuffix(wash.TerminalKey, "DEMO") {
+		// get QR code
+		paymentCreds := logicEntities.PaymentCreds{
+			TerminalKey: wash.TerminalKey,
+			PaymentID:   paymentInit.PaymentID,
+		}
+		resp, err := logic.payClient.GetQr(paymentCreds, wash.TerminalPassword)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"%s get qr failed (wash_id=%s, post_id=%s, transaction_id=%s), error: %s",
+				errorPrefix,
+				payRequest.WashID,
+				payRequest.PostID,
+				paymentInit.PaymentID,
+				err.Error())
+		}
+		if !resp.Success {
+			return nil, fmt.Errorf(
+				"%s get qr failed (wash_id=%s, post_id=%s, transaction_id=%s), errorCode: %s, message: %s, details: %s",
+				errorPrefix,
+				payRequest.WashID,
+				payRequest.PostID,
+				resp.PaymentID,
+				resp.ErrorCode,
+				resp.Message,
+				resp.Details)
+		}
+		urlPay = resp.UrlPay
 	}
-	resp, err := logic.payClient.GetQr(paymentCreds, wash.TerminalPassword)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"%s get qr failed (wash_id=%s, post_id=%s, transaction_id=%s), error: %s",
-			errorPrefix,
-			payRequest.WashID,
-			payRequest.PostID,
-			paymentInit.PaymentID,
-			err.Error())
-	}
-	if !resp.Success {
-		return nil, fmt.Errorf(
-			"%s get qr failed (wash_id=%s, post_id=%s, transaction_id=%s), errorCode: %s, message: %s, details: %s",
-			errorPrefix,
-			payRequest.WashID,
-			payRequest.PostID,
-			resp.PaymentID,
-			resp.ErrorCode,
-			resp.Message,
-			resp.Details)
-	}
-
 	// add payment to db
 	transactionStatus := logicEntities.TransactionStatusFromString(paymentInit.Status)
 	if err != nil {
@@ -178,15 +182,15 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 			payRequest.WashID,
 			payRequest.PostID,
 			paymentInit.PaymentID,
-			resp.Message)
+			err.Error())
 	}
 
 	// send broker message
 	payResponse := logicEntities.PaymentResponse{
 		WashID:  transactionCreate.WashID,
 		PostID:  payRequest.PostID,
-		OrderID: resp.OrderID,
-		UrlPay:  resp.UrlPay,
+		OrderID: orderID.String(),
+		UrlPay:  urlPay,
 	}
 
 	// for tests whithout qr
@@ -205,7 +209,7 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 			payRequest.WashID,
 			payRequest.PostID,
 			paymentInit.PaymentID,
-			resp.Message)
+			err.Error())
 	}
 
 	return &payResponse, nil

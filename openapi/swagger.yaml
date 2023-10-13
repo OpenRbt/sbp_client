@@ -49,6 +49,10 @@ paths:
           description: OK
           schema:
             type: string
+        400:
+          description: Bad request
+          schema:
+            type: string
         500:
           description: Internal error
           schema:
