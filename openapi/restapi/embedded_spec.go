@@ -122,6 +122,12 @@ func init() {
               "type": "string"
             }
           },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "type": "string"
+            }
+          },
           "500": {
             "description": "Internal error",
             "schema": {
@@ -761,6 +767,12 @@ func init() {
         "responses": {
           "200": {
             "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Bad request",
             "schema": {
               "type": "string"
             }

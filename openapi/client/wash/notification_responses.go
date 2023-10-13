@@ -29,6 +29,12 @@ func (o *NotificationReader) ReadResponse(response runtime.ClientResponse, consu
 			return nil, err
 		}
 		return result, nil
+	case 400:
+		result := NewNotificationBadRequest()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 500:
 		result := NewNotificationInternalServerError()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -97,6 +103,72 @@ func (o *NotificationOK) GetPayload() string {
 }
 
 func (o *NotificationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// response payload
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewNotificationBadRequest creates a NotificationBadRequest with default headers values
+func NewNotificationBadRequest() *NotificationBadRequest {
+	return &NotificationBadRequest{}
+}
+
+/*
+NotificationBadRequest describes a response with status code 400, with default header values.
+
+Bad request
+*/
+type NotificationBadRequest struct {
+	Payload string
+}
+
+// IsSuccess returns true when this notification bad request response has a 2xx status code
+func (o *NotificationBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this notification bad request response has a 3xx status code
+func (o *NotificationBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this notification bad request response has a 4xx status code
+func (o *NotificationBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this notification bad request response has a 5xx status code
+func (o *NotificationBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this notification bad request response a status code equal to that given
+func (o *NotificationBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
+// Code gets the status code for the notification bad request response
+func (o *NotificationBadRequest) Code() int {
+	return 400
+}
+
+func (o *NotificationBadRequest) Error() string {
+	return fmt.Sprintf("[POST /notification][%d] notificationBadRequest  %+v", 400, o.Payload)
+}
+
+func (o *NotificationBadRequest) String() string {
+	return fmt.Sprintf("[POST /notification][%d] notificationBadRequest  %+v", 400, o.Payload)
+}
+
+func (o *NotificationBadRequest) GetPayload() string {
+	return o.Payload
+}
+
+func (o *NotificationBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {

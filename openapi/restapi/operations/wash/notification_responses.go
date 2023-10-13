@@ -59,6 +59,51 @@ func (o *NotificationOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 
 func (o *NotificationOK) NotificationResponder() {}
 
+// NotificationBadRequestCode is the HTTP code returned for type NotificationBadRequest
+const NotificationBadRequestCode int = 400
+
+/*
+NotificationBadRequest Bad request
+
+swagger:response notificationBadRequest
+*/
+type NotificationBadRequest struct {
+
+	/*
+	  In: Body
+	*/
+	Payload string `json:"body,omitempty"`
+}
+
+// NewNotificationBadRequest creates NotificationBadRequest with default headers values
+func NewNotificationBadRequest() *NotificationBadRequest {
+
+	return &NotificationBadRequest{}
+}
+
+// WithPayload adds the payload to the notification bad request response
+func (o *NotificationBadRequest) WithPayload(payload string) *NotificationBadRequest {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the notification bad request response
+func (o *NotificationBadRequest) SetPayload(payload string) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *NotificationBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(400)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
+func (o *NotificationBadRequest) NotificationResponder() {}
+
 // NotificationInternalServerErrorCode is the HTTP code returned for type NotificationInternalServerError
 const NotificationInternalServerErrorCode int = 500
 
