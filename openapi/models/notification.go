@@ -6,6 +6,7 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"fmt"
 	"context"
 
 	"github.com/go-openapi/strfmt"
@@ -66,6 +67,7 @@ func (m *Notification) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (m *Notification) UnmarshalBinary(b []byte) error {
 	var res Notification
+	fmt.Println(string(b))
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
