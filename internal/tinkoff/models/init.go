@@ -6,9 +6,7 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -35,39 +33,6 @@ type Init struct {
 	// terminal key
 	// Required: true
 	TerminalKey *string `json:"TerminalKey"`
-}
-
-// UnmarshalJSON unmarshals this object while disallowing additional properties from JSON
-func (m *Init) UnmarshalJSON(data []byte) error {
-	var props struct {
-
-		// amount
-		// Required: true
-		Amount *int64 `json:"Amount"`
-
-		// order Id
-		// Required: true
-		OrderID *string `json:"OrderId"`
-
-		// redirect due date
-		RedirectDueDate string `json:"RedirectDueDate,omitempty"`
-
-		// terminal key
-		// Required: true
-		TerminalKey *string `json:"TerminalKey"`
-	}
-
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.DisallowUnknownFields()
-	if err := dec.Decode(&props); err != nil {
-		return err
-	}
-
-	m.Amount = props.Amount
-	m.OrderID = props.OrderID
-	m.RedirectDueDate = props.RedirectDueDate
-	m.TerminalKey = props.TerminalKey
-	return nil
 }
 
 // Validate validates this init

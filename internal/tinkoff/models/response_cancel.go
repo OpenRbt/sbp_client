@@ -6,9 +6,7 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -48,60 +46,6 @@ type ResponseCancel struct {
 
 	// terminal key
 	TerminalKey string `json:"TerminalKey,omitempty"`
-}
-
-// UnmarshalJSON unmarshals this object while disallowing additional properties from JSON
-func (m *ResponseCancel) UnmarshalJSON(data []byte) error {
-	var props struct {
-
-		// details
-		Details string `json:"Details,omitempty"`
-
-		// error code
-		ErrorCode string `json:"ErrorCode,omitempty"`
-
-		// message
-		Message string `json:"Message,omitempty"`
-
-		// new amount
-		NewAmount int64 `json:"NewAmount,omitempty"`
-
-		// order Id
-		OrderID string `json:"OrderId,omitempty"`
-
-		// original amount
-		OriginalAmount int64 `json:"OriginalAmount,omitempty"`
-
-		// payment Id
-		PaymentID string `json:"PaymentId,omitempty"`
-
-		// status
-		Status string `json:"Status,omitempty"`
-
-		// success
-		Success bool `json:"Success,omitempty"`
-
-		// terminal key
-		TerminalKey string `json:"TerminalKey,omitempty"`
-	}
-
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.DisallowUnknownFields()
-	if err := dec.Decode(&props); err != nil {
-		return err
-	}
-
-	m.Details = props.Details
-	m.ErrorCode = props.ErrorCode
-	m.Message = props.Message
-	m.NewAmount = props.NewAmount
-	m.OrderID = props.OrderID
-	m.OriginalAmount = props.OriginalAmount
-	m.PaymentID = props.PaymentID
-	m.Status = props.Status
-	m.Success = props.Success
-	m.TerminalKey = props.TerminalKey
-	return nil
 }
 
 // Validate validates this response cancel
