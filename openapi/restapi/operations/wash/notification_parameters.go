@@ -7,7 +7,9 @@ package wash
 
 import (
 	"net/http"
-
+	"fmt"
+	"io"
+	"bytes"
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
@@ -51,7 +53,9 @@ func (o *NotificationParams) BindRequest(r *http.Request, route *middleware.Matc
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
 		var body models.Notification
-		if err := route.Consumer.Consume(r.Body, &body); err != nil {
+		b, _ := io.ReadAll(r.Body)
+		fmt.Println(string(b))
+		if err := route.Consumer.Consume(bytes.NewReader(b), &body); err != nil {
 			res = append(res, errors.NewParseError("body", "body", "", err))
 		} else {
 			// validate body object
