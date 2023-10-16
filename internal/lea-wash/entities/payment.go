@@ -15,6 +15,7 @@ type PaymentResponse struct {
 	OrderID    string `json:"order_id"`
 	UrlPayment string `json:"url_pay"`
 	Failed     bool   `json:"failed"`
+	Error      string `json:"error"`
 }
 
 // PaymentСancellationRequest ...

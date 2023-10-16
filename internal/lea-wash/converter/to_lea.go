@@ -14,6 +14,7 @@ func PaymentResponseToLea(e logicEntities.PaymentResponse) leEntities.PaymentRes
 		OrderID:    e.OrderID,
 		UrlPayment: e.UrlPay,
 		Failed:     e.Failed,
+		Error:      e.Error,
 	}
 }
 
