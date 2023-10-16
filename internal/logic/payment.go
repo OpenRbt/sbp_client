@@ -26,7 +26,6 @@ type PayClient interface {
 	Init(req logicEntities.PaymentCreate) (logicEntities.PaymentInit, error)
 	GetQr(req logicEntities.PaymentCreds, password string) (logicEntities.PaymentGetQr, error)
 	Cancel(req logicEntities.PaymentCreds, password string) (logicEntities.PaymentCancel, error)
-	// IsNotificationCorrect(notification logicEntities.PaymentNotification, password string) bool
 }
 
 // LeaWashPublisher

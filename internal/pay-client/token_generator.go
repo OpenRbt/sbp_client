@@ -15,7 +15,6 @@ type tokenGenerator struct {
 	password string
 }
 
-// NewTokkenGenerator ...
 func newTokkenGenerator(password string) (*tokenGenerator, error) {
 	if password == "" {
 		return nil, errors.New("password is empty")
@@ -60,7 +59,6 @@ func parseRequest(req interface{}, tag string) map[string]string {
 	return resp
 }
 
-// GenerateToken ...
 func (g tokenGenerator) generateToken(req interface{}, tag string) string {
 	request := parseRequest(req, tag)
 	// add password
@@ -96,7 +94,5 @@ func checksumSha256(s string) string {
 
 // checkToken ...
 func (g tokenGenerator) CheckToken(tag string, resp interface{}, token string) bool {
-	t := g.generateToken(resp, tag)
-	fmt.Printf("token: %s\n", t)
-	return t == token
+	return g.generateToken(resp, tag) == token
 }
