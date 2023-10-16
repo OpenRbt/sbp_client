@@ -6,7 +6,6 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"fmt"
 	"context"
 
 	"github.com/go-openapi/strfmt"
@@ -21,8 +20,14 @@ type Notification struct {
 	// Payment amount
 	Amount int64 `json:"Amount,omitempty"`
 
+	// card Id
+	CardID *int64 `json:"CardId,omitempty"`
+
 	// Error code
 	ErrorCode string `json:"ErrorCode,omitempty"`
+
+	// exp date
+	ExpDate *string `json:"ExpDate,omitempty"`
 
 	// Order ID
 	OrderID string `json:"OrderId,omitempty"`
@@ -67,7 +72,6 @@ func (m *Notification) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (m *Notification) UnmarshalBinary(b []byte) error {
 	var res Notification
-	fmt.Println(string(b))
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

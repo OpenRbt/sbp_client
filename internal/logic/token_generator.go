@@ -1,4 +1,4 @@
-package tinkoff
+package logic
 
 import (
 	"crypto/sha256"
@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	logicEntities "sbp/internal/logic/entities"
 	"sort"
 	"strings"
 )
@@ -13,6 +14,19 @@ import (
 // tokenGenerator ...
 type tokenGenerator struct {
 	password string
+}
+
+func IsNotificationCorrect(param logicEntities.PaymentNotification, password string) (bool, error) {
+	tokkenGenerator, err := newTokkenGenerator(password)
+	if err != nil {
+		return false, fmt.Errorf("IsNotificationCorrect error: %s", err.Error())
+	}
+
+	// notificationWithJsonTag := converter.PaymentNotificationToPayClient(notification)
+	// paymentRegisterNotification ...
+	token := param.Token
+	isTokenValid := tokkenGenerator.checkToken("json", param, token)
+	return isTokenValid, nil
 }
 
 // NewTokkenGenerator ...
@@ -49,7 +63,7 @@ func parseRequest(req interface{}, tag string) map[string]string {
 		tag := t.Field(i).Tag.Get(tag)
 
 		// Если тег не пустой, то добавляем его в список полей
-		if tag != "" {
+		if tag != "" && v.Field(i).IsValid() {
 			tagAndOpts := strings.Split(tag, ",")
 			onlyTag := strings.ToLower(tagAndOpts[0])
 			resp[onlyTag] = fmt.Sprint(v.Field(i))
@@ -61,12 +75,29 @@ func parseRequest(req interface{}, tag string) map[string]string {
 }
 
 // GenerateToken ...
-func (g tokenGenerator) generateToken(req interface{}, tag string) string {
-	request := parseRequest(req, tag)
+func (g tokenGenerator) generateToken(req logicEntities.PaymentNotification, tag string) string {
+	request := make(map[string]string)
+	// request := parseRequest(req, tag)
 	// add password
 	request["password"] = g.password
 	// delete token attr
 	delete(request, "token")
+
+	request["terminalKey"] = req.TerminalKey
+	request["orderId"] = req.OrderID
+	request["success"] = fmt.Sprintf("%t", req.Success)
+	request["status"] = req.Status
+	request["paymentId"] = fmt.Sprintf("%d", req.PaymentID)
+	request["errorCode"] = req.ErrorCode
+	request["amount"] = fmt.Sprintf("%d", req.Amount)
+	request["pan"] = req.Pan
+	if req.ExpDate != nil {
+		request["expDate"] = *req.ExpDate
+	}
+	if req.CardID != nil {
+		request["cardId"] = fmt.Sprintf("%d", *req.CardID)
+	}
+
 	// Получаем ключи из map
 	keys := make([]string, 0, len(request))
 	for key := range request {
@@ -95,7 +126,7 @@ func checksumSha256(s string) string {
 }
 
 // checkToken ...
-func (g tokenGenerator) CheckToken(tag string, resp interface{}, token string) bool {
+func (g tokenGenerator) checkToken(tag string, resp logicEntities.PaymentNotification, token string) bool {
 	t := g.generateToken(resp, tag)
 	fmt.Printf("token: %s\n", t)
 	return t == token

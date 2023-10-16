@@ -1,22 +1,13 @@
-package tinkoff
+package logic
 
 import (
 	"encoding/json"
 	"fmt"
 	logicEntities "sbp/internal/logic/entities"
 	"testing"
-	"time"
-
-	"go.uber.org/zap"
 )
 
 func TestIsNotificationCorrect(t *testing.T) {
-	logger, _ := zap.NewDevelopment()
-	payClient, err := NewPayClient(logger.Sugar(), time.Hour)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
 	// Тестовые случаи
 	testCases := []struct {
 		request  []byte
@@ -43,15 +34,17 @@ func TestIsNotificationCorrect(t *testing.T) {
 		{
 			request: []byte(`
 			{
-				"TerminalKey": "1696908061914DEMO",
-				"OrderId": "a24a9ca2-e323-49aa-bff6-493e5deebc0c",
-				"Success": true,
-				"Status": "AUTHORIZED",
-				"PaymentId": 3367515924,
-				"ErrorCode": "0",
-				"Amount": 5000,
-				"Pan": "430000******0777",
-				"Token": "188ef1adacba53d889aa427184aaa47b7ee7eb306427dc5ab3dc1a7f87c4b7d5"
+				"TerminalKey":"1696908061914DEMO",
+				"OrderId":"a24a9ca2-e323-49aa-bff6-493e5deebc0c",
+				"Success":true,
+				"Status":"AUTHORIZED",
+				"PaymentId":3367515924,
+				"ErrorCode":"0",
+				"Amount":5000,
+				"CardId": 356460362,
+				"Pan":"430000******0777",
+				"ExpDate":"1122",
+				"Token":"188ef1adacba53d889aa427184aaa47b7ee7eb306427dc5ab3dc1a7f87c4b7d5"
 			}
 			`),
 			result:   true,
@@ -66,7 +59,7 @@ func TestIsNotificationCorrect(t *testing.T) {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		result := payClient.IsNotificationCorrect(notification, testCase.password)
+		result, _ := IsNotificationCorrect(notification, testCase.password)
 		if result != testCase.result {
 			t.Errorf("IsNotificationCorrect('%#+v', '%s') = '%t', ожидалось '%t'", notification, testCase.password, result, testCase.result)
 		}

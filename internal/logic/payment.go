@@ -26,7 +26,7 @@ type PayClient interface {
 	Init(req logicEntities.PaymentCreate) (logicEntities.PaymentInit, error)
 	GetQr(req logicEntities.PaymentCreds, password string) (logicEntities.PaymentGetQr, error)
 	Cancel(req logicEntities.PaymentCreds, password string) (logicEntities.PaymentCancel, error)
-	IsNotificationCorrect(notification logicEntities.PaymentNotification, password string) bool
+	// IsNotificationCorrect(notification logicEntities.PaymentNotification, password string) bool
 }
 
 // LeaWashPublisher
@@ -239,8 +239,8 @@ func (logic *PaymentLogic) Notification(ctx context.Context, notification logicE
 	}
 
 	// check notification
-	if !logic.payClient.IsNotificationCorrect(notification, wash.TerminalPassword) {
-		return fmt.Errorf("%s notification is not correct (wash_id=%s, notification=%+#v)", errorPrefix, washID, notification)
+	if valid, err := IsNotificationCorrect(notification, wash.TerminalPassword); valid {
+		return fmt.Errorf("%s notification is not correct (wash_id=%s, notification=%+#v), err=%s", errorPrefix, washID, notification, err)
 	}
 
 	// update transaction

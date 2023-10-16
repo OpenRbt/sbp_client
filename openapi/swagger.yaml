@@ -411,6 +411,13 @@ definitions:
       Token:
         type: string
         description: Payment token
+      CardId:
+        type: integer
+        x-nullable: true
+      ExpDate:
+        type: string
+        x-nullable: true
+
   Pagination:
     type: object
     properties: 

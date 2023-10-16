@@ -471,9 +471,17 @@ func init() {
           "description": "Payment amount",
           "type": "integer"
         },
+        "CardId": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "ErrorCode": {
           "description": "Error code",
           "type": "string"
+        },
+        "ExpDate": {
+          "type": "string",
+          "x-nullable": true
         },
         "OrderId": {
           "description": "Order ID",
@@ -1120,9 +1128,17 @@ func init() {
           "description": "Payment amount",
           "type": "integer"
         },
+        "CardId": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "ErrorCode": {
           "description": "Error code",
           "type": "string"
+        },
+        "ExpDate": {
+          "type": "string",
+          "x-nullable": true
         },
         "OrderId": {
           "description": "Order ID",

@@ -91,6 +91,8 @@ type PaymentNotification struct {
 	Success     bool
 	TerminalKey string
 	Token       string
+	CardID      *int64
+	ExpDate     *string
 }
 
 type InitPaymentResp struct {
