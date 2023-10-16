@@ -33,7 +33,7 @@ type PayClient interface {
 type LeaWashPublisher interface {
 	SendToLeaPaymentResponse(logicEntities.PaymentResponse) error
 	SendToLeaPaymentNotification(logicEntities.PaymentNotificationForLea) error
-	SendToLeaPaymentFailedResponse(washID string, postID string, orderID string) error
+	SendToLeaPaymentFailedResponse(washID string, postID string, orderID string, err string) error
 }
 
 // PayRepository ...

@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"reflect"
 	logicEntities "sbp/internal/logic/entities"
 	"sort"
 	"strings"
@@ -37,41 +36,6 @@ func newTokkenGenerator(password string) (*tokenGenerator, error) {
 	return &tokenGenerator{
 		password: password,
 	}, nil
-}
-
-// parseRequest ...
-func parseRequest(req interface{}, tag string) map[string]string {
-	// Получаем тип структуры
-	t := reflect.TypeOf(req)
-
-	// Получаем значение структуры
-	v := reflect.ValueOf(req)
-
-	// Проходим по всем полям структуры
-	resp := make(map[string]string)
-	numField := t.NumField()
-	for i := 0; i < numField; i++ {
-		// Если поле является структурой рекурсивно идем по ней, результат суммируем
-		if t.Field(i).Type.Kind() == reflect.Struct {
-			subStruct := v.Field(i).Interface()
-			r := parseRequest(subStruct, tag)
-			for k, v := range r {
-				resp[k] = fmt.Sprintf("%v", v)
-			}
-		}
-		// Получаем тег каждого поля
-		tag := t.Field(i).Tag.Get(tag)
-
-		// Если тег не пустой, то добавляем его в список полей
-		if tag != "" && v.Field(i).IsValid() {
-			tagAndOpts := strings.Split(tag, ",")
-			onlyTag := strings.ToLower(tagAndOpts[0])
-			resp[onlyTag] = fmt.Sprint(v.Field(i))
-			fmt.Println(onlyTag, ":", fmt.Sprint(v.Field(i)))
-		}
-	}
-
-	return resp
 }
 
 // GenerateToken ...

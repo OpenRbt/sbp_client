@@ -15,6 +15,7 @@ type PaymentResponse struct {
 	OrderID string
 	UrlPay  string
 	Failed  bool
+	Error   string
 }
 
 // PaymentСancellationRequest ...

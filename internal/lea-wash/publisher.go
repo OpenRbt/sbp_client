@@ -60,13 +60,14 @@ func (leaWashPublisher *leaWashPublisher) SendToLeaPaymentResponse(message logic
 }
 
 // SendToLeaPaymentResponse ...
-func (leaWashPublisher *leaWashPublisher) SendToLeaPaymentFailedResponse(washID string, postID string, orderID string) error {
+func (leaWashPublisher *leaWashPublisher) SendToLeaPaymentFailedResponse(washID string, postID string, orderID string, err string) error {
 	paymentResponse := logicEntities.PaymentResponse{
 		WashID:  washID,
 		PostID:  postID,
 		OrderID: orderID,
 		UrlPay:  "",
 		Failed:  true,
+		Error:   err,
 	}
 	return leaWashPublisher.SendToLeaPaymentResponse(paymentResponse)
 }
