@@ -239,7 +239,7 @@ func (logic *PaymentLogic) Notification(ctx context.Context, notification logicE
 	}
 
 	// check notification
-	if valid, err := IsNotificationCorrect(notification, wash.TerminalPassword); valid {
+	if valid, err := IsNotificationCorrect(notification, wash.TerminalPassword); !valid {
 		return fmt.Errorf("%s notification is not correct (wash_id=%s, notification=%+#v), err=%s", errorPrefix, washID, notification, err)
 	}
 

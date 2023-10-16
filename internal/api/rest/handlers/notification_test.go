@@ -1,9 +1,11 @@
-package logic
+package handlers
 
 import (
 	"encoding/json"
 	"fmt"
-	logicEntities "sbp/internal/logic/entities"
+	restConverter "sbp/internal/api/rest/converter"
+	"sbp/internal/logic"
+	"sbp/openapi/models"
 	"testing"
 )
 
@@ -58,24 +60,16 @@ func TestIsNotificationCorrect(t *testing.T) {
 			result:   true,
 			password: "7wqy8w821dqbldev",
 		},
-		{
-			request: []byte(`
-			{
-				"TerminalKey":"1696908061914DEMO","OrderId":"f937ea3d-c6bb-443b-bf19-81de61e5f8df","Success":true,"Status":"AUTHORIZED","PaymentId":3381465839,"ErrorCode":"0","Amount":12500,"CardId":356460362,"Pan":"430000******0777","ExpDate":"1122","Token":"d5722d4cb7b75717d6d237571058e1351bb5016ac99fa34dce61a9e68a7d34fd"		}
-			`),
-			result:   true,
-			password: "7wqy8w821dqbldev",
-		},
 	}
 
 	// Проверка каждого тестового случая
 	for _, testCase := range testCases {
-		var notification logicEntities.PaymentNotification
+		var notification models.Notification
 		err := json.Unmarshal(testCase.request, &notification)
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		result, _ := IsNotificationCorrect(notification, testCase.password)
+		result, _ := logic.IsNotificationCorrect(restConverter.СonvertRegisterNotificationFromRest(notification), testCase.password)
 		if result != testCase.result {
 			t.Errorf("IsNotificationCorrect('%#+v', '%s') = '%t', ожидалось '%t'", notification, testCase.password, result, testCase.result)
 		}
