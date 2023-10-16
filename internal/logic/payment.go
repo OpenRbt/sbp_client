@@ -126,7 +126,7 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 	}
 
 	urlPay := paymentInit.Url
-	if !strings.HasSuffix(wash.TerminalKey, "DEMO") {
+	if !strings.HasSuffix(wash.TerminalKey, "DEMO") && 1 == 2 {
 		// get QR code
 		paymentCreds := logicEntities.PaymentCreds{
 			TerminalKey: wash.TerminalKey,
