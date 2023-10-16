@@ -21,8 +21,6 @@ func IsNotificationCorrect(param logicEntities.PaymentNotification, password str
 		return false, fmt.Errorf("IsNotificationCorrect error: %s", err.Error())
 	}
 
-	// notificationWithJsonTag := converter.PaymentNotificationToPayClient(notification)
-	// paymentRegisterNotification ...
 	token := param.Token
 	isTokenValid := tokkenGenerator.checkToken("json", param, token)
 	return isTokenValid, nil
@@ -41,11 +39,9 @@ func newTokkenGenerator(password string) (*tokenGenerator, error) {
 // GenerateToken ...
 func (g tokenGenerator) generateToken(req logicEntities.PaymentNotification, tag string) string {
 	request := make(map[string]string)
-	// request := parseRequest(req, tag)
+
 	// add password
 	request["password"] = g.password
-	// delete token attr
-	delete(request, "token")
 
 	request["terminalKey"] = req.TerminalKey
 	request["orderId"] = req.OrderID
