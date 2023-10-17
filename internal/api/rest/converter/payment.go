@@ -17,5 +17,7 @@ func СonvertRegisterNotificationFromRest(req openapiEntities.Notification) logi
 		Status:      req.Status,
 		TerminalKey: req.TerminalKey,
 		Token:       req.Token,
+		ExpDate:     req.ExpDate,
+		CardID:      req.CardID,
 	}
 }

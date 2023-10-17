@@ -81,14 +81,15 @@ func createHandler(logger *zap.SugaredLogger, washHandler washHandler, publisher
 
 				sbpRequest := leConverter.PaymentRequestToSbp(req)
 				payResp, err := washHandler.Pay(ctx, sbpRequest)
-				if payResp == nil {
-					logger.Debug("lea payment request error: 'payment_resp = nil'")
-					err = publisher.SendToLeaPaymentFailedResponse(sbpRequest.WashID, sbpRequest.PostID, sbpRequest.OrderID)
-					return err
-				}
 				if err != nil {
 					logger.Debugf("lea payment request error: '%s'", err.Error())
-					err = publisher.SendToLeaPaymentFailedResponse(sbpRequest.WashID, sbpRequest.PostID, sbpRequest.OrderID)
+					errPub := publisher.SendToLeaPaymentFailedResponse(sbpRequest.WashID, sbpRequest.PostID, sbpRequest.OrderID, err.Error())
+					return errPub
+				}
+				if payResp == nil {
+					logger.Debug("lea payment request error: 'payment_resp = nil'")
+					logger.Debugf("lea payment request error: '%s'", err.Error())
+					err = publisher.SendToLeaPaymentFailedResponse(sbpRequest.WashID, sbpRequest.PostID, sbpRequest.OrderID, err.Error())
 					return err
 				}
 
@@ -111,7 +112,7 @@ func createHandler(logger *zap.SugaredLogger, washHandler washHandler, publisher
 				if err != nil {
 					logger.Debugf("lea payment cancellation request error: '%s'", err.Error())
 					if resendNeaded {
-						err = publisher.SendToLeaPaymentFailedResponse(sbpRequest.WashID, sbpRequest.PostID, sbpRequest.OrderID)
+						err = publisher.SendToLeaPaymentFailedResponse(sbpRequest.WashID, sbpRequest.PostID, sbpRequest.OrderID, err.Error())
 						return err
 					}
 					return err

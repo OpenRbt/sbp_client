@@ -69,7 +69,7 @@ func (pc *PayClient) Init(req logicEntities.PaymentCreate) (logicEntities.Paymen
 // GetQr ...
 func (pc *PayClient) GetQr(paymentCreds logicEntities.PaymentCreds, password string) (logicEntities.PaymentGetQr, error) {
 	// generate token
-	tokkenGenerator, err := NewTokkenGenerator(password)
+	tokkenGenerator, err := newTokkenGenerator(password)
 	if err != nil {
 		return logicEntities.PaymentGetQr{}, err
 	}
@@ -130,7 +130,7 @@ func structToMap(input interface{}) (map[string]string, error) {
 // Cancel ...
 func (pc *PayClient) Cancel(req logicEntities.PaymentCreds, password string) (logicEntities.PaymentCancel, error) {
 	// generate token
-	tokkenGenerator, err := NewTokkenGenerator(password)
+	tokkenGenerator, err := newTokkenGenerator(password)
 	if err != nil {
 		return logicEntities.PaymentCancel{}, err
 	}
@@ -158,19 +158,4 @@ func (pc *PayClient) Cancel(req logicEntities.PaymentCreds, password string) (lo
 	model := converter.PaymentCancelResponseToLogic(*res.Payload)
 
 	return model, nil
-}
-
-// IsNotificationCorrect ...
-func (pc *PayClient) IsNotificationCorrect(notification logicEntities.PaymentNotification, password string) bool {
-	// generate token
-	tokkenGenerator, err := NewTokkenGenerator(password)
-	if err != nil {
-		pc.l.Errorf("IsNotificationCorrect error: %s", err.Error())
-		return false
-	}
-
-	notificationWithJsonTag := converter.PaymentNotificationToPayClient(notification)
-	// paymentRegisterNotification ...
-	isTokenValid := tokkenGenerator.checkToken("json", notificationWithJsonTag, notification.Token)
-	return isTokenValid
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	logicEntities "sbp/internal/logic/entities"
+	"strings"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
@@ -25,14 +26,13 @@ type PayClient interface {
 	Init(req logicEntities.PaymentCreate) (logicEntities.PaymentInit, error)
 	GetQr(req logicEntities.PaymentCreds, password string) (logicEntities.PaymentGetQr, error)
 	Cancel(req logicEntities.PaymentCreds, password string) (logicEntities.PaymentCancel, error)
-	IsNotificationCorrect(notification logicEntities.PaymentNotification, password string) bool
 }
 
 // LeaWashPublisher
 type LeaWashPublisher interface {
 	SendToLeaPaymentResponse(logicEntities.PaymentResponse) error
 	SendToLeaPaymentNotification(logicEntities.PaymentNotificationForLea) error
-	SendToLeaPaymentFailedResponse(washID string, postID string, orderID string) error
+	SendToLeaPaymentFailedResponse(washID string, postID string, orderID string, err string) error
 }
 
 // PayRepository ...
@@ -113,31 +113,48 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 			err.Error())
 	}
 
-	// get QR code
-	paymentCreds := logicEntities.PaymentCreds{
-		TerminalKey: wash.TerminalKey,
-		PaymentID:   paymentInit.PaymentID,
-	}
-	resp, err := logic.payClient.GetQr(paymentCreds, wash.TerminalPassword)
-	if err != nil {
+	if !paymentInit.Success {
 		return nil, fmt.Errorf(
-			"%s get qr failed (wash_id=%s, post_id=%s, transaction_id=%s), error: %s",
+			"%s payment init failed (wash_id=%s, post_id=%s, transaction_id=%s), errorCode: %s, message: %s, details: %s",
 			errorPrefix,
 			payRequest.WashID,
 			payRequest.PostID,
 			paymentInit.PaymentID,
-			err.Error())
-	}
-	if resp.ErrorCode != "0" {
-		return nil, fmt.Errorf(
-			"%s get qr failed (wash_id=%s, post_id=%s, transaction_id=%s), error: %s",
-			errorPrefix,
-			payRequest.WashID,
-			payRequest.PostID,
-			paymentInit.PaymentID,
-			resp.Message)
+			paymentInit.ErrorCode,
+			paymentInit.Message,
+			paymentInit.Details)
 	}
 
+	urlPay := paymentInit.Url
+	if !strings.HasSuffix(wash.TerminalKey, "DEMO") {
+		// get QR code
+		paymentCreds := logicEntities.PaymentCreds{
+			TerminalKey: wash.TerminalKey,
+			PaymentID:   paymentInit.PaymentID,
+		}
+		resp, err := logic.payClient.GetQr(paymentCreds, wash.TerminalPassword)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"%s get qr failed (wash_id=%s, post_id=%s, transaction_id=%s), error: %s",
+				errorPrefix,
+				payRequest.WashID,
+				payRequest.PostID,
+				paymentInit.PaymentID,
+				err.Error())
+		}
+		if !resp.Success {
+			return nil, fmt.Errorf(
+				"%s get qr failed (wash_id=%s, post_id=%s, transaction_id=%s), errorCode: %s, message: %s, details: %s",
+				errorPrefix,
+				payRequest.WashID,
+				payRequest.PostID,
+				resp.PaymentID,
+				resp.ErrorCode,
+				resp.Message,
+				resp.Details)
+		}
+		urlPay = resp.UrlPay
+	}
 	// add payment to db
 	transactionStatus := logicEntities.TransactionStatusFromString(paymentInit.Status)
 	if err != nil {
@@ -164,15 +181,15 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 			payRequest.WashID,
 			payRequest.PostID,
 			paymentInit.PaymentID,
-			resp.Message)
+			err.Error())
 	}
 
 	// send broker message
 	payResponse := logicEntities.PaymentResponse{
 		WashID:  transactionCreate.WashID,
 		PostID:  payRequest.PostID,
-		OrderID: resp.OrderID,
-		UrlPay:  resp.UrlPay,
+		OrderID: orderID.String(),
+		UrlPay:  urlPay,
 	}
 
 	// for tests whithout qr
@@ -191,7 +208,7 @@ func (logic *PaymentLogic) Pay(ctx context.Context, payRequest logicEntities.Pay
 			payRequest.WashID,
 			payRequest.PostID,
 			paymentInit.PaymentID,
-			resp.Message)
+			err.Error())
 	}
 
 	return &payResponse, nil
@@ -221,8 +238,8 @@ func (logic *PaymentLogic) Notification(ctx context.Context, notification logicE
 	}
 
 	// check notification
-	if !logic.payClient.IsNotificationCorrect(notification, wash.TerminalPassword) {
-		return fmt.Errorf("%s notification is not correct (wash_id=%s, notification=%+#v)", errorPrefix, washID, notification)
+	if valid, err := IsNotificationCorrect(notification, wash.TerminalPassword); !valid {
+		return fmt.Errorf("%s notification is not correct (wash_id=%s, notification=%+#v), err=%s", errorPrefix, washID, notification, err)
 	}
 
 	// update transaction

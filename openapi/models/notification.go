@@ -20,8 +20,14 @@ type Notification struct {
 	// Payment amount
 	Amount int64 `json:"Amount,omitempty"`
 
+	// card Id
+	CardID *int64 `json:"CardId,omitempty"`
+
 	// Error code
 	ErrorCode string `json:"ErrorCode,omitempty"`
+
+	// exp date
+	ExpDate *string `json:"ExpDate,omitempty"`
 
 	// Order ID
 	OrderID string `json:"OrderId,omitempty"`

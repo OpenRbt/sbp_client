@@ -74,10 +74,14 @@ func (handler *Handler) Pay(params washes.PayParams, auth *logicEntities.AuthExt
 // Notif ...
 func (handler *Handler) Notif(params washes.NotificationParams, auth *logicEntities.AuthExtended) washes.NotificationResponder {
 	registerNotif := restConverter.СonvertRegisterNotificationFromRest(*params.Body)
+
 	err := handler.logic.Notification(params.HTTPRequest.Context(), registerNotif)
 	if err != nil {
 		handler.logger.Errorf("notify request failed: %w", err)
-		return washes.NewNotificationInternalServerError()
+		// if strings.HasSuffix(registerNotif.TerminalKey, "DEMO") {
+		// return washes.NewNotificationOK().WithPayload("OK")
+		// }
+		return washes.NewNotificationBadRequest().WithPayload("bad request")
 	}
 
 	return washes.NewNotificationOK().WithPayload("OK")
