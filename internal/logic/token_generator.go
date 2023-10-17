@@ -87,7 +87,5 @@ func checksumSha256(s string) string {
 
 // checkToken ...
 func (g tokenGenerator) checkToken(tag string, resp logicEntities.PaymentNotification, token string) bool {
-	t := g.generateToken(resp, tag)
-	fmt.Printf("token: %s\n", t)
-	return t == token
+	return g.generateToken(resp, tag) == token
 }

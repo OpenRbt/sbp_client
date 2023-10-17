@@ -53,7 +53,17 @@ func TestIsNotificationCorrect(t *testing.T) {
 		{
 			request: []byte(`
 			{
-				"TerminalKey":"1696908061914DEMO","OrderId":"f937ea3d-c6bb-443b-bf19-81de61e5f8df","Success":true,"Status":"AUTHORIZED","PaymentId":3381465839,"ErrorCode":"0","Amount":12500,"CardId":356460362,"Pan":"430000******0777","ExpDate":"1122","Token":"d5722d4cb7b75717d6d237571058e1351bb5016ac99fa34dce61a9e68a7d34fd"		}
+				"TerminalKey":"1696908061914DEMO",
+				"OrderId":"f937ea3d-c6bb-443b-bf19-81de61e5f8df",
+				"Success":true,"Status":"AUTHORIZED",
+				"PaymentId":3381465839,
+				"ErrorCode":"0",
+				"Amount":12500,
+				"CardId":356460362,
+				"Pan":"430000******0777",
+				"ExpDate":"1122",
+				"Token":"d5722d4cb7b75717d6d237571058e1351bb5016ac99fa34dce61a9e68a7d34fd"
+			}
 			`),
 			result:   true,
 			password: "7wqy8w821dqbldev",
@@ -61,9 +71,19 @@ func TestIsNotificationCorrect(t *testing.T) {
 		{
 			request: []byte(`
 			{
-				"TerminalKey":"1696908061914DEMO","OrderId":"f937ea3d-c6bb-443b-bf19-81de61e5f8df","Success":true,"Status":"AUTHORIZED","PaymentId":3381465839,"ErrorCode":"0","Amount":12500,"CardId":356460362,"Pan":"430000******0777","ExpDate":"1122","Token":"d5722d4cb7b75717d6d237571058e1351bb5016ac99fa34dce61a9e68a7d34fd"		}
+				"TerminalKey":"1696908061914DEMO",
+				"OrderId":"f937ea3d-c6bb-443b-bf19-81de61e5f8df",
+				"Success":true,"Status":"AUTHORIZED",
+				"PaymentId":3381465839,
+				"ErrorCode":"0",
+				"Amount":12501,
+				"CardId":356460362,
+				"Pan":"430000******0777",
+				"ExpDate":"1122",
+				"Token":"d5722d4cb7b75717d6d237571058e1351bb5016ac99fa34dce61a9e68a7d34fd"
+			}
 			`),
-			result:   true,
+			result:   false,
 			password: "7wqy8w821dqbldev",
 		},
 	}
