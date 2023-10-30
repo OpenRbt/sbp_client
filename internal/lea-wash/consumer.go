@@ -93,7 +93,7 @@ func createHandler(logger *zap.SugaredLogger, washHandler washHandler, publisher
 					return err
 				}
 
-				return publisher.SendToLeaPaymentResponse(*payResp)
+				return nil
 
 			}
 		case leEntities.MessageTypePaymentСancellationRequest:
