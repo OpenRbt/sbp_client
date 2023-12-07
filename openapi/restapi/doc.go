@@ -2,18 +2,18 @@
 
 // Package restapi wash-sbp
 //
-//	microservice for the sbp pay system of self-service car washes
-//	Schemes:
-//	  http
-//	Host: localhost
-//	BasePath: /
-//	Version: 1.0.0
+//  microservice for the sbp system of self-service car washes
+//  Schemes:
+//    http
+//  Host: localhost
+//  BasePath: /
+//  Version: 1.0.1
 //
-//	Consumes:
-//	  - application/json
+//  Consumes:
+//    - application/json
 //
-//	Produces:
-//	  - application/json
+//  Produces:
+//    - application/json
 //
 // swagger:meta
 package restapi

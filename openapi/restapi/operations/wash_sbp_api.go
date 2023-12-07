@@ -19,9 +19,11 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"sbp/internal/logic/entities"
+	"sbp/internal/entities"
+	"sbp/openapi/restapi/operations/notifications"
+	"sbp/openapi/restapi/operations/payments"
 	"sbp/openapi/restapi/operations/standard"
-	"sbp/openapi/restapi/operations/wash"
+	"sbp/openapi/restapi/operations/washes"
 )
 
 // NewWashSbpAPI creates a new WashSbp instance
@@ -46,39 +48,39 @@ func NewWashSbpAPI(spec *loads.Document) *WashSbpAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
-		WashCancelHandler: wash.CancelHandlerFunc(func(params wash.CancelParams, principal *entities.AuthExtended) wash.CancelResponder {
-			return wash.CancelNotImplemented()
+		WashesAssignWashToGroupHandler: washes.AssignWashToGroupHandlerFunc(func(params washes.AssignWashToGroupParams, principal *entities.Auth) washes.AssignWashToGroupResponder {
+			return washes.AssignWashToGroupNotImplemented()
 		}),
-		WashCreateHandler: wash.CreateHandlerFunc(func(params wash.CreateParams, principal *entities.AuthExtended) wash.CreateResponder {
-			return wash.CreateNotImplemented()
+		PaymentsCancelPaymentHandler: payments.CancelPaymentHandlerFunc(func(params payments.CancelPaymentParams, principal *entities.Auth) payments.CancelPaymentResponder {
+			return payments.CancelPaymentNotImplemented()
 		}),
-		WashDeleteHandler: wash.DeleteHandlerFunc(func(params wash.DeleteParams, principal *entities.AuthExtended) wash.DeleteResponder {
-			return wash.DeleteNotImplemented()
+		WashesCreateWashHandler: washes.CreateWashHandlerFunc(func(params washes.CreateWashParams, principal *entities.Auth) washes.CreateWashResponder {
+			return washes.CreateWashNotImplemented()
 		}),
-		WashGetWashHandler: wash.GetWashHandlerFunc(func(params wash.GetWashParams, principal *entities.AuthExtended) wash.GetWashResponder {
-			return wash.GetWashNotImplemented()
+		WashesDeleteWashHandler: washes.DeleteWashHandlerFunc(func(params washes.DeleteWashParams, principal *entities.Auth) washes.DeleteWashResponder {
+			return washes.DeleteWashNotImplemented()
 		}),
-		StandardHealthCheckHandler: standard.HealthCheckHandlerFunc(func(params standard.HealthCheckParams, principal *entities.AuthExtended) standard.HealthCheckResponder {
-			return standard.HealthCheckNotImplemented()
+		WashesGetWashByIDHandler: washes.GetWashByIDHandlerFunc(func(params washes.GetWashByIDParams, principal *entities.Auth) washes.GetWashByIDResponder {
+			return washes.GetWashByIDNotImplemented()
 		}),
-		WashListHandler: wash.ListHandlerFunc(func(params wash.ListParams, principal *entities.AuthExtended) wash.ListResponder {
-			return wash.ListNotImplemented()
+		WashesGetWashesHandler: washes.GetWashesHandlerFunc(func(params washes.GetWashesParams, principal *entities.Auth) washes.GetWashesResponder {
+			return washes.GetWashesNotImplemented()
 		}),
-		WashNotificationHandler: wash.NotificationHandlerFunc(func(params wash.NotificationParams, principal *entities.AuthExtended) wash.NotificationResponder {
-			return wash.NotificationNotImplemented()
+		StandardHealthcheckHandler: standard.HealthcheckHandlerFunc(func(params standard.HealthcheckParams, principal *entities.Auth) standard.HealthcheckResponder {
+			return standard.HealthcheckNotImplemented()
 		}),
-		WashPayHandler: wash.PayHandlerFunc(func(params wash.PayParams, principal *entities.AuthExtended) wash.PayResponder {
-			return wash.PayNotImplemented()
+		PaymentsInitPaymentHandler: payments.InitPaymentHandlerFunc(func(params payments.InitPaymentParams, principal *entities.Auth) payments.InitPaymentResponder {
+			return payments.InitPaymentNotImplemented()
 		}),
-		WashSignupHandler: wash.SignupHandlerFunc(func(params wash.SignupParams, principal *entities.AuthExtended) wash.SignupResponder {
-			return wash.SignupNotImplemented()
+		NotificationsReceiveNotificationHandler: notifications.ReceiveNotificationHandlerFunc(func(params notifications.ReceiveNotificationParams, principal *entities.Auth) notifications.ReceiveNotificationResponder {
+			return notifications.ReceiveNotificationNotImplemented()
 		}),
-		WashUpdateHandler: wash.UpdateHandlerFunc(func(params wash.UpdateParams, principal *entities.AuthExtended) wash.UpdateResponder {
-			return wash.UpdateNotImplemented()
+		WashesUpdateWashHandler: washes.UpdateWashHandlerFunc(func(params washes.UpdateWashParams, principal *entities.Auth) washes.UpdateWashResponder {
+			return washes.UpdateWashNotImplemented()
 		}),
 
 		// Applies when the "Authorization" header is set
-		AuthKeyAuth: func(token string) (*entities.AuthExtended, error) {
+		AuthKeyAuth: func(token string) (*entities.Auth, error) {
 			return nil, errors.NotImplemented("api key auth (authKey) Authorization from header param [Authorization] has not yet been implemented")
 		},
 		// default authorizer is authorized meaning no requests are blocked
@@ -86,7 +88,7 @@ func NewWashSbpAPI(spec *loads.Document) *WashSbpAPI {
 	}
 }
 
-/*WashSbpAPI microservice for the sbp pay system of self-service car washes */
+/*WashSbpAPI microservice for the sbp system of self-service car washes */
 type WashSbpAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context
@@ -121,31 +123,31 @@ type WashSbpAPI struct {
 
 	// AuthKeyAuth registers a function that takes a token and returns a principal
 	// it performs authentication based on an api key Authorization provided in the header
-	AuthKeyAuth func(string) (*entities.AuthExtended, error)
+	AuthKeyAuth func(string) (*entities.Auth, error)
 
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
 
-	// WashCancelHandler sets the operation handler for the cancel operation
-	WashCancelHandler wash.CancelHandler
-	// WashCreateHandler sets the operation handler for the create operation
-	WashCreateHandler wash.CreateHandler
-	// WashDeleteHandler sets the operation handler for the delete operation
-	WashDeleteHandler wash.DeleteHandler
-	// WashGetWashHandler sets the operation handler for the get wash operation
-	WashGetWashHandler wash.GetWashHandler
-	// StandardHealthCheckHandler sets the operation handler for the health check operation
-	StandardHealthCheckHandler standard.HealthCheckHandler
-	// WashListHandler sets the operation handler for the list operation
-	WashListHandler wash.ListHandler
-	// WashNotificationHandler sets the operation handler for the notification operation
-	WashNotificationHandler wash.NotificationHandler
-	// WashPayHandler sets the operation handler for the pay operation
-	WashPayHandler wash.PayHandler
-	// WashSignupHandler sets the operation handler for the signup operation
-	WashSignupHandler wash.SignupHandler
-	// WashUpdateHandler sets the operation handler for the update operation
-	WashUpdateHandler wash.UpdateHandler
+	// WashesAssignWashToGroupHandler sets the operation handler for the assign wash to group operation
+	WashesAssignWashToGroupHandler washes.AssignWashToGroupHandler
+	// PaymentsCancelPaymentHandler sets the operation handler for the cancel payment operation
+	PaymentsCancelPaymentHandler payments.CancelPaymentHandler
+	// WashesCreateWashHandler sets the operation handler for the create wash operation
+	WashesCreateWashHandler washes.CreateWashHandler
+	// WashesDeleteWashHandler sets the operation handler for the delete wash operation
+	WashesDeleteWashHandler washes.DeleteWashHandler
+	// WashesGetWashByIDHandler sets the operation handler for the get wash by Id operation
+	WashesGetWashByIDHandler washes.GetWashByIDHandler
+	// WashesGetWashesHandler sets the operation handler for the get washes operation
+	WashesGetWashesHandler washes.GetWashesHandler
+	// StandardHealthcheckHandler sets the operation handler for the healthcheck operation
+	StandardHealthcheckHandler standard.HealthcheckHandler
+	// PaymentsInitPaymentHandler sets the operation handler for the init payment operation
+	PaymentsInitPaymentHandler payments.InitPaymentHandler
+	// NotificationsReceiveNotificationHandler sets the operation handler for the receive notification operation
+	NotificationsReceiveNotificationHandler notifications.ReceiveNotificationHandler
+	// WashesUpdateWashHandler sets the operation handler for the update wash operation
+	WashesUpdateWashHandler washes.UpdateWashHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -227,35 +229,35 @@ func (o *WashSbpAPI) Validate() error {
 		unregistered = append(unregistered, "AuthorizationAuth")
 	}
 
-	if o.WashCancelHandler == nil {
-		unregistered = append(unregistered, "wash.CancelHandler")
+	if o.WashesAssignWashToGroupHandler == nil {
+		unregistered = append(unregistered, "washes.AssignWashToGroupHandler")
 	}
-	if o.WashCreateHandler == nil {
-		unregistered = append(unregistered, "wash.CreateHandler")
+	if o.PaymentsCancelPaymentHandler == nil {
+		unregistered = append(unregistered, "payments.CancelPaymentHandler")
 	}
-	if o.WashDeleteHandler == nil {
-		unregistered = append(unregistered, "wash.DeleteHandler")
+	if o.WashesCreateWashHandler == nil {
+		unregistered = append(unregistered, "washes.CreateWashHandler")
 	}
-	if o.WashGetWashHandler == nil {
-		unregistered = append(unregistered, "wash.GetWashHandler")
+	if o.WashesDeleteWashHandler == nil {
+		unregistered = append(unregistered, "washes.DeleteWashHandler")
 	}
-	if o.StandardHealthCheckHandler == nil {
-		unregistered = append(unregistered, "standard.HealthCheckHandler")
+	if o.WashesGetWashByIDHandler == nil {
+		unregistered = append(unregistered, "washes.GetWashByIDHandler")
 	}
-	if o.WashListHandler == nil {
-		unregistered = append(unregistered, "wash.ListHandler")
+	if o.WashesGetWashesHandler == nil {
+		unregistered = append(unregistered, "washes.GetWashesHandler")
 	}
-	if o.WashNotificationHandler == nil {
-		unregistered = append(unregistered, "wash.NotificationHandler")
+	if o.StandardHealthcheckHandler == nil {
+		unregistered = append(unregistered, "standard.HealthcheckHandler")
 	}
-	if o.WashPayHandler == nil {
-		unregistered = append(unregistered, "wash.PayHandler")
+	if o.PaymentsInitPaymentHandler == nil {
+		unregistered = append(unregistered, "payments.InitPaymentHandler")
 	}
-	if o.WashSignupHandler == nil {
-		unregistered = append(unregistered, "wash.SignupHandler")
+	if o.NotificationsReceiveNotificationHandler == nil {
+		unregistered = append(unregistered, "notifications.ReceiveNotificationHandler")
 	}
-	if o.WashUpdateHandler == nil {
-		unregistered = append(unregistered, "wash.UpdateHandler")
+	if o.WashesUpdateWashHandler == nil {
+		unregistered = append(unregistered, "washes.UpdateWashHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -359,43 +361,43 @@ func (o *WashSbpAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/cancel"] = wash.NewCancel(o.context, o.WashCancelHandler)
-	if o.handlers["PUT"] == nil {
-		o.handlers["PUT"] = make(map[string]http.Handler)
+	o.handlers["POST"]["/groups/{groupId}/washes/{washId}"] = washes.NewAssignWashToGroup(o.context, o.WashesAssignWashToGroupHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["PUT"]["/wash"] = wash.NewCreate(o.context, o.WashCreateHandler)
+	o.handlers["POST"]["/payments/cancel"] = payments.NewCancelPayment(o.context, o.PaymentsCancelPaymentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/washes"] = washes.NewCreateWash(o.context, o.WashesCreateWashHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
-	o.handlers["DELETE"]["/wash"] = wash.NewDelete(o.context, o.WashDeleteHandler)
+	o.handlers["DELETE"]["/washes/{id}"] = washes.NewDeleteWash(o.context, o.WashesDeleteWashHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/wash/{id}"] = wash.NewGetWash(o.context, o.WashGetWashHandler)
+	o.handlers["GET"]["/washes/{id}"] = washes.NewGetWashByID(o.context, o.WashesGetWashByIDHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/health_check"] = standard.NewHealthCheck(o.context, o.StandardHealthCheckHandler)
+	o.handlers["GET"]["/washes"] = washes.NewGetWashes(o.context, o.WashesGetWashesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/wash/list"] = wash.NewList(o.context, o.WashListHandler)
+	o.handlers["GET"]["/healthcheck"] = standard.NewHealthcheck(o.context, o.StandardHealthcheckHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/notification"] = wash.NewNotification(o.context, o.WashNotificationHandler)
+	o.handlers["POST"]["/payments/init"] = payments.NewInitPayment(o.context, o.PaymentsInitPaymentHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/pay"] = wash.NewPay(o.context, o.WashPayHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/signup"] = wash.NewSignup(o.context, o.WashSignupHandler)
+	o.handlers["POST"]["/notification"] = notifications.NewReceiveNotification(o.context, o.NotificationsReceiveNotificationHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/wash"] = wash.NewUpdate(o.context, o.WashUpdateHandler)
+	o.handlers["PATCH"]["/washes/{id}"] = washes.NewUpdateWash(o.context, o.WashesUpdateWashHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP
@@ -437,6 +439,6 @@ func (o *WashSbpAPI) AddMiddlewareFor(method, path string, builder middleware.Bu
 	}
 	o.Init()
 	if h, ok := o.handlers[um][path]; ok {
-		o.handlers[um][path] = builder(h)
+		o.handlers[method][path] = builder(h)
 	}
 }

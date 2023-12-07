@@ -2,44 +2,32 @@ package repository
 
 import (
 	"context"
-	"crypto/rand"
-	"crypto/sha256"
-	"fmt"
-	logicEntities "sbp/internal/logic/entities"
-	repConverter "sbp/internal/repository/converter"
-	repEntities "sbp/internal/repository/entities"
-	"sbp/pkg/bootstrap"
+	"errors"
+	"sbp/internal/entities"
+	"sbp/internal/helpers"
 
+	"github.com/gocraft/dbr/v2"
 	uuid "github.com/satori/go.uuid"
 )
 
-// CreateTransaction ...
-func (s *Repository) CreateTransaction(ctx context.Context, transaction logicEntities.TransactionCreate) error {
-
+func (s *Repository) CreateTransaction(ctx context.Context, transaction entities.TransactionCreate) error {
 	_, err := s.db.NewSession(nil).
 		InsertInto("transactions").
 		Columns("id", "wash_id", "post_id", "amount", "payment_id_bank", "status").
-		Record(repEntities.TransactionCreate{
-			ID:        transaction.ID,
-			WashID:    transaction.WashID,
-			PostID:    transaction.PostID,
-			Amount:    transaction.Amount,
-			PaymentID: transaction.PaymentID,
-			Status:    string(transaction.Status),
-		}).Exec()
+		Record(transaction).
+		Exec()
 
 	if err != nil {
-		return bootstrap.CustomError(layer, "CreateTransaction", err)
+		return helpers.CustomError(layer, "CreateTransaction", err)
 	}
 	return nil
 }
 
-// UpdateTransaction ...
-func (s *Repository) UpdateTransaction(ctx context.Context, transactionUpdate logicEntities.TransactionUpdate) error {
+func (s *Repository) UpdateTransaction(ctx context.Context, transactionUpdate entities.TransactionUpdate) error {
 	tx, err := s.db.NewSession(nil).BeginTx(ctx, nil)
 
 	if err != nil {
-		return bootstrap.CustomError(layer, "BeginTx", err)
+		return helpers.CustomError(layer, "BeginTx", err)
 	}
 
 	ID := uuid.NullUUID{UUID: transactionUpdate.ID, Valid: true}
@@ -48,71 +36,55 @@ func (s *Repository) UpdateTransaction(ctx context.Context, transactionUpdate lo
 		Update("transactions").
 		Where("id = ?", ID)
 
-	if transactionUpdate.PaymentID != nil {
-		updateStatement = updateStatement.Set("payment_id_bank", transactionUpdate.PaymentID)
+	if transactionUpdate.PaymentIDBank != nil {
+		updateStatement = updateStatement.Set("payment_id_bank", transactionUpdate.PaymentIDBank)
 	}
 
-	if transactionUpdate.Status != logicEntities.TransactionStatusUnknown {
+	if transactionUpdate.Status != entities.TransactionStatusUnknown {
 		updateStatement = updateStatement.Set("status", string(transactionUpdate.Status))
 	}
 
 	_, err = updateStatement.ExecContext(ctx)
 
 	if err != nil {
-		return bootstrap.CustomError(layer, "UpdateTransaction", err)
+		return helpers.CustomError(layer, "UpdateTransaction", err)
 	}
 
 	return tx.Commit()
 }
 
-// GetTransaction ...
-func (s *Repository) GetTransaction(ctx context.Context, orderID uuid.UUID) (logicEntities.Transaction, error) {
-	var dbTransaction repEntities.Transaction
+func (s *Repository) GetTransactionByOrderID(ctx context.Context, orderID uuid.UUID) (entities.Transaction, error) {
+	var transaction entities.Transaction
 
 	err := s.db.NewSession(nil).
 		Select("*").
 		From("transactions").
-		Where("id = ?", uuid.NullUUID{UUID: orderID, Valid: true}).
-		LoadOneContext(ctx, &dbTransaction)
+		Where("id = ?", orderID).
+		LoadOneContext(ctx, &transaction)
 
-	switch {
-	case err == nil:
-		return repConverter.ConvertTransactionFromDB(dbTransaction), nil
-	default:
-		return logicEntities.Transaction{}, bootstrap.CustomError(layer, "GetTransaction", err)
+	if err != nil {
+		if errors.Is(err, dbr.ErrNotFound) {
+			err = entities.ErrNotFound
+		}
+
+		return entities.Transaction{}, helpers.CustomError(layer, "GetTransactionByOrderID", err)
 	}
+
+	return transaction, nil
 }
 
-// GetTransactionsByStatus ...
-func (s *Repository) GetTransactionsByStatus(ctx context.Context, transactionsGet logicEntities.TransactionsGet) ([]logicEntities.Transaction, error) {
-	var dbTransactions []repEntities.Transaction
+func (s *Repository) GetTransactionsByStatus(ctx context.Context, transactionsGet entities.TransactionsGet) ([]entities.Transaction, error) {
+	var transactions []entities.Transaction
 
 	err := s.db.NewSession(nil).
 		Select("*").
 		From("transactions").
 		Where("status = ?", string(transactionsGet.Status)).
-		LoadOneContext(ctx, &dbTransactions)
+		LoadOneContext(ctx, &transactions)
 
-	switch {
-	case err == nil:
-		var transactions []logicEntities.Transaction
-		for _, t := range dbTransactions {
-			transactions = append(transactions, repConverter.ConvertTransactionFromDB(t))
-		}
-		return transactions, nil
-	default:
-		return nil, bootstrap.CustomError(layer, "GetTransactionsByStatus", err)
-	}
-}
-
-// generateNewServiceKey ...
-func (s *Repository) generateNewServiceKey() string {
-	data := make([]byte, 10)
-
-	_, err := rand.Read(data)
 	if err != nil {
-		return ""
+		return nil, helpers.CustomError(layer, "GetTransactionsByStatus", err)
 	}
 
-	return fmt.Sprintf("%x", sha256.Sum256(data))
+	return transactions, nil
 }
