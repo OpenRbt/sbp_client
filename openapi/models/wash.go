@@ -6,10 +6,14 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // Wash wash
@@ -20,24 +24,117 @@ type Wash struct {
 	// description
 	Description string `json:"description,omitempty"`
 
+	// group Id
+	// Format: uuid
+	GroupID strfmt.UUID `json:"groupId,omitempty"`
+
 	// id
 	ID string `json:"id,omitempty"`
 
 	// name
 	Name string `json:"name,omitempty"`
 
+	// organization Id
+	// Format: uuid
+	OrganizationID strfmt.UUID `json:"organizationId,omitempty"`
+
 	// password
 	Password string `json:"password,omitempty"`
 
 	// terminal key
-	TerminalKey string `json:"terminal_key,omitempty"`
+	TerminalKey string `json:"terminalKey,omitempty"`
 
 	// terminal password
-	TerminalPassword string `json:"terminal_password,omitempty"`
+	TerminalPassword string `json:"terminalPassword,omitempty"`
+}
+
+// UnmarshalJSON unmarshals this object while disallowing additional properties from JSON
+func (m *Wash) UnmarshalJSON(data []byte) error {
+	var props struct {
+
+		// description
+		Description string `json:"description,omitempty"`
+
+		// group Id
+		// Format: uuid
+		GroupID strfmt.UUID `json:"groupId,omitempty"`
+
+		// id
+		ID string `json:"id,omitempty"`
+
+		// name
+		Name string `json:"name,omitempty"`
+
+		// organization Id
+		// Format: uuid
+		OrganizationID strfmt.UUID `json:"organizationId,omitempty"`
+
+		// password
+		Password string `json:"password,omitempty"`
+
+		// terminal key
+		TerminalKey string `json:"terminalKey,omitempty"`
+
+		// terminal password
+		TerminalPassword string `json:"terminalPassword,omitempty"`
+	}
+
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&props); err != nil {
+		return err
+	}
+
+	m.Description = props.Description
+	m.GroupID = props.GroupID
+	m.ID = props.ID
+	m.Name = props.Name
+	m.OrganizationID = props.OrganizationID
+	m.Password = props.Password
+	m.TerminalKey = props.TerminalKey
+	m.TerminalPassword = props.TerminalPassword
+	return nil
 }
 
 // Validate validates this wash
 func (m *Wash) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateGroupID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOrganizationID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Wash) validateGroupID(formats strfmt.Registry) error {
+	if swag.IsZero(m.GroupID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("groupId", "body", "uuid", m.GroupID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Wash) validateOrganizationID(formats strfmt.Registry) error {
+	if swag.IsZero(m.OrganizationID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("organizationId", "body", "uuid", m.OrganizationID.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

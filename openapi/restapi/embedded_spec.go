@@ -29,59 +29,53 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "microservice for the sbp pay system of self-service car washes",
+    "description": "microservice for the sbp system of self-service car washes",
     "title": "wash-sbp",
-    "version": "1.0.0"
+    "version": "1.0.1"
   },
   "paths": {
-    "/cancel": {
+    "/groups/{groupId}/washes/{washId}": {
       "post": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
         "tags": [
-          "wash"
+          "washes",
+          "groups"
         ],
-        "operationId": "cancel",
+        "operationId": "assignWashToGroup",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/cancel"
-            }
+            "type": "string",
+            "format": "uuid",
+            "name": "groupId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "washId",
+            "in": "path",
+            "required": true
           }
         ],
         "responses": {
-          "200": {
+          "204": {
             "description": "OK"
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "403": {
-            "description": "Access denied",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
+          "default": {
+            "$ref": "#/responses/GenericError"
           }
         }
       }
     },
-    "/health_check": {
+    "/healthcheck": {
       "get": {
         "security": [
           {}
         ],
         "tags": [
-          "Standard"
+          "standard"
         ],
-        "operationId": "healthCheck",
+        "operationId": "healthcheck",
         "responses": {
           "200": {
             "description": "OK",
@@ -103,9 +97,9 @@ func init() {
           {}
         ],
         "tags": [
-          "wash"
+          "notifications"
         ],
-        "operationId": "notification",
+        "operationId": "receiveNotification",
         "parameters": [
           {
             "name": "body",
@@ -122,246 +116,83 @@ func init() {
               "type": "string"
             }
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "description": "Internal error",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
+          "default": {
+            "$ref": "#/responses/GenericError"
           }
         }
       }
     },
-    "/pay": {
+    "/payments/cancel": {
       "post": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
         "tags": [
-          "wash"
+          "payments"
         ],
-        "operationId": "pay",
+        "operationId": "cancelPayment",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/Pay"
+              "$ref": "#/definitions/PaymentCancellation"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/payResponse"
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "403": {
-            "description": "Access denied",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      }
-    },
-    "/signup": {
-      "post": {
-        "security": [
-          {}
-        ],
-        "tags": [
-          "wash"
-        ],
-        "operationId": "signup",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/FirebaseToken"
-            }
-          }
-        }
-      }
-    },
-    "/wash/": {
-      "put": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
-        "tags": [
-          "wash"
-        ],
-        "operationId": "create",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/WashCreate"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success creation",
-            "schema": {
-              "$ref": "#/definitions/Wash"
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "403": {
-            "description": "Access denied",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "500": {
-            "description": "Internal error",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      },
-      "delete": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
-        "tags": [
-          "wash"
-        ],
-        "operationId": "delete",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/WashDelete"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
             "description": "OK"
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "403": {
-            "description": "Access denied",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "404": {
-            "description": "Wash not exists",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "500": {
-            "description": "Internal error",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      },
-      "patch": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
-        "tags": [
-          "wash"
-        ],
-        "operationId": "update",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/WashUpdate"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Success update"
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "403": {
-            "description": "Access denied",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "404": {
-            "description": "Wash not exists",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "500": {
-            "description": "Internal error",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
+          "default": {
+            "$ref": "#/responses/GenericError"
           }
         }
       }
     },
-    "/wash/list": {
-      "get": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
+    "/payments/init": {
+      "post": {
         "tags": [
-          "wash"
+          "payments"
         ],
-        "operationId": "list",
+        "operationId": "initPayment",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/Pagination"
+              "$ref": "#/definitions/Payment"
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PaymentResponse"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/GenericError"
+          }
+        }
+      }
+    },
+    "/washes": {
+      "get": {
+        "tags": [
+          "washes"
+        ],
+        "operationId": "getWashes",
+        "parameters": [
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "groupId",
+            "in": "query"
           }
         ],
         "responses": {
@@ -374,50 +205,47 @@ func init() {
               }
             }
           },
-          "400": {
-            "description": "Bad request",
+          "default": {
+            "$ref": "#/responses/GenericError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "washes"
+        ],
+        "operationId": "createWash",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/WashCreation"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success creation",
+            "schema": {
+              "$ref": "#/definitions/Wash"
             }
           },
-          "403": {
-            "description": "Access denied",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "404": {
-            "description": "Wash not exists",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "500": {
-            "description": "Internal error",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
+          "default": {
+            "$ref": "#/responses/GenericError"
           }
         }
       }
     },
-    "/wash/{id}": {
+    "/washes/{id}": {
       "get": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
         "tags": [
-          "wash"
+          "washes"
         ],
-        "operationId": "getWash",
+        "operationId": "getWashById",
         "parameters": [
           {
-            "type": "string",
-            "name": "id",
-            "in": "path",
-            "required": true
+            "$ref": "#/parameters/uuid"
           }
         ],
         "responses": {
@@ -427,40 +255,92 @@ func init() {
               "$ref": "#/definitions/Wash"
             }
           },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
+          "default": {
+            "$ref": "#/responses/GenericError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "washes"
+        ],
+        "operationId": "deleteWash",
+        "parameters": [
+          {
+            "$ref": "#/parameters/uuid"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
           },
-          "403": {
-            "description": "Access denied",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
+          "default": {
+            "$ref": "#/responses/GenericError"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "washes"
+        ],
+        "operationId": "updateWash",
+        "parameters": [
+          {
+            "$ref": "#/parameters/uuid"
           },
-          "404": {
-            "description": "Wash not exists",
+          {
+            "name": "body",
+            "in": "body",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/WashUpdate"
             }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success update"
           },
-          "500": {
-            "description": "Internal error",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
+          "default": {
+            "$ref": "#/responses/GenericError"
           }
         }
       }
     }
   },
   "definitions": {
-    "FirebaseToken": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "description": "Either same as HTTP Status Code OR \u003e= 600.",
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "Group": {
       "type": "object",
       "properties": {
-        "value": {
+        "description": {
           "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
+        },
+        "organizationId": {
+          "type": "string",
+          "format": "uuid"
         }
       }
     },
@@ -513,21 +393,25 @@ func init() {
         }
       }
     },
-    "Pagination": {
+    "Organization": {
       "type": "object",
       "properties": {
-        "limit": {
-          "type": "integer",
-          "format": "int64",
-          "maximum": 100
+        "description": {
+          "type": "string"
         },
-        "offset": {
-          "type": "integer",
-          "format": "int64"
+        "displayName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
         }
       }
     },
-    "Pay": {
+    "Payment": {
       "type": "object",
       "properties": {
         "amount": {
@@ -544,80 +428,7 @@ func init() {
         }
       }
     },
-    "Wash": {
-      "type": "object",
-      "properties": {
-        "description": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        },
-        "terminal_key": {
-          "type": "string"
-        },
-        "terminal_password": {
-          "type": "string"
-        }
-      }
-    },
-    "WashCreate": {
-      "required": [
-        "name"
-      ],
-      "properties": {
-        "description": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "terminal_key": {
-          "type": "string"
-        },
-        "terminal_password": {
-          "type": "string"
-        }
-      }
-    },
-    "WashDelete": {
-      "type": "object",
-      "required": [
-        "id"
-      ],
-      "properties": {
-        "id": {
-          "type": "string"
-        }
-      }
-    },
-    "WashUpdate": {
-      "type": "object",
-      "properties": {
-        "description": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "terminal_key": {
-          "type": "string"
-        },
-        "terminal_password": {
-          "type": "string"
-        }
-      }
-    },
-    "cancel": {
+    "PaymentCancellation": {
       "type": "object",
       "properties": {
         "orderID": {
@@ -631,24 +442,7 @@ func init() {
         }
       }
     },
-    "error": {
-      "type": "object",
-      "required": [
-        "code",
-        "message"
-      ],
-      "properties": {
-        "code": {
-          "description": "Either same as HTTP Status Code OR \u003e= 600.",
-          "type": "integer",
-          "format": "int32"
-        },
-        "message": {
-          "type": "string"
-        }
-      }
-    },
-    "payResponse": {
+    "PaymentResponse": {
       "type": "object",
       "properties": {
         "orderID": {
@@ -657,6 +451,174 @@ func init() {
         "url": {
           "type": "string"
         }
+      }
+    },
+    "User": {
+      "description": "User profile",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "organization": {
+          "type": "object",
+          "properties": {
+            "deleted": {
+              "type": "boolean"
+            },
+            "description": {
+              "type": "string"
+            },
+            "displayName": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "x-nullable": true
+        },
+        "role": {
+          "$ref": "#/definitions/UserRole"
+        }
+      }
+    },
+    "UserRole": {
+      "type": "string",
+      "enum": [
+        "systemManager",
+        "admin",
+        "noAccess"
+      ]
+    },
+    "Wash": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "groupId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "organizationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "password": {
+          "type": "string"
+        },
+        "terminalKey": {
+          "type": "string"
+        },
+        "terminalPassword": {
+          "type": "string"
+        }
+      }
+    },
+    "WashCreation": {
+      "required": [
+        "name",
+        "description",
+        "terminalKey",
+        "terminalPassword",
+        "groupId"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "groupId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
+        },
+        "terminalKey": {
+          "type": "string"
+        },
+        "terminalPassword": {
+          "type": "string"
+        }
+      }
+    },
+    "WashUpdate": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "terminalKey": {
+          "type": "string"
+        },
+        "terminalPassword": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "parameters": {
+    "limit": {
+      "minimum": 1,
+      "type": "integer",
+      "format": "int64",
+      "default": 100,
+      "description": "Maximum number of records to return",
+      "name": "limit",
+      "in": "query"
+    },
+    "offset": {
+      "type": "integer",
+      "format": "int64",
+      "default": 0,
+      "description": "Number of records to skip for pagination",
+      "name": "offset",
+      "in": "query"
+    },
+    "userRole": {
+      "enum": [
+        "systemManager",
+        "admin",
+        "noAccess"
+      ],
+      "type": "string",
+      "name": "role",
+      "in": "query"
+    },
+    "uuid": {
+      "type": "string",
+      "format": "uuid",
+      "name": "id",
+      "in": "path",
+      "required": true
+    }
+  },
+  "responses": {
+    "GenericError": {
+      "description": "Generic error response",
+      "schema": {
+        "$ref": "#/definitions/Error"
       }
     }
   },
@@ -686,59 +648,56 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "microservice for the sbp pay system of self-service car washes",
+    "description": "microservice for the sbp system of self-service car washes",
     "title": "wash-sbp",
-    "version": "1.0.0"
+    "version": "1.0.1"
   },
   "paths": {
-    "/cancel": {
+    "/groups/{groupId}/washes/{washId}": {
       "post": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
         "tags": [
-          "wash"
+          "washes",
+          "groups"
         ],
-        "operationId": "cancel",
+        "operationId": "assignWashToGroup",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/cancel"
-            }
+            "type": "string",
+            "format": "uuid",
+            "name": "groupId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "washId",
+            "in": "path",
+            "required": true
           }
         ],
         "responses": {
-          "200": {
+          "204": {
             "description": "OK"
           },
-          "400": {
-            "description": "Bad request",
+          "default": {
+            "description": "Generic error response",
             "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "403": {
-            "description": "Access denied",
-            "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/Error"
             }
           }
         }
       }
     },
-    "/health_check": {
+    "/healthcheck": {
       "get": {
         "security": [
           {}
         ],
         "tags": [
-          "Standard"
+          "standard"
         ],
-        "operationId": "healthCheck",
+        "operationId": "healthcheck",
         "responses": {
           "200": {
             "description": "OK",
@@ -760,9 +719,9 @@ func init() {
           {}
         ],
         "tags": [
-          "wash"
+          "notifications"
         ],
-        "operationId": "notification",
+        "operationId": "receiveNotification",
         "parameters": [
           {
             "name": "body",
@@ -779,246 +738,104 @@ func init() {
               "type": "string"
             }
           },
-          "400": {
-            "description": "Bad request",
+          "default": {
+            "description": "Generic error response",
             "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "description": "Internal error",
-            "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/Error"
             }
           }
         }
       }
     },
-    "/pay": {
+    "/payments/cancel": {
       "post": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
         "tags": [
-          "wash"
+          "payments"
         ],
-        "operationId": "pay",
+        "operationId": "cancelPayment",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/Pay"
+              "$ref": "#/definitions/PaymentCancellation"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/payResponse"
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "403": {
-            "description": "Access denied",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      }
-    },
-    "/signup": {
-      "post": {
-        "security": [
-          {}
-        ],
-        "tags": [
-          "wash"
-        ],
-        "operationId": "signup",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/FirebaseToken"
-            }
-          }
-        }
-      }
-    },
-    "/wash/": {
-      "put": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
-        "tags": [
-          "wash"
-        ],
-        "operationId": "create",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/WashCreate"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success creation",
-            "schema": {
-              "$ref": "#/definitions/Wash"
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "403": {
-            "description": "Access denied",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "500": {
-            "description": "Internal error",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      },
-      "delete": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
-        "tags": [
-          "wash"
-        ],
-        "operationId": "delete",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/WashDelete"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
             "description": "OK"
           },
-          "400": {
-            "description": "Bad request",
+          "default": {
+            "description": "Generic error response",
             "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "403": {
-            "description": "Access denied",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "404": {
-            "description": "Wash not exists",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "500": {
-            "description": "Internal error",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      },
-      "patch": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
-        "tags": [
-          "wash"
-        ],
-        "operationId": "update",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/WashUpdate"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Success update"
-          },
-          "400": {
-            "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "403": {
-            "description": "Access denied",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "404": {
-            "description": "Wash not exists",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "500": {
-            "description": "Internal error",
-            "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/Error"
             }
           }
         }
       }
     },
-    "/wash/list": {
-      "get": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
+    "/payments/init": {
+      "post": {
         "tags": [
-          "wash"
+          "payments"
         ],
-        "operationId": "list",
+        "operationId": "initPayment",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/Pagination"
+              "$ref": "#/definitions/Payment"
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PaymentResponse"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/washes": {
+      "get": {
+        "tags": [
+          "washes"
+        ],
+        "operationId": "getWashes",
+        "parameters": [
+          {
+            "minimum": 0,
+            "type": "integer",
+            "format": "int64",
+            "default": 0,
+            "description": "Number of records to skip for pagination",
+            "name": "offset",
+            "in": "query"
+          },
+          {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64",
+            "default": 100,
+            "description": "Maximum number of records to return",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "groupId",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1031,47 +848,54 @@ func init() {
               }
             }
           },
-          "400": {
-            "description": "Bad request",
+          "default": {
+            "description": "Generic error response",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "washes"
+        ],
+        "operationId": "createWash",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WashCreation"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success creation",
+            "schema": {
+              "$ref": "#/definitions/Wash"
             }
           },
-          "403": {
-            "description": "Access denied",
+          "default": {
+            "description": "Generic error response",
             "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "404": {
-            "description": "Wash not exists",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "500": {
-            "description": "Internal error",
-            "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/Error"
             }
           }
         }
       }
     },
-    "/wash/{id}": {
+    "/washes/{id}": {
       "get": {
-        "security": [
-          {
-            "authKey": []
-          }
-        ],
         "tags": [
-          "wash"
+          "washes"
         ],
-        "operationId": "getWash",
+        "operationId": "getWashById",
         "parameters": [
           {
             "type": "string",
+            "format": "uuid",
             "name": "id",
             "in": "path",
             "required": true
@@ -1084,28 +908,69 @@ func init() {
               "$ref": "#/definitions/Wash"
             }
           },
-          "400": {
-            "description": "Bad request",
+          "default": {
+            "description": "Generic error response",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/Error"
             }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "washes"
+        ],
+        "operationId": "deleteWash",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
           },
-          "403": {
-            "description": "Access denied",
+          "default": {
+            "description": "Generic error response",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/Error"
             }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "washes"
+        ],
+        "operationId": "updateWash",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "id",
+            "in": "path",
+            "required": true
           },
-          "404": {
-            "description": "Wash not exists",
+          {
+            "name": "body",
+            "in": "body",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/WashUpdate"
             }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success update"
           },
-          "500": {
-            "description": "Internal error",
+          "default": {
+            "description": "Generic error response",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -1113,11 +978,39 @@ func init() {
     }
   },
   "definitions": {
-    "FirebaseToken": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "description": "Either same as HTTP Status Code OR \u003e= 600.",
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "Group": {
       "type": "object",
       "properties": {
-        "value": {
+        "description": {
           "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
+        },
+        "organizationId": {
+          "type": "string",
+          "format": "uuid"
         }
       }
     },
@@ -1170,21 +1063,25 @@ func init() {
         }
       }
     },
-    "Pagination": {
+    "Organization": {
       "type": "object",
       "properties": {
-        "limit": {
-          "type": "integer",
-          "format": "int64",
-          "maximum": 100
+        "description": {
+          "type": "string"
         },
-        "offset": {
-          "type": "integer",
-          "format": "int64"
+        "displayName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
         }
       }
     },
-    "Pay": {
+    "Payment": {
       "type": "object",
       "properties": {
         "amount": {
@@ -1201,80 +1098,7 @@ func init() {
         }
       }
     },
-    "Wash": {
-      "type": "object",
-      "properties": {
-        "description": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        },
-        "terminal_key": {
-          "type": "string"
-        },
-        "terminal_password": {
-          "type": "string"
-        }
-      }
-    },
-    "WashCreate": {
-      "required": [
-        "name"
-      ],
-      "properties": {
-        "description": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "terminal_key": {
-          "type": "string"
-        },
-        "terminal_password": {
-          "type": "string"
-        }
-      }
-    },
-    "WashDelete": {
-      "type": "object",
-      "required": [
-        "id"
-      ],
-      "properties": {
-        "id": {
-          "type": "string"
-        }
-      }
-    },
-    "WashUpdate": {
-      "type": "object",
-      "properties": {
-        "description": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "terminal_key": {
-          "type": "string"
-        },
-        "terminal_password": {
-          "type": "string"
-        }
-      }
-    },
-    "cancel": {
+    "PaymentCancellation": {
       "type": "object",
       "properties": {
         "orderID": {
@@ -1288,24 +1112,7 @@ func init() {
         }
       }
     },
-    "error": {
-      "type": "object",
-      "required": [
-        "code",
-        "message"
-      ],
-      "properties": {
-        "code": {
-          "description": "Either same as HTTP Status Code OR \u003e= 600.",
-          "type": "integer",
-          "format": "int32"
-        },
-        "message": {
-          "type": "string"
-        }
-      }
-    },
-    "payResponse": {
+    "PaymentResponse": {
       "type": "object",
       "properties": {
         "orderID": {
@@ -1314,6 +1121,197 @@ func init() {
         "url": {
           "type": "string"
         }
+      }
+    },
+    "User": {
+      "description": "User profile",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "organization": {
+          "type": "object",
+          "properties": {
+            "deleted": {
+              "type": "boolean"
+            },
+            "description": {
+              "type": "string"
+            },
+            "displayName": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "x-nullable": true
+        },
+        "role": {
+          "$ref": "#/definitions/UserRole"
+        }
+      }
+    },
+    "UserOrganization": {
+      "type": "object",
+      "properties": {
+        "deleted": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "x-nullable": true
+    },
+    "UserRole": {
+      "type": "string",
+      "enum": [
+        "systemManager",
+        "admin",
+        "noAccess"
+      ]
+    },
+    "Wash": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "groupId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "organizationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "password": {
+          "type": "string"
+        },
+        "terminalKey": {
+          "type": "string"
+        },
+        "terminalPassword": {
+          "type": "string"
+        }
+      }
+    },
+    "WashCreation": {
+      "required": [
+        "name",
+        "description",
+        "terminalKey",
+        "terminalPassword",
+        "groupId"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "groupId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
+        },
+        "terminalKey": {
+          "type": "string"
+        },
+        "terminalPassword": {
+          "type": "string"
+        }
+      }
+    },
+    "WashUpdate": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "terminalKey": {
+          "type": "string"
+        },
+        "terminalPassword": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "parameters": {
+    "limit": {
+      "minimum": 1,
+      "type": "integer",
+      "format": "int64",
+      "default": 100,
+      "description": "Maximum number of records to return",
+      "name": "limit",
+      "in": "query"
+    },
+    "offset": {
+      "minimum": 0,
+      "type": "integer",
+      "format": "int64",
+      "default": 0,
+      "description": "Number of records to skip for pagination",
+      "name": "offset",
+      "in": "query"
+    },
+    "userRole": {
+      "enum": [
+        "systemManager",
+        "admin",
+        "noAccess"
+      ],
+      "type": "string",
+      "name": "role",
+      "in": "query"
+    },
+    "uuid": {
+      "type": "string",
+      "format": "uuid",
+      "name": "id",
+      "in": "path",
+      "required": true
+    }
+  },
+  "responses": {
+    "GenericError": {
+      "description": "Generic error response",
+      "schema": {
+        "$ref": "#/definitions/Error"
       }
     }
   },

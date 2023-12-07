@@ -3,68 +3,60 @@ package repository
 import (
 	"context"
 	"errors"
-	logicEntities "sbp/internal/logic/entities"
-	repConverter "sbp/internal/repository/converter"
-	repEntities "sbp/internal/repository/entities"
+	"sbp/internal/entities"
+	"sbp/internal/helpers"
 
 	"github.com/gocraft/dbr/v2"
 )
 
-// GetUser ...
-func (s *Repository) GetUser(ctx context.Context, identity string) (logicEntities.User, error) {
-	var dbUser repEntities.User
+var UserColumns = []string{
+	"id", "email", "name", "role", "organization_id", "version", "deleted",
+}
+
+func (s *Repository) GetUserByID(ctx context.Context, id string) (entities.User, error) {
+	var user entities.User
 
 	err := s.db.
 		NewSession(nil).
-		Select("*").
+		Select(UserColumns...).
 		From("users").
-		Where("identity_uid = ?", identity).
-		LoadOneContext(ctx, &dbUser)
-
-	switch {
-	case err == nil:
-		return repConverter.ConvertUserFromDB(dbUser), err
-	case errors.Is(err, dbr.ErrNotFound):
-		return logicEntities.User{}, logicEntities.ErrNotFound
-	default:
-		return logicEntities.User{}, err
-	}
-}
-
-// CreateUser ...
-func (s *Repository) CreateUser(ctx context.Context, identity string) (logicEntities.User, error) {
-	tx, err := s.db.NewSession(nil).BeginTx(ctx, nil)
+		Where("id = ?", id).
+		LoadOneContext(ctx, &user)
 
 	if err != nil {
-		return logicEntities.User{}, err
-	}
-
-	var dbUser repEntities.User
-	err = tx.
-		InsertInto("users").
-		Columns("identity_uid").
-		Values(identity).
-		Returning("id", "identity_uid").
-		LoadContext(ctx, &dbUser)
-
-	if err != nil {
-		return logicEntities.User{}, err
-	}
-
-	return repConverter.ConvertUserFromDB(dbUser), tx.Commit()
-}
-
-// GetOrCreateUser ...
-func (s *Repository) GetOrCreateUser(ctx context.Context, identity string) (logicEntities.User, error) {
-	dbUser, err := s.GetUser(ctx, identity)
-
-	if err != nil {
-		if errors.Is(err, logicEntities.ErrNotFound) {
-			return s.CreateUser(ctx, identity)
+		if errors.Is(err, dbr.ErrNotFound) {
+			err = entities.ErrNotFound
 		}
 
-		return logicEntities.User{}, err
+		return entities.User{}, helpers.CustomError(layer, "GetUserByID", err)
 	}
 
-	return dbUser, err
+	return user, nil
+}
+
+func (s *Repository) InsertUser(ctx context.Context, user entities.User) error {
+	userQuery, args, err := SQ.Insert("users").
+		Columns(UserColumns...).
+		Values(user.ID, user.Email, user.Name, user.Role, user.OrganizationID, user.Version, user.Deleted).
+		Suffix(`
+        	ON CONFLICT (id) DO UPDATE SET
+            email = EXCLUDED.email,
+            name = EXCLUDED.name, 
+            role = EXCLUDED.role, 
+            organization_id = EXCLUDED.organization_id, 
+            version = EXCLUDED.version,
+			deleted = EXCLUDED.deleted
+		`).
+		ToSql()
+
+	if err != nil {
+		return helpers.CustomError(layer, "InsertUser", err)
+	}
+
+	_, err = s.db.NewSession(nil).ExecContext(ctx, userQuery, args...)
+	if err != nil {
+		return helpers.CustomError(layer, "InsertUser", err)
+	}
+
+	return nil
 }
