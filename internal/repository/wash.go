@@ -15,20 +15,20 @@ var WashColumns = []string{
 }
 
 func (s *Repository) CreateWash(ctx context.Context, newWash entities.WashCreation) (entities.Wash, error) {
-	var wash entities.Wash
+	var washID uuid.UUID
 
 	err := s.db.NewSession(nil).
 		InsertInto("washes").
-		Columns("owner_id", "password", "title", "description", "terminal_key", "terminal_password").
+		Columns("group_id", "owner_id", "password", "title", "description", "terminal_key", "terminal_password").
 		Record(newWash).
-		Returning("id", "owner_id", "password", "title", "description", "terminal_key", "terminal_password", "created_at", "updated_at").
-		LoadContext(ctx, &wash)
+		Returning("id").
+		LoadContext(ctx, &washID)
 
 	if err != nil {
 		return entities.Wash{}, helpers.CustomError(layer, "CreateWash", err)
 	}
 
-	return wash, nil
+	return s.GetWashByID(ctx, washID)
 }
 
 func (s *Repository) GetWashByID(ctx context.Context, id uuid.UUID) (entities.Wash, error) {
