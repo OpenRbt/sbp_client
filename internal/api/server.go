@@ -31,7 +31,7 @@ func NewServer(cfg config.ServerConfig) (*Server, error) {
 	server.Port = int(portInt)
 
 	newCORS := cors.New(cors.Options{
-		AllowedMethods:   []string{"POST", "PUT", "GET", "DELETE", "OPTIONS"},
+		AllowedMethods:   []string{"POST", "PATCH", "PUT", "GET", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
 		Debug:            false,
