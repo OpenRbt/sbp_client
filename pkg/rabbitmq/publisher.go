@@ -41,7 +41,7 @@ func (p *Publisher) Send(
 	messageStruct interface{},
 	service rabbitEntities.Exchange,
 	routingKey rabbitEntities.RoutingKey,
-	messageType rabbitEntities.Message,
+	messageType rabbitEntities.MessageType,
 ) error {
 
 	if messageStruct == nil {

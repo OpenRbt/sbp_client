@@ -34,11 +34,11 @@ func NewConsumer(
 	consumerHandler := func(d rabbitmq.Delivery) (action rabbitmq.Action) {
 		ctx := context.TODO()
 		err := handler(ctx, RbqMessage(d))
-
 		if err != nil {
 			logger.Error(err)
 			return rabbitmq.NackDiscard
 		}
+
 		return rabbitmq.Ack
 	}
 

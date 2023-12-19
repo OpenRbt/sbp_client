@@ -13,7 +13,7 @@ func UserFromRabbit(m rabbitEntities.AdminUser) (entities.User, error) {
 		ID:      m.ID,
 		Email:   m.Email,
 		Name:    m.Name,
-		Role:    entities.Role(m.Role),
+		Role:    UserRoleToApp(m.Role),
 		Version: m.Version,
 	}
 
@@ -27,4 +27,17 @@ func UserFromRabbit(m rabbitEntities.AdminUser) (entities.User, error) {
 	}
 
 	return res, nil
+}
+
+func UserRoleToApp(role string) entities.UserRole {
+	switch role {
+	case string(entities.SystemManagerRole):
+		return entities.SystemManagerRole
+	case string(entities.AdminRole):
+		return entities.AdminRole
+	case string(entities.NoAccessRole):
+		return entities.NoAccessRole
+	}
+
+	panic(fmt.Sprintf("unable to parse role '%s' to app layer", role))
 }

@@ -7,7 +7,7 @@ import (
 	rabbitEntities "sbp/internal/entities/rabbit"
 	"sbp/pkg/rabbitmq"
 
-	leConverter "sbp/internal/conversions"
+	"sbp/internal/conversions"
 
 	"go.uber.org/zap"
 )
@@ -46,12 +46,12 @@ func NewLeaWashPublisher(logger *zap.SugaredLogger, rabbitMqClient *rabbitmq.Rab
 	}, nil
 }
 
-func (leaWashPublisher *leaWashPublisher) SendToLeaPaymentResponse(message entities.PaymentResponse) error {
-	leaMessage := leConverter.PaymentResponseToLea(message)
-	return leaWashPublisher.sendToLea(leaMessage.WashID, string(rabbitEntities.PaymentResponseMessage), leaMessage)
+func (leaPub *leaWashPublisher) SendToLeaPaymentResponse(message entities.PaymentResponse) error {
+	leaMessage := conversions.PaymentResponseToLea(message)
+	return leaPub.sendToLea(leaMessage.WashID, string(rabbitEntities.PaymentResponseMessageType), leaMessage)
 }
 
-func (leaWashPublisher *leaWashPublisher) SendToLeaPaymentFailedResponse(washID string, postID string, orderID string, err string) error {
+func (leaPub *leaWashPublisher) SendToLeaPaymentFailedResponse(washID string, postID string, orderID string, err string) error {
 	paymentResponse := entities.PaymentResponse{
 		WashID:  washID,
 		PostID:  postID,
@@ -60,23 +60,23 @@ func (leaWashPublisher *leaWashPublisher) SendToLeaPaymentFailedResponse(washID 
 		Failed:  true,
 		Error:   err,
 	}
-	return leaWashPublisher.SendToLeaPaymentResponse(paymentResponse)
+	return leaPub.SendToLeaPaymentResponse(paymentResponse)
 }
 
-func (leaWashPublisher *leaWashPublisher) SendToLeaPaymentNotification(message entities.PaymentNotificationForLea) error {
-	leaMessage := leConverter.PaymentNotifcationToLea(message)
-	return leaWashPublisher.sendToLea(leaMessage.WashID, string(rabbitEntities.PaymentNotificationMessage), leaMessage)
+func (leaPub *leaWashPublisher) SendToLeaPaymentNotification(message entities.PaymentNotificationForLea) error {
+	leaMessage := conversions.PaymentNotifcationToLea(message)
+	return leaPub.sendToLea(leaMessage.WashID, string(rabbitEntities.PaymentNotificationMessageType), leaMessage)
 }
 
-func (leaWashPublisher *leaWashPublisher) sendToLea(washID string, messageType string, messageStruct interface{}) error {
+func (leaPub *leaWashPublisher) sendToLea(washID string, messageType string, messageStruct interface{}) error {
 	if messageStruct == nil {
 		return errors.New("send to lea failed: message = nil")
 	}
 
 	ms := messageStruct
 	exchangeName := rabbitEntities.LeaCentralWashExchange
-	mt := rabbitEntities.Message(messageType)
+	mt := rabbitEntities.MessageType(messageType)
 	rk := rabbitEntities.RoutingKey(washID)
 
-	return leaWashPublisher.publisher.Send(ms, exchangeName, rk, mt)
+	return leaPub.publisher.Send(ms, exchangeName, rk, mt)
 }

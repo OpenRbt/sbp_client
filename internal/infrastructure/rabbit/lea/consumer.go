@@ -72,9 +72,9 @@ func (c leaClient) Close() {
 
 func createHandler(logger *zap.SugaredLogger, washHandler washHandler, publisher app.LeaWashPublisher) (rabbitmq.ConsumerHandler, error) {
 	return func(ctx context.Context, d rabbitmq.RbqMessage) error {
-		messageType := rabbitEntities.Message(d.Type)
+		messageType := rabbitEntities.MessageType(d.Type)
 		switch messageType {
-		case rabbitEntities.PaymentRequestMessage:
+		case rabbitEntities.PaymentRequestMessageType:
 			{
 				var req rabbitEntities.PaymentRequest
 				err := json.Unmarshal(d.Body, &req)
@@ -102,7 +102,7 @@ func createHandler(logger *zap.SugaredLogger, washHandler washHandler, publisher
 				return nil
 
 			}
-		case rabbitEntities.PaymentСancellationRequestMessage:
+		case rabbitEntities.PaymentСancellationRequestMessageType:
 			{
 				var req rabbitEntities.PaymentСancellationRequest
 				err := json.Unmarshal(d.Body, &req)
