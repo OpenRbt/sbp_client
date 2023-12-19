@@ -30,45 +30,25 @@ type shareService interface {
 	UpsertOrganization(ctx context.Context, org entities.Organization) error
 }
 
-const MaxRetries = 10
-
 func NewShareConsumer(logger *zap.SugaredLogger, client *rabbitmq.RabbitMqClient, share shareService, publisher app.SharePublisher) (*shareClient, error) {
 	if client == nil {
 		return nil, errors.New("NewShareConsumer: client = nil")
 	}
 
-	handler, err := createHandler(logger, share, publisher)
+	handler, err := handleMessages(logger, share, publisher)
 	if err != nil {
 		return nil, err
 	}
 
-	shareCon, err := rabbitmq.NewConsumer(logger,
+	adminCon, err := rabbitmq.NewConsumer(
+		logger,
 		client,
 		handler,
-		string(rabbitEntities.SBPAdminDataQueue),
 
-		gorabbit.WithConsumerOptionsExchangeDeclare,
-
-		gorabbit.WithConsumerOptionsExchangeName(string(rabbitEntities.WashBonusExchange)),
-		gorabbit.WithConsumerOptionsExchangeKind("direct"),
-
-		gorabbit.WithConsumerOptionsRoutingKey(string(rabbitEntities.WashBonusRoutingKey)),
-		gorabbit.WithConsumerOptionsExchangeDurable,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	adminCon, err := rabbitmq.NewConsumer(logger,
-		client,
-		handler,
 		string(rabbitEntities.SBPStartupQueue),
-
 		gorabbit.WithConsumerOptionsExchangeDeclare,
-
 		gorabbit.WithConsumerOptionsExchangeName(string(rabbitEntities.AdminsExchange)),
 		gorabbit.WithConsumerOptionsExchangeKind("fanout"),
-
 		gorabbit.WithConsumerOptionsRoutingKey(string(rabbitEntities.SBPStartupQueue)),
 		gorabbit.WithConsumerOptionsExchangeDurable,
 	)
@@ -77,10 +57,9 @@ func NewShareConsumer(logger *zap.SugaredLogger, client *rabbitmq.RabbitMqClient
 	}
 
 	return &shareClient{
-		logger:          logger,
-		startupConsumer: shareCon,
-		adminConsumer:   adminCon,
-		publisher:       publisher,
+		logger:        logger,
+		adminConsumer: adminCon,
+		publisher:     publisher,
 	}, nil
 }
 
@@ -89,26 +68,12 @@ func (c shareClient) Close() {
 	c.adminConsumer.Close()
 }
 
-func getRetryCount(headers map[string]interface{}) int {
-	if count, ok := headers["x-retry-count"].(int); ok {
-		return count
-	}
-	return 0
-}
-
-func createHandler(logger *zap.SugaredLogger, share shareService, publisher app.SharePublisher) (rabbitmq.ConsumerHandler, error) {
+func handleMessages(logger *zap.SugaredLogger, share shareService, publisher app.SharePublisher) (rabbitmq.ConsumerHandler, error) {
 	return func(ctx context.Context, d rabbitmq.RbqMessage) error {
-		messageType := rabbitEntities.Message(d.Type)
-
-		retryCount := getRetryCount(d.Headers)
-		retryCount++
-
-		if retryCount > MaxRetries {
-			return fmt.Errorf("Max retries reached, handling failure")
-		}
+		messageType := rabbitEntities.MessageType(d.Type)
 
 		switch messageType {
-		case rabbitEntities.OrganizationMessage:
+		case rabbitEntities.OrganizationMessageType:
 			var msg rabbitEntities.Organization
 			err := json.Unmarshal(d.Body, &msg)
 			if err != nil {
@@ -121,16 +86,11 @@ func createHandler(logger *zap.SugaredLogger, share shareService, publisher app.
 			}
 
 			err = share.UpsertOrganization(ctx, org)
-			if errors.Is(err, entities.ErrBadVersion) {
-				return err
-			}
-
 			if err != nil {
-				d.Nack(false, true)
 				return err
 			}
 
-		case rabbitEntities.ServerGroupMessage:
+		case rabbitEntities.ServerGroupMessageType:
 			var msg rabbitEntities.ServerGroup
 			err := json.Unmarshal(d.Body, &msg)
 			if err != nil {
@@ -143,16 +103,11 @@ func createHandler(logger *zap.SugaredLogger, share shareService, publisher app.
 			}
 
 			err = share.UpsertGroup(ctx, group)
-			if errors.Is(err, entities.ErrBadVersion) {
-				return err
-			}
-
 			if err != nil {
-				d.Nack(false, true)
 				return err
 			}
 
-		case rabbitEntities.AdminUserMessage:
+		case rabbitEntities.AdminUserMessageType:
 			var msg rabbitEntities.AdminUser
 			err := json.Unmarshal(d.Body, &msg)
 			if err != nil {
@@ -165,12 +120,7 @@ func createHandler(logger *zap.SugaredLogger, share shareService, publisher app.
 			}
 
 			err = share.UpsertUser(ctx, user)
-			if errors.Is(err, entities.ErrBadVersion) {
-				return err
-			}
-
 			if err != nil {
-				d.Nack(false, true)
 				return err
 			}
 

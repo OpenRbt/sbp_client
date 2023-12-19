@@ -37,7 +37,6 @@ type deps struct {
 	leaWashConsumer  Consumer
 	sharePublisher   app.SharePublisher
 	shareConsumer    Consumer
-	userBroker       app.UserBroker
 	firebase         *firebase.FirebaseClient
 
 	svc app.Service
@@ -66,11 +65,10 @@ func InitDeps(ctx context.Context, config *config.Config, logger *zap.SugaredLog
 		d.initFirebase,
 		d.initPayClient,
 		d.initLeaWashPublisher,
-		d.initBrokerUserCreator,
-		d.initServices,
-		d.initLeaWashConsumer,
-		d.initShareConsumer,
 		d.initSharePublisher,
+		d.initServices,
+		d.initShareConsumer,
+		d.initLeaWashConsumer,
 		d.initHttpApi,
 		d.initHttpServer,
 		d.initTimeTriggeredScheduler,
@@ -145,7 +143,7 @@ func (d *deps) initServices(ctx context.Context) (err error) {
 		Repository:                   d.repository,
 		LeaWashPublisher:             d.leaWashPublisher,
 		PayClient:                    d.payClient,
-		BrokerUserCreator:            d.userBroker,
+		SharePublisher:               d.sharePublisher,
 		PasswordLength:               d.config.PasswordLength,
 	}
 
@@ -192,16 +190,6 @@ func (d *deps) initSharePublisher(ctx context.Context) (err error) {
 
 func (d *deps) initShareConsumer(ctx context.Context) (err error) {
 	d.leaWashConsumer, err = shareRabbit.NewShareConsumer(d.logger, d.rabbitMqClient, d.svc, d.sharePublisher)
-	if err != nil {
-		d.logger.Fatalln("new rabbit conn: ", err)
-	}
-	d.logger.Debug("connected to rabbit")
-
-	return nil
-}
-
-func (d *deps) initBrokerUserCreator(ctx context.Context) (err error) {
-	d.userBroker, err = leawash.NewBrokerUserCreator(d.rabbitMqClient)
 	if err != nil {
 		d.logger.Fatalln("new rabbit conn: ", err)
 	}
