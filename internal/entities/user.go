@@ -6,16 +6,16 @@ type User struct {
 	ID             string
 	Email          string
 	Name           string
-	Role           Role
+	Role           UserRole
 	OrganizationID *uuid.UUID
 	Version        int
 	Deleted        bool
 }
 
-type Role string
+type UserRole string
 
 const (
-	SystemManagerRole Role = "system_manager"
-	AdminRole         Role = "admin"
-	NoAccessRole      Role = "no_access"
+	SystemManagerRole UserRole = "system_manager"
+	AdminRole         UserRole = "admin"
+	NoAccessRole      UserRole = "no_access"
 )

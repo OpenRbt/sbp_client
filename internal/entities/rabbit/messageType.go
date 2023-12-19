@@ -1,17 +1,18 @@
 package rabbitEntities
 
-type Message string
+type MessageType string
 
 const (
-	PaymentRequestMessage              Message = "sbp_client_service/payment_request"
-	PaymentResponseMessage             Message = "sbp_client_service/payment_response"
-	PaymentNotificationMessage         Message = "sbp_client_service/payment_notification"
-	PaymentNotificationResponseMessage Message = "sbp_client_service/payment_notification_response"
-	PaymentСancellationRequestMessage  Message = "sbp_client_service/payment_cancellation_request"
-	PaymentErrorMessage                Message = "sbp_client_service/payment_error"
+	PaymentRequestMessageType             MessageType = "sbp_client_service/payment_request"
+	PaymentResponseMessageType            MessageType = "sbp_client_service/payment_response"
+	PaymentNotificationMessageType        MessageType = "sbp_client_service/payment_notification"
+	PaymentNotificationResponseMessage    MessageType = "sbp_client_service/payment_notification_response"
+	PaymentСancellationRequestMessageType MessageType = "sbp_client_service/payment_cancellation_request"
+	PaymentErrorMessageType               MessageType = "sbp_client_service/payment_error"
 
-	AdminUserMessage        Message = "admin_service/admin_user"
-	OrganizationMessage     Message = "admin_service/organization"
-	ServerGroupMessage      Message = "admin_service/server_group"
-	RequestAdminDataMessage Message = "admin_service/data"
+	CreateUserMessageType       MessageType = "admin_service/create_user"
+	AdminUserMessageType        MessageType = "admin_service/admin_user"
+	OrganizationMessageType     MessageType = "admin_service/organization"
+	ServerGroupMessageType      MessageType = "admin_service/server_group"
+	RequestAdminDataMessageType MessageType = "admin_service/data"
 )

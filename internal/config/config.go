@@ -59,7 +59,7 @@ type (
 		Repository                   app.Repository
 		LeaWashPublisher             app.LeaWashPublisher
 		PayClient                    app.PaymentClient
-		BrokerUserCreator            app.UserBroker
+		SharePublisher               app.SharePublisher
 	}
 
 	RestApiConfig struct {
@@ -113,14 +113,14 @@ func (conf *ServiceConfig) CheckServiceConfig() error {
 	if conf.LeaWashPublisher == nil {
 		return errors.New("service lea_wash_publisher is empty")
 	}
+	if conf.SharePublisher == nil {
+		return errors.New("service share_publisher is empty")
+	}
 	if conf.PayClient == nil {
 		return errors.New("service pay_client is empty")
 	}
 	if conf.NotificationExpirationPeriod == 0 {
 		return errors.New("service notification_expiration_period is 0")
-	}
-	if conf.BrokerUserCreator == nil {
-		return errors.New("service broker_user_creator is nil")
 	}
 	return nil
 }

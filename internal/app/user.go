@@ -13,8 +13,4 @@ type (
 	UserService interface {
 		UpsertUser(ctx Ctx, user entities.User) error
 	}
-
-	UserBroker interface {
-		CreateUser(login string, password string) error
-	}
 )

@@ -20,6 +20,7 @@ type LeaWashPublisher interface {
 
 type SharePublisher interface {
 	SendDataRequest() error
+	CreateRabbitUser(login, password string) error
 }
 
 type Repository interface {

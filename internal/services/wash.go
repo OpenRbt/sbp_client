@@ -12,10 +12,11 @@ import (
 )
 
 type washService struct {
-	logger            *zap.SugaredLogger
-	repository        washRepository
-	passwordLength    int
-	brokerUserCreator app.UserBroker
+	logger         *zap.SugaredLogger
+	passwordLength int
+
+	repository washRepository
+	sharePub   app.SharePublisher
 }
 
 type washRepository interface {
@@ -27,16 +28,19 @@ type washRepository interface {
 func NewWashService(
 	ctx context.Context,
 	logger *zap.SugaredLogger,
-	repository washRepository,
-	brokerUserCreator app.UserBroker,
+
 	passwordLength int,
+
+	repository washRepository,
+	sharePub app.SharePublisher,
 ) (*washService, error) {
 
 	logic := washService{
-		logger:            logger,
-		repository:        repository,
-		passwordLength:    passwordLength,
-		brokerUserCreator: brokerUserCreator,
+		logger:         logger,
+		passwordLength: passwordLength,
+
+		repository: repository,
+		sharePub:   sharePub,
 	}
 
 	return &logic, nil
@@ -59,7 +63,7 @@ func (svc *washService) CreateWash(ctx context.Context, auth *entities.Auth, new
 		return entities.Wash{}, err
 	}
 
-	err = svc.brokerUserCreator.CreateUser(w.ID.String(), w.Password)
+	err = svc.sharePub.CreateRabbitUser(w.ID.String(), w.Password)
 	if err != nil {
 		return entities.Wash{}, err
 	}

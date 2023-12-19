@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"sbp/internal/config"
 	"sbp/internal/entities"
-	leawash "sbp/internal/infrastructure/rabbit/lea"
 	"sbp/internal/repository"
 	"sbp/internal/services"
 	"sbp/internal/testutils"
@@ -36,12 +35,7 @@ func TestWashService_AssignWashToGroup(t *testing.T) {
 		t.Fatalf("Failed to create user repo: %s", err)
 	}
 
-	broker, err := leawash.NewBrokerUserCreator(nil)
-	if err != nil {
-		t.Fatalf("Failed to create user broker: %s", err)
-	}
-
-	washService, err := services.NewWashService(context.Background(), logger.Sugar(), repo, broker, 10)
+	washService, err := services.NewWashService(context.Background(), logger.Sugar(), 10, repo, nil)
 	if err != nil {
 		t.Fatalf("Failed to create user service: %s", err)
 	}

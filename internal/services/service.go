@@ -28,7 +28,7 @@ func NewServices(ctx context.Context, cfg config.ServiceConfig) (*Services, erro
 		return nil, err
 	}
 
-	washService, err := NewWashService(ctx, cfg.Logger, cfg.Repository, cfg.BrokerUserCreator, cfg.PasswordLength)
+	washService, err := NewWashService(ctx, cfg.Logger, cfg.PasswordLength, cfg.Repository, cfg.SharePublisher)
 	if err != nil {
 		return nil, err
 	}
