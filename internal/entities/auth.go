@@ -3,15 +3,7 @@ package entities
 import uuid "github.com/satori/go.uuid"
 
 type Auth struct {
-	User         User
-	UserMetadata *UserAuthMetadata
-	Disabled     bool
-}
-
-type UserAuthMetadata struct {
-	CreationTimestamp    int64
-	LastLogInTimestamp   int64
-	LastRefreshTimestamp int64
+	User
 }
 
 func (auth *Auth) IsSystemManager() bool {

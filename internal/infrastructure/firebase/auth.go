@@ -71,23 +71,15 @@ func (fb *FirebaseClient) Auth(bearer string) (*entities.Auth, error) {
 		return nil, ErrUnauthorized
 	}
 
-	fbUser, err := fb.client.GetUser(ctx, token.UID)
-	if err != nil {
-		return nil, ErrUnauthorized
-	}
-
 	user, err := fb.userRepo.GetUserByID(ctx, token.UID)
 	if err != nil {
 		if errors.Is(err, entities.ErrNotFound) {
 			err = ErrUnauthorized
 		}
-
 		return nil, err
 	}
 
 	return &entities.Auth{
-		User:         user,
-		UserMetadata: (*entities.UserAuthMetadata)(fbUser.UserMetadata),
-		Disabled:     fbUser.Disabled,
+		User: user,
 	}, nil
 }
