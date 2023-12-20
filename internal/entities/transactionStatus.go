@@ -18,11 +18,17 @@ const (
 func ValidateTransactionStatus(r TransactionStatus) bool {
 	switch r {
 	case TransactionStatusNew:
+		fallthrough
 	case TransactionStatusAuthorized:
+		fallthrough
 	case TransactionStatusConfirmedNotSynced:
+		fallthrough
 	case TransactionStatusConfirmed:
+		fallthrough
 	case TransactionStatusСanceling:
+		fallthrough
 	case TransactionStatusСanceled:
+		fallthrough
 	case TransactionStatusRefunded:
 		return true
 	}
