@@ -9,12 +9,15 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 
-	"sbp/internal/logic/entities"
+	"sbp/internal/entities"
 	"sbp/openapi/restapi/operations"
+	"sbp/openapi/restapi/operations/notifications"
+	"sbp/openapi/restapi/operations/payments"
 	"sbp/openapi/restapi/operations/standard"
-	"sbp/openapi/restapi/operations/wash"
+	"sbp/openapi/restapi/operations/washes"
 )
 
+//go:generate swagger generate server --target ../../openapi --name WashSbp --spec ../swagger.yaml --principal sbp/internal/entities.Auth --exclude-main --strict-responders
 
 func configureFlags(api *operations.WashSbpAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
@@ -40,7 +43,7 @@ func configureAPI(api *operations.WashSbpAPI) http.Handler {
 
 	// Applies when the "Authorization" header is set
 	if api.AuthKeyAuth == nil {
-		api.AuthKeyAuth = func(token string) (*entities.AuthExtended, error) {
+		api.AuthKeyAuth = func(token string) (*entities.Auth, error) {
 			return nil, errors.NotImplemented("api key auth (authKey) Authorization from header param [Authorization] has not yet been implemented")
 		}
 	}
@@ -51,54 +54,54 @@ func configureAPI(api *operations.WashSbpAPI) http.Handler {
 	// Example:
 	// api.APIAuthorizer = security.Authorized()
 
-	if api.WashCancelHandler == nil {
-		api.WashCancelHandler = wash.CancelHandlerFunc(func(params wash.CancelParams, principal *entities.AuthExtended) wash.CancelResponder {
-			return wash.CancelNotImplemented()
+	if api.WashesAssignWashToGroupHandler == nil {
+		api.WashesAssignWashToGroupHandler = washes.AssignWashToGroupHandlerFunc(func(params washes.AssignWashToGroupParams, principal *entities.Auth) washes.AssignWashToGroupResponder {
+			return washes.AssignWashToGroupNotImplemented()
 		})
 	}
-	if api.WashCreateHandler == nil {
-		api.WashCreateHandler = wash.CreateHandlerFunc(func(params wash.CreateParams, principal *entities.AuthExtended) wash.CreateResponder {
-			return wash.CreateNotImplemented()
+	if api.PaymentsCancelPaymentHandler == nil {
+		api.PaymentsCancelPaymentHandler = payments.CancelPaymentHandlerFunc(func(params payments.CancelPaymentParams, principal *entities.Auth) payments.CancelPaymentResponder {
+			return payments.CancelPaymentNotImplemented()
 		})
 	}
-	if api.WashDeleteHandler == nil {
-		api.WashDeleteHandler = wash.DeleteHandlerFunc(func(params wash.DeleteParams, principal *entities.AuthExtended) wash.DeleteResponder {
-			return wash.DeleteNotImplemented()
+	if api.WashesCreateWashHandler == nil {
+		api.WashesCreateWashHandler = washes.CreateWashHandlerFunc(func(params washes.CreateWashParams, principal *entities.Auth) washes.CreateWashResponder {
+			return washes.CreateWashNotImplemented()
 		})
 	}
-	if api.WashGetWashHandler == nil {
-		api.WashGetWashHandler = wash.GetWashHandlerFunc(func(params wash.GetWashParams, principal *entities.AuthExtended) wash.GetWashResponder {
-			return wash.GetWashNotImplemented()
+	if api.WashesDeleteWashHandler == nil {
+		api.WashesDeleteWashHandler = washes.DeleteWashHandlerFunc(func(params washes.DeleteWashParams, principal *entities.Auth) washes.DeleteWashResponder {
+			return washes.DeleteWashNotImplemented()
 		})
 	}
-	if api.StandardHealthCheckHandler == nil {
-		api.StandardHealthCheckHandler = standard.HealthCheckHandlerFunc(func(params standard.HealthCheckParams, principal *entities.AuthExtended) standard.HealthCheckResponder {
-			return standard.HealthCheckNotImplemented()
+	if api.WashesGetWashByIDHandler == nil {
+		api.WashesGetWashByIDHandler = washes.GetWashByIDHandlerFunc(func(params washes.GetWashByIDParams, principal *entities.Auth) washes.GetWashByIDResponder {
+			return washes.GetWashByIDNotImplemented()
 		})
 	}
-	if api.WashListHandler == nil {
-		api.WashListHandler = wash.ListHandlerFunc(func(params wash.ListParams, principal *entities.AuthExtended) wash.ListResponder {
-			return wash.ListNotImplemented()
+	if api.WashesGetWashesHandler == nil {
+		api.WashesGetWashesHandler = washes.GetWashesHandlerFunc(func(params washes.GetWashesParams, principal *entities.Auth) washes.GetWashesResponder {
+			return washes.GetWashesNotImplemented()
 		})
 	}
-	if api.WashNotificationHandler == nil {
-		api.WashNotificationHandler = wash.NotificationHandlerFunc(func(params wash.NotificationParams, principal *entities.AuthExtended) wash.NotificationResponder {
-			return wash.NotificationNotImplemented()
+	if api.StandardHealthcheckHandler == nil {
+		api.StandardHealthcheckHandler = standard.HealthcheckHandlerFunc(func(params standard.HealthcheckParams, principal *entities.Auth) standard.HealthcheckResponder {
+			return standard.HealthcheckNotImplemented()
 		})
 	}
-	if api.WashPayHandler == nil {
-		api.WashPayHandler = wash.PayHandlerFunc(func(params wash.PayParams, principal *entities.AuthExtended) wash.PayResponder {
-			return wash.PayNotImplemented()
+	if api.PaymentsInitPaymentHandler == nil {
+		api.PaymentsInitPaymentHandler = payments.InitPaymentHandlerFunc(func(params payments.InitPaymentParams, principal *entities.Auth) payments.InitPaymentResponder {
+			return payments.InitPaymentNotImplemented()
 		})
 	}
-	if api.WashSignupHandler == nil {
-		api.WashSignupHandler = wash.SignupHandlerFunc(func(params wash.SignupParams, principal *entities.AuthExtended) wash.SignupResponder {
-			return wash.SignupNotImplemented()
+	if api.NotificationsReceiveNotificationHandler == nil {
+		api.NotificationsReceiveNotificationHandler = notifications.ReceiveNotificationHandlerFunc(func(params notifications.ReceiveNotificationParams, principal *entities.Auth) notifications.ReceiveNotificationResponder {
+			return notifications.ReceiveNotificationNotImplemented()
 		})
 	}
-	if api.WashUpdateHandler == nil {
-		api.WashUpdateHandler = wash.UpdateHandlerFunc(func(params wash.UpdateParams, principal *entities.AuthExtended) wash.UpdateResponder {
-			return wash.UpdateNotImplemented()
+	if api.WashesUpdateWashHandler == nil {
+		api.WashesUpdateWashHandler = washes.UpdateWashHandlerFunc(func(params washes.UpdateWashParams, principal *entities.Auth) washes.UpdateWashResponder {
+			return washes.UpdateWashNotImplemented()
 		})
 	}
 

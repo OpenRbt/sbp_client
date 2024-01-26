@@ -1,8 +1,8 @@
 swagger: "2.0"
 info:
-  description: "microservice for the sbp pay system of self-service car washes"
+  description: "microservice for the sbp system of self-service car washes"
   title: wash-sbp
-  version: 1.0.0
+  version: 1.0.1
 consumes:
   - application/json
 produces:
@@ -17,28 +17,127 @@ securityDefinitions:
     name: Authorization
 security:
   - authKey: []
-paths:
 
-  /signup:
-    post:
+paths:
+  /healthcheck:
+    get:
       tags:
-        - wash
+        - standard
       security:
         - {}
-      operationId: signup
+      operationId: healthcheck
       responses:
         200:
           description: OK
           schema:
-            $ref: "#/definitions/FirebaseToken"
+            type: object
+            properties:
+              ok:
+                type: boolean
+    
+  /groups/{groupId}/washes/{washId}:
+    post:
+      tags:     
+        - washes
+        - groups
+      operationId: assignWashToGroup
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          type: string
+          format: uuid
+        - name: washId
+          in: path
+          required: true
+          type: string
+          format: uuid
+      responses:
+        204:
+          description: OK
+        default: {$ref: '#/responses/GenericError'}
 
+  /washes/{id}:
+    get:
+      tags:
+        - washes
+      operationId: getWashById
+      parameters:
+        - $ref: '#/parameters/uuid'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Wash"
+        default: {$ref: '#/responses/GenericError'}
+    patch:
+      tags:
+        - washes
+      operationId: updateWash
+      parameters:
+        - $ref: '#/parameters/uuid'
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/WashUpdate"
+      responses:
+        204:
+          description: Success update
+        default: {$ref: '#/responses/GenericError'}
+    delete:
+      tags:
+        - washes
+      operationId: deleteWash
+      parameters:
+        - $ref: '#/parameters/uuid'
+      responses:
+        204:
+          description: OK
+        default: {$ref: '#/responses/GenericError'}
+
+  /washes:
+    get:
+      tags:
+        - washes
+      operationId: getWashes
+      parameters:
+        - $ref: '#/parameters/offset'
+        - $ref: '#/parameters/limit'
+        - name: groupId
+          in: query
+          type: string
+          format: uuid
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items: 
+              $ref: "#/definitions/Wash"
+        default: {$ref: '#/responses/GenericError'}
+    post:
+      tags:
+        - washes
+      operationId: createWash
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/WashCreation"
+      responses:
+        200:
+          description: Success creation
+          schema:
+            $ref: "#/definitions/Wash"
+        default: {$ref: '#/responses/GenericError'}
+      
   /notification:
     post:
       tags:
-        - wash
+        - notifications
       security:
         - {}
-      operationId: notification
+      operationId: receiveNotification
       parameters:
         - name: body
           in: body
@@ -49,275 +148,82 @@ paths:
           description: OK
           schema:
             type: string
-        400:
-          description: Bad request
-          schema:
-            type: string
-        500:
-          description: Internal error
-          schema:
-            $ref: "#/definitions/error"
-            
-  /health_check:
-    get:
-      tags:
-        - Standard
-      security:
-        - {}
-      operationId: healthCheck
-      responses:
-        200:
-          description: OK
-          schema:
-            type: object
-            properties:
-              ok:
-                type: boolean
+        default: {$ref: '#/responses/GenericError'}
 
-  /wash/{id}:
-    get:
-      tags:
-        - wash
-      security:
-        - authKey: []
-      operationId: getWash
-      parameters:
-        - name: id
-          in: path
-          required: true
-          type: string
-      responses:
-        200:
-          description: OK
-          schema:
-            $ref: "#/definitions/Wash"
-        400:
-          description: Bad request
-          schema:
-            $ref: "#/definitions/error"
-        403:
-          description: Access denied
-          schema:
-            $ref: "#/definitions/error"
-        404:
-          description: Wash not exists
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: Internal error
-          schema:
-            $ref: "#/definitions/error"
-
-  /wash/:
-    put:
-      tags:
-        - wash
-      security:
-        - authKey: []
-      operationId: create
-      parameters:
-        - name: body
-          in: body
-          schema:
-            $ref: "#/definitions/WashCreate"
-      responses:
-        200:
-          description: Success creation
-          schema:
-            $ref: "#/definitions/Wash"
-        400:
-          description: Bad request
-          schema:
-            $ref: "#/definitions/error"
-        403:
-          description: Access denied
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: Internal error
-          schema:
-            $ref: "#/definitions/error"
-    patch:
-      tags:
-        - wash
-      security:
-        - authKey: []
-      operationId: update
-      parameters:
-        - name: body
-          in: body
-          schema:
-            $ref: "#/definitions/WashUpdate"
-      responses:
-        204:
-          description: Success update
-        400:
-          description: Bad request
-          schema:
-            $ref: "#/definitions/error"
-        403:
-          description: Access denied
-          schema:
-            $ref: "#/definitions/error"
-        404:
-          description: Wash not exists
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: Internal error
-          schema:
-            $ref: "#/definitions/error"
-    delete:
-      tags:
-        - wash
-      security:
-        - authKey: []
-      operationId: delete
-      parameters:
-        - name: body
-          in: body
-          schema:
-            $ref: "#/definitions/WashDelete"
-      responses:
-        204:
-          description: OK
-        400:
-          description: Bad request
-          schema:
-            $ref: "#/definitions/error"
-        403:
-          description: Access denied
-          schema:
-            $ref: "#/definitions/error"
-        404:
-          description: Wash not exists
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: Internal error
-          schema:
-            $ref: "#/definitions/error"
-
-  /wash/list:
-    get:
-      tags:
-        - wash
-      security:
-        - authKey: []
-      operationId: list
-      parameters:
-        - name: body
-          in: body
-          schema:
-            $ref: "#/definitions/Pagination"
-      responses:
-        200:
-          description: OK
-          schema:
-            type: array
-            items: 
-              $ref: "#/definitions/Wash"
-        400:
-          description: Bad request
-          schema:
-            $ref: "#/definitions/error"
-        403:
-          description: Access denied
-          schema:
-            $ref: "#/definitions/error"
-        404:
-          description: Wash not exists
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: Internal error
-          schema:
-            $ref: "#/definitions/error"
-
-  /pay:
+  /payments/init:
     post:
       tags:
-        - wash
-      security:
-        - authKey: []
-      operationId: pay
+        - payments
+      operationId: initPayment
       parameters:
         - name: body
           in: body
           schema:
-            $ref: "#/definitions/Pay"
+            $ref: "#/definitions/Payment"
       responses:
         200:
           description: OK
           schema:
-            $ref: "#/definitions/payResponse"
-        400:
-          description: Bad request
-          schema:
-            $ref: "#/definitions/error"
-        403:
-          description: Access denied
-          schema:
-            $ref: "#/definitions/error"
+            $ref: "#/definitions/PaymentResponse"
+        default: {$ref: '#/responses/GenericError'}
 
-  /cancel:
+  /payments/cancel:
     post:
       tags:
-        - wash
-      security:
-        - authKey: []
-      operationId: cancel
+        - payments
+      operationId: cancelPayment
       parameters:
         - name: body
           in: body
           schema:
-            $ref: "#/definitions/cancel"
+            $ref: "#/definitions/PaymentCancellation"
       responses:
         200:
           description: OK
-        400:
-          description: Bad request
-          schema:
-            $ref: "#/definitions/error"
-        403:
-          description: Access denied
-          schema:
-            $ref: "#/definitions/error"
+        default: {$ref: '#/responses/GenericError'}
 
+responses:
+  GenericError:
+    description: Generic error response
+    schema:
+      $ref: '#/definitions/Error'
+
+parameters:
+  offset:
+    name: offset
+    in: query
+    description: Number of records to skip for pagination
+    required: false
+    type: integer
+    format: int64
+    default: 0
+    minimum: 0
+
+  limit:
+    name: limit
+    in: query
+    description: Maximum number of records to return
+    required: false
+    type: integer
+    format: int64
+    default: 100
+    minimum: 1
+
+  userRole:
+    name: role
+    in: query
+    type: string
+    enum: [systemManager, admin, noAccess]
+
+  uuid:
+    name: id
+    in: path
+    required: true
+    type: string
+    format: uuid
 
 definitions:
-  cancel:
-    type: object
-    properties:
-      washID:
-        type: string
-      postID:
-        type: string
-      orderID:
-        type: string
-
-
-  payResponse:
-    type: object
-    properties:
-      url:
-        type: string
-      orderID:
-        type: string
-
-  Pay:
-    type: object
-    properties:
-      washId:
-        type: string
-      postId:
-        type: string
-      orderId:
-        type: string
-      amount:
-        type: integer
-
-  error:
+  Error:
     type: object
     required:
       - code
@@ -330,6 +236,36 @@ definitions:
       message:
         type: string
 
+  PaymentCancellation:
+    type: object
+    properties:
+      washID:
+        type: string
+      postID:
+        type: string
+      orderID:
+        type: string
+
+  PaymentResponse:
+    type: object
+    properties:
+      url:
+        type: string
+      orderID:
+        type: string
+
+  Payment:
+    type: object
+    properties:
+      washId:
+        type: string
+      postId:
+        type: string
+      orderId:
+        type: string
+      amount:
+        type: integer
+
   Wash:
     type: object
     properties:
@@ -341,45 +277,43 @@ definitions:
         type: string
       description:
         type: string
-      terminal_key:
+      terminalKey:
         type: string
-      terminal_password:
+      terminalPassword:
         type: string
+      organizationId:
+        type: string
+        format: uuid
+      groupId:
+        type: string
+        format: uuid
 
-  WashCreate:
+  WashCreation:
     properties:
       name:
         type: string
       description:
         type: string 
-      terminal_key:
+      terminalKey:
         type: string
-      terminal_password:
+      terminalPassword:
         type: string
-    required:
-      - name
+      groupId:
+        type: string
+        format: uuid
+    required: [name, description, terminalKey, terminalPassword, groupId]
 
   WashUpdate:
     type: object
     properties:
-      id:
-        type: string
       name:
         type: string
       description:
         type: string
-      terminal_key:
+      terminalKey:
         type: string
-      terminal_password:
+      terminalPassword:
         type: string
-
-  WashDelete:
-    type: object
-    properties:
-      id:
-        type: string
-    required:
-      - id
 
   Notification:
     type: object
@@ -418,19 +352,62 @@ definitions:
         type: string
         x-nullable: true
 
-  Pagination:
-    type: object
-    properties: 
-      limit:
-        type: integer
-        format: int64
-        maximum: 100
-      offset:
-        type: integer
-        format: int64
+  UserRole:
+    type: string
+    enum: [systemManager, admin, noAccess]
 
-  FirebaseToken:
+  User:
     type: object
-    properties: 
-      value:
+    description: "User profile"
+    properties:
+      id:
         type: string
+      name:
+        type: string
+      email:
+        type: string
+        format: email
+      role:
+        $ref: "#/definitions/UserRole"
+      organization:
+        type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+          name:
+            type: string
+          description:
+            type: string
+          displayName:
+            type: string
+          deleted:
+            type: boolean
+        x-nullable: true
+
+  Organization:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      description:
+        type: string
+      displayName:
+        type: string
+
+  Group:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      description:
+        type: string
+      organizationId:
+        type: string
+        format: uuid

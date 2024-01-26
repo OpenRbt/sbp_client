@@ -1,42 +1,46 @@
 package app
 
 import (
-	"golang.org/x/net/context"
+	"context"
+	"net/http"
+	"sbp/internal/entities"
+	"sbp/openapi/restapi/operations"
 )
 
-// App ...
-type App struct {
-	deps *deps
+type (
+	Ctx  = context.Context
+	Auth = entities.Auth
+)
+
+type LeaWashPublisher interface {
+	SendToLeaPaymentResponse(entities.PaymentResponse) error
+	SendToLeaPaymentNotification(entities.PaymentNotificationForLea) error
+	SendToLeaPaymentFailedResponse(washID string, postID string, orderID string, err string) error
 }
 
-// NewApp ...
-func NewApp(ctx context.Context, envFilePath string) (*App, error) {
-	config, err := getConfig(envFilePath)
-	if err != nil {
-		return nil, err
-	}
-
-	logger, err := getLogger(config.LogLevel)
-	if err != nil {
-		return nil, err
-	}
-
-	deps, err := InitDeps(ctx, config, logger)
-	if err != nil {
-		return nil, err
-	}
-
-	return &App{
-		deps: deps,
-	}, nil
+type SharePublisher interface {
+	SendDataRequest() error
+	CreateRabbitUser(login, password string) error
 }
 
-// Run ...
-func (a App) Run() error {
-	return a.deps.httpServer.Run()
+type Repository interface {
+	PaymentRepository
+	UserRepository
+	WashRepository
+	GroupRepository
+	OrganizationRepository
+	Close() error
 }
 
-// Run ...
-func (a App) Close() {
-	a.deps.close()
+type Service interface {
+	WashService
+	PaymentService
+	OrganizationService
+	GroupService
+	UserService
+}
+
+type Api interface {
+	GetSwaggerApi() *operations.WashSbpAPI
+	GetHandler() http.Handler
 }

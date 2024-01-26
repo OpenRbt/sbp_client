@@ -4,15 +4,17 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"sbp/internal/config"
+	"time"
+
 	"github.com/gocraft/dbr/v2"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"time"
 )
 
-func NewDbConn(db DBConfig) (dbPool *dbr.Connection, err error) {
+func NewDbConn(db config.DBConfig) (dbPool *dbr.Connection, err error) {
 	dsn := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable",
 		db.User, db.Password, db.Database, db.Host, db.Port)
 
