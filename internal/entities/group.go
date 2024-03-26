@@ -11,3 +11,9 @@ type Group struct {
 	Deleted        bool
 	Version        int
 }
+
+type SimpleGroup struct {
+	ID      uuid.UUID
+	Name    string
+	Deleted bool
+}

@@ -31,10 +31,10 @@ func NewCreateWash(ctx *middleware.Context, handler CreateWashHandler) *CreateWa
 	return &CreateWash{Context: ctx, Handler: handler}
 }
 
-/* CreateWash swagger:route POST /washes washes createWash
+/*
+	CreateWash swagger:route POST /washes washes createWash
 
 CreateWash create wash API
-
 */
 type CreateWash struct {
 	Context *middleware.Context

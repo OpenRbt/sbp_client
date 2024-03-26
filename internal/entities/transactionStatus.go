@@ -9,8 +9,8 @@ const (
 	TransactionStatusAuthorized         TransactionStatus = "authorized"
 	TransactionStatusConfirmedNotSynced TransactionStatus = "confirmed_not_synced"
 	TransactionStatusConfirmed          TransactionStatus = "confirmed"
-	TransactionStatusСanceling          TransactionStatus = "canceling"
-	TransactionStatusСanceled           TransactionStatus = "canceled"
+	TransactionStatusCanceling          TransactionStatus = "canceling"
+	TransactionStatusCanceled           TransactionStatus = "canceled"
 	TransactionStatusRefunded           TransactionStatus = "refunded"
 	TransactionStatusUnknown            TransactionStatus = "unknown"
 )
@@ -25,9 +25,9 @@ func ValidateTransactionStatus(r TransactionStatus) bool {
 		fallthrough
 	case TransactionStatusConfirmed:
 		fallthrough
-	case TransactionStatusСanceling:
+	case TransactionStatusCanceling:
 		fallthrough
-	case TransactionStatusСanceled:
+	case TransactionStatusCanceled:
 		fallthrough
 	case TransactionStatusRefunded:
 		return true

@@ -175,6 +175,78 @@ func init() {
         }
       }
     },
+    "/transactions": {
+      "get": {
+        "tags": [
+          "transactions"
+        ],
+        "operationId": "getTransactions",
+        "parameters": [
+          {
+            "$ref": "#/parameters/page"
+          },
+          {
+            "$ref": "#/parameters/pageSize"
+          },
+          {
+            "enum": [
+              "new",
+              "authorized",
+              "confirmed_not_synced",
+              "confirmed",
+              "canceling",
+              "canceled",
+              "refunded",
+              "unknown"
+            ],
+            "type": "string",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "organizationId",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "groupId",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "washId",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "postId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/TransactionPage"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/GenericError"
+          },
+          "404": {
+            "$ref": "#/responses/GenericError"
+          },
+          "default": {
+            "$ref": "#/responses/GenericError"
+          }
+        }
+      }
+    },
     "/washes": {
       "get": {
         "tags": [
@@ -327,9 +399,14 @@ func init() {
     },
     "Group": {
       "type": "object",
+      "required": [
+        "id",
+        "name",
+        "deleted"
+      ],
       "properties": {
-        "description": {
-          "type": "string"
+        "deleted": {
+          "type": "boolean"
         },
         "id": {
           "type": "string",
@@ -337,10 +414,6 @@ func init() {
         },
         "name": {
           "type": "string"
-        },
-        "organizationId": {
-          "type": "string",
-          "format": "uuid"
         }
       }
     },
@@ -395,12 +468,14 @@ func init() {
     },
     "Organization": {
       "type": "object",
+      "required": [
+        "id",
+        "name",
+        "deleted"
+      ],
       "properties": {
-        "description": {
-          "type": "string"
-        },
-        "displayName": {
-          "type": "string"
+        "deleted": {
+          "type": "boolean"
         },
         "id": {
           "type": "string",
@@ -452,6 +527,114 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "SimpleWash": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "deleted"
+      ],
+      "properties": {
+        "deleted": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "Transaction": {
+      "type": "object",
+      "required": [
+        "id",
+        "createdAt",
+        "amount",
+        "status",
+        "postId",
+        "wash",
+        "group",
+        "organization"
+      ],
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "group": {
+          "$ref": "#/definitions/Group"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "organization": {
+          "$ref": "#/definitions/Organization"
+        },
+        "postId": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/TransactionStatus"
+        },
+        "wash": {
+          "$ref": "#/definitions/SimpleWash"
+        }
+      }
+    },
+    "TransactionPage": {
+      "type": "object",
+      "required": [
+        "items",
+        "page",
+        "pageSize",
+        "totalPages",
+        "totalItems"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Transaction"
+          }
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "pageSize": {
+          "type": "integer",
+          "maximum": 100,
+          "minimum": 1
+        },
+        "totalItems": {
+          "type": "integer"
+        },
+        "totalPages": {
+          "type": "integer"
+        }
+      }
+    },
+    "TransactionStatus": {
+      "type": "string",
+      "enum": [
+        "new",
+        "authorized",
+        "confirmed_not_synced",
+        "confirmed",
+        "canceling",
+        "canceled",
+        "refunded",
+        "unknown"
+      ]
     },
     "User": {
       "description": "User profile",
@@ -594,6 +777,21 @@ func init() {
       "default": 0,
       "description": "Number of records to skip for pagination",
       "name": "offset",
+      "in": "query"
+    },
+    "page": {
+      "minimum": 1,
+      "type": "integer",
+      "default": 1,
+      "name": "page",
+      "in": "query"
+    },
+    "pageSize": {
+      "maximum": 100,
+      "minimum": 1,
+      "type": "integer",
+      "default": 10,
+      "name": "pageSize",
       "in": "query"
     },
     "userRole": {
@@ -806,6 +1004,96 @@ func init() {
         }
       }
     },
+    "/transactions": {
+      "get": {
+        "tags": [
+          "transactions"
+        ],
+        "operationId": "getTransactions",
+        "parameters": [
+          {
+            "minimum": 1,
+            "type": "integer",
+            "default": 1,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer",
+            "default": 10,
+            "name": "pageSize",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "new",
+              "authorized",
+              "confirmed_not_synced",
+              "confirmed",
+              "canceling",
+              "canceled",
+              "refunded",
+              "unknown"
+            ],
+            "type": "string",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "organizationId",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "groupId",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "washId",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "postId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/TransactionPage"
+            }
+          },
+          "403": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/washes": {
       "get": {
         "tags": [
@@ -997,9 +1285,14 @@ func init() {
     },
     "Group": {
       "type": "object",
+      "required": [
+        "id",
+        "name",
+        "deleted"
+      ],
       "properties": {
-        "description": {
-          "type": "string"
+        "deleted": {
+          "type": "boolean"
         },
         "id": {
           "type": "string",
@@ -1007,10 +1300,6 @@ func init() {
         },
         "name": {
           "type": "string"
-        },
-        "organizationId": {
-          "type": "string",
-          "format": "uuid"
         }
       }
     },
@@ -1065,12 +1354,14 @@ func init() {
     },
     "Organization": {
       "type": "object",
+      "required": [
+        "id",
+        "name",
+        "deleted"
+      ],
       "properties": {
-        "description": {
-          "type": "string"
-        },
-        "displayName": {
-          "type": "string"
+        "deleted": {
+          "type": "boolean"
         },
         "id": {
           "type": "string",
@@ -1122,6 +1413,116 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "SimpleWash": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "deleted"
+      ],
+      "properties": {
+        "deleted": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "Transaction": {
+      "type": "object",
+      "required": [
+        "id",
+        "createdAt",
+        "amount",
+        "status",
+        "postId",
+        "wash",
+        "group",
+        "organization"
+      ],
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "group": {
+          "$ref": "#/definitions/Group"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "organization": {
+          "$ref": "#/definitions/Organization"
+        },
+        "postId": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/TransactionStatus"
+        },
+        "wash": {
+          "$ref": "#/definitions/SimpleWash"
+        }
+      }
+    },
+    "TransactionPage": {
+      "type": "object",
+      "required": [
+        "items",
+        "page",
+        "pageSize",
+        "totalPages",
+        "totalItems"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Transaction"
+          }
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "pageSize": {
+          "type": "integer",
+          "maximum": 100,
+          "minimum": 1
+        },
+        "totalItems": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalPages": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "TransactionStatus": {
+      "type": "string",
+      "enum": [
+        "new",
+        "authorized",
+        "confirmed_not_synced",
+        "confirmed",
+        "canceling",
+        "canceled",
+        "refunded",
+        "unknown"
+      ]
     },
     "User": {
       "description": "User profile",
@@ -1287,6 +1688,21 @@ func init() {
       "default": 0,
       "description": "Number of records to skip for pagination",
       "name": "offset",
+      "in": "query"
+    },
+    "page": {
+      "minimum": 1,
+      "type": "integer",
+      "default": 1,
+      "name": "page",
+      "in": "query"
+    },
+    "pageSize": {
+      "maximum": 100,
+      "minimum": 1,
+      "type": "integer",
+      "default": 10,
+      "name": "pageSize",
       "in": "query"
     },
     "userRole": {

@@ -31,10 +31,10 @@ func NewUpdateWash(ctx *middleware.Context, handler UpdateWashHandler) *UpdateWa
 	return &UpdateWash{Context: ctx, Handler: handler}
 }
 
-/* UpdateWash swagger:route PATCH /washes/{id} washes updateWash
+/*
+	UpdateWash swagger:route PATCH /washes/{id} washes updateWash
 
 UpdateWash update wash API
-
 */
 type UpdateWash struct {
 	Context *middleware.Context
