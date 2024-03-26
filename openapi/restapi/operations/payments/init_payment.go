@@ -31,10 +31,10 @@ func NewInitPayment(ctx *middleware.Context, handler InitPaymentHandler) *InitPa
 	return &InitPayment{Context: ctx, Handler: handler}
 }
 
-/* InitPayment swagger:route POST /payments/init payments initPayment
+/*
+	InitPayment swagger:route POST /payments/init payments initPayment
 
 InitPayment init payment API
-
 */
 type InitPayment struct {
 	Context *middleware.Context

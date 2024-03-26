@@ -17,7 +17,8 @@ import (
 // ReceiveNotificationOKCode is the HTTP code returned for type ReceiveNotificationOK
 const ReceiveNotificationOKCode int = 200
 
-/*ReceiveNotificationOK OK
+/*
+ReceiveNotificationOK OK
 
 swagger:response receiveNotificationOK
 */
@@ -58,7 +59,8 @@ func (o *ReceiveNotificationOK) WriteResponse(rw http.ResponseWriter, producer r
 
 func (o *ReceiveNotificationOK) ReceiveNotificationResponder() {}
 
-/*ReceiveNotificationDefault Generic error response
+/*
+ReceiveNotificationDefault Generic error response
 
 swagger:response receiveNotificationDefault
 */

@@ -181,6 +181,47 @@ paths:
         200:
           description: OK
         default: {$ref: '#/responses/GenericError'}
+  
+  /transactions:
+    get:
+      tags:     
+        - transactions
+      operationId: getTransactions
+      parameters:
+        - $ref: '#/parameters/page'
+        - $ref: '#/parameters/pageSize'
+        - name: status
+          type: string
+          in: query
+          enum: ["new", "authorized", "confirmed_not_synced", "confirmed", "canceling", "canceled", "refunded", "unknown"]
+        - name: organizationId
+          in: query
+          type: string
+          format: uuid
+          required: false
+        - name: groupId
+          in: query
+          type: string
+          format: uuid
+          required: false
+        - name: washId
+          in: query
+          type: string
+          format: uuid
+          required: false
+        - name: postId
+          in: query
+          type: integer
+          format: int64
+          required: false
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/TransactionPage'
+        403: {$ref: '#/responses/GenericError'}
+        404: {$ref: '#/responses/GenericError'}
+        default: {$ref: '#/responses/GenericError'}
 
 responses:
   GenericError:
@@ -207,6 +248,21 @@ parameters:
     type: integer
     format: int64
     default: 100
+    minimum: 1
+  
+  page:
+    name: page
+    in: query
+    type: integer
+    default: 1
+    minimum: 1
+  
+  pageSize:
+    name: pageSize
+    in: query
+    type: integer
+    default: 10
+    maximum: 100
     minimum: 1
 
   userRole:
@@ -265,6 +321,18 @@ definitions:
         type: string
       amount:
         type: integer
+
+  SimpleWash:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      deleted:
+        type: boolean
+    required: [id, name, deleted]
 
   Wash:
     type: object
@@ -393,10 +461,9 @@ definitions:
         format: uuid
       name:
         type: string
-      description:
-        type: string
-      displayName:
-        type: string
+      deleted:
+        type: boolean
+    required: [id, name, deleted]
 
   Group:
     type: object
@@ -406,8 +473,61 @@ definitions:
         format: uuid
       name:
         type: string
-      description:
-        type: string
-      organizationId:
+      deleted:
+        type: boolean
+    required: [id, name, deleted]
+
+  TransactionStatus:
+    type: string
+    enum: ["new", "authorized", "confirmed_not_synced", "confirmed", "canceling", "canceled", "refunded", "unknown"]
+
+  Transaction:
+    type: object
+    properties:
+      id:
         type: string
         format: uuid
+      createdAt:
+        type: string
+        format: date-time
+      amount:
+        type: integer
+        format: int64
+      status:
+        $ref: '#/definitions/TransactionStatus'
+      postId:
+        type: integer
+      wash:
+        $ref: '#/definitions/SimpleWash'
+      group:
+        $ref: '#/definitions/Group'
+      organization:
+        $ref: '#/definitions/Organization'
+    required: [id, createdAt, amount, status, postId, wash, group, organization]
+
+  TransactionPage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/Transaction"
+      page:
+        type: integer
+        minimum: 1
+      pageSize:
+        type: integer
+        maximum: 100
+        minimum: 1
+      totalPages:
+        type: integer
+        minimum: 0
+      totalItems:
+        type: integer
+        minimum: 0
+    required:
+      - items
+      - page
+      - pageSize
+      - totalPages
+      - totalItems

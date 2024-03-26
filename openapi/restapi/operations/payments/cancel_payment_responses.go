@@ -17,7 +17,8 @@ import (
 // CancelPaymentOKCode is the HTTP code returned for type CancelPaymentOK
 const CancelPaymentOKCode int = 200
 
-/*CancelPaymentOK OK
+/*
+CancelPaymentOK OK
 
 swagger:response cancelPaymentOK
 */
@@ -40,7 +41,8 @@ func (o *CancelPaymentOK) WriteResponse(rw http.ResponseWriter, producer runtime
 
 func (o *CancelPaymentOK) CancelPaymentResponder() {}
 
-/*CancelPaymentDefault Generic error response
+/*
+CancelPaymentDefault Generic error response
 
 swagger:response cancelPaymentDefault
 */

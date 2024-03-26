@@ -31,10 +31,10 @@ func NewGetWashByID(ctx *middleware.Context, handler GetWashByIDHandler) *GetWas
 	return &GetWashByID{Context: ctx, Handler: handler}
 }
 
-/* GetWashByID swagger:route GET /washes/{id} washes getWashById
+/*
+	GetWashByID swagger:route GET /washes/{id} washes getWashById
 
 GetWashByID get wash by Id API
-
 */
 type GetWashByID struct {
 	Context *middleware.Context

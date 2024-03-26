@@ -17,7 +17,8 @@ import (
 // GetWashesOKCode is the HTTP code returned for type GetWashesOK
 const GetWashesOKCode int = 200
 
-/*GetWashesOK OK
+/*
+GetWashesOK OK
 
 swagger:response getWashesOK
 */
@@ -63,7 +64,8 @@ func (o *GetWashesOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 
 func (o *GetWashesOK) GetWashesResponder() {}
 
-/*GetWashesDefault Generic error response
+/*
+GetWashesDefault Generic error response
 
 swagger:response getWashesDefault
 */

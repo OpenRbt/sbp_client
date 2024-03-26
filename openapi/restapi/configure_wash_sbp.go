@@ -14,6 +14,7 @@ import (
 	"sbp/openapi/restapi/operations/notifications"
 	"sbp/openapi/restapi/operations/payments"
 	"sbp/openapi/restapi/operations/standard"
+	"sbp/openapi/restapi/operations/transactions"
 	"sbp/openapi/restapi/operations/washes"
 )
 
@@ -72,6 +73,11 @@ func configureAPI(api *operations.WashSbpAPI) http.Handler {
 	if api.WashesDeleteWashHandler == nil {
 		api.WashesDeleteWashHandler = washes.DeleteWashHandlerFunc(func(params washes.DeleteWashParams, principal *entities.Auth) washes.DeleteWashResponder {
 			return washes.DeleteWashNotImplemented()
+		})
+	}
+	if api.TransactionsGetTransactionsHandler == nil {
+		api.TransactionsGetTransactionsHandler = transactions.GetTransactionsHandlerFunc(func(params transactions.GetTransactionsParams, principal *entities.Auth) transactions.GetTransactionsResponder {
+			return transactions.GetTransactionsNotImplemented()
 		})
 	}
 	if api.WashesGetWashByIDHandler == nil {

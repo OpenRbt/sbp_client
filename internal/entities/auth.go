@@ -14,6 +14,10 @@ func (auth *Auth) IsAdmin() bool {
 	return auth.User.Role == AdminRole
 }
 
+func (auth *Auth) IsNoAccess() bool {
+	return auth.User.Role == NoAccessRole
+}
+
 func (auth *Auth) IsAdminManageOrganization(organizationID uuid.UUID) bool {
 	return auth.IsAdmin() && auth.User.OrganizationID != nil && *auth.User.OrganizationID == organizationID
 }

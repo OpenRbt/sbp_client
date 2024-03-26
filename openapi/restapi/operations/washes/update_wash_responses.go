@@ -17,7 +17,8 @@ import (
 // UpdateWashNoContentCode is the HTTP code returned for type UpdateWashNoContent
 const UpdateWashNoContentCode int = 204
 
-/*UpdateWashNoContent Success update
+/*
+UpdateWashNoContent Success update
 
 swagger:response updateWashNoContent
 */
@@ -40,7 +41,8 @@ func (o *UpdateWashNoContent) WriteResponse(rw http.ResponseWriter, producer run
 
 func (o *UpdateWashNoContent) UpdateWashResponder() {}
 
-/*UpdateWashDefault Generic error response
+/*
+UpdateWashDefault Generic error response
 
 swagger:response updateWashDefault
 */

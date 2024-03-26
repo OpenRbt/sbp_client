@@ -17,7 +17,8 @@ import (
 // GetWashByIDOKCode is the HTTP code returned for type GetWashByIDOK
 const GetWashByIDOKCode int = 200
 
-/*GetWashByIDOK OK
+/*
+GetWashByIDOK OK
 
 swagger:response getWashByIdOK
 */
@@ -60,7 +61,8 @@ func (o *GetWashByIDOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 
 func (o *GetWashByIDOK) GetWashByIDResponder() {}
 
-/*GetWashByIDDefault Generic error response
+/*
+GetWashByIDDefault Generic error response
 
 swagger:response getWashByIdDefault
 */

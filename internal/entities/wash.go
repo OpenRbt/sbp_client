@@ -20,6 +20,12 @@ type Wash struct {
 	UpdatedAt        time.Time
 }
 
+type SimpleWash struct {
+	ID      uuid.UUID
+	Title   string
+	Deleted bool
+}
+
 type WashCreation struct {
 	OwnerID          string
 	Password         string

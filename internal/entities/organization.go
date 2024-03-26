@@ -11,3 +11,9 @@ type Organization struct {
 	Deleted     bool
 	Version     int
 }
+
+type SimpleOrganization struct {
+	ID      uuid.UUID
+	Name    string
+	Deleted bool
+}
