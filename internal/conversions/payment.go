@@ -190,7 +190,7 @@ func TransactionPageToRest(page entities.Page[entities.TransactionForPage]) *api
 		Items:      items,
 		Page:       &page.Page,
 		PageSize:   &page.PageSize,
-		TotalItems: &page.TotalPages,
+		TotalItems: &page.TotalItems,
 		TotalPages: &page.TotalPages,
 	}
 }
