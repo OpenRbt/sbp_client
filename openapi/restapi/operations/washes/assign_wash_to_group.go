@@ -31,10 +31,10 @@ func NewAssignWashToGroup(ctx *middleware.Context, handler AssignWashToGroupHand
 	return &AssignWashToGroup{Context: ctx, Handler: handler}
 }
 
-/* AssignWashToGroup swagger:route POST /groups/{groupId}/washes/{washId} washes groups assignWashToGroup
+/*
+	AssignWashToGroup swagger:route POST /groups/{groupId}/washes/{washId} washes groups assignWashToGroup
 
 AssignWashToGroup assign wash to group API
-
 */
 type AssignWashToGroup struct {
 	Context *middleware.Context

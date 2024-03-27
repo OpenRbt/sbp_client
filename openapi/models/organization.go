@@ -21,36 +21,36 @@ import (
 // swagger:model Organization
 type Organization struct {
 
-	// description
-	Description string `json:"description,omitempty"`
-
-	// display name
-	DisplayName string `json:"displayName,omitempty"`
+	// deleted
+	// Required: true
+	Deleted *bool `json:"deleted"`
 
 	// id
+	// Required: true
 	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
+	ID *strfmt.UUID `json:"id"`
 
 	// name
-	Name string `json:"name,omitempty"`
+	// Required: true
+	Name *string `json:"name"`
 }
 
 // UnmarshalJSON unmarshals this object while disallowing additional properties from JSON
 func (m *Organization) UnmarshalJSON(data []byte) error {
 	var props struct {
 
-		// description
-		Description string `json:"description,omitempty"`
-
-		// display name
-		DisplayName string `json:"displayName,omitempty"`
+		// deleted
+		// Required: true
+		Deleted *bool `json:"deleted"`
 
 		// id
+		// Required: true
 		// Format: uuid
-		ID strfmt.UUID `json:"id,omitempty"`
+		ID *strfmt.UUID `json:"id"`
 
 		// name
-		Name string `json:"name,omitempty"`
+		// Required: true
+		Name *string `json:"name"`
 	}
 
 	dec := json.NewDecoder(bytes.NewReader(data))
@@ -59,8 +59,7 @@ func (m *Organization) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	m.Description = props.Description
-	m.DisplayName = props.DisplayName
+	m.Deleted = props.Deleted
 	m.ID = props.ID
 	m.Name = props.Name
 	return nil
@@ -70,7 +69,15 @@ func (m *Organization) UnmarshalJSON(data []byte) error {
 func (m *Organization) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateDeleted(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateName(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -80,12 +87,31 @@ func (m *Organization) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Organization) validateDeleted(formats strfmt.Registry) error {
+
+	if err := validate.Required("deleted", "body", m.Deleted); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Organization) validateID(formats strfmt.Registry) error {
-	if swag.IsZero(m.ID) { // not required
-		return nil
+
+	if err := validate.Required("id", "body", m.ID); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Organization) validateName(formats strfmt.Registry) error {
+
+	if err := validate.Required("name", "body", m.Name); err != nil {
 		return err
 	}
 

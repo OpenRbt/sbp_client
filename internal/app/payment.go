@@ -12,6 +12,7 @@ type (
 		GetTransactionByOrderID(ctx Ctx, id uuid.UUID) (entities.Transaction, error)
 		CreateTransaction(ctx context.Context, createTransaction entities.TransactionCreate) error
 		UpdateTransaction(ctx context.Context, updateTransaction entities.TransactionUpdate) error
+		TransactionsList(ctx context.Context, filter entities.TransactionFilter) (entities.Page[entities.TransactionForPage], error)
 
 		GetTransactionsByStatus(ctx context.Context, transactionsGet entities.TransactionsGet) ([]entities.Transaction, error)
 	}
@@ -20,6 +21,7 @@ type (
 		InitPayment(ctx context.Context, req entities.PaymentRequest) (*entities.PaymentResponse, error)
 		CancelPayment(ctx context.Context, req entities.PaymentСancellationRequest) (resendNeeded bool, err error)
 		ReceiveNotification(ctx context.Context, notification entities.PaymentNotification) error
+		TransactionsList(ctx context.Context, auth *Auth, filter entities.TransactionFilter) (entities.Page[entities.TransactionForPage], error)
 
 		SyncAllPayments(ctx context.Context) error
 	}

@@ -17,7 +17,8 @@ import (
 // AssignWashToGroupNoContentCode is the HTTP code returned for type AssignWashToGroupNoContent
 const AssignWashToGroupNoContentCode int = 204
 
-/*AssignWashToGroupNoContent OK
+/*
+AssignWashToGroupNoContent OK
 
 swagger:response assignWashToGroupNoContent
 */
@@ -40,7 +41,8 @@ func (o *AssignWashToGroupNoContent) WriteResponse(rw http.ResponseWriter, produ
 
 func (o *AssignWashToGroupNoContent) AssignWashToGroupResponder() {}
 
-/*AssignWashToGroupDefault Generic error response
+/*
+AssignWashToGroupDefault Generic error response
 
 swagger:response assignWashToGroupDefault
 */

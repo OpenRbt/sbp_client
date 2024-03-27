@@ -31,10 +31,10 @@ func NewReceiveNotification(ctx *middleware.Context, handler ReceiveNotification
 	return &ReceiveNotification{Context: ctx, Handler: handler}
 }
 
-/* ReceiveNotification swagger:route POST /notification notifications receiveNotification
+/*
+	ReceiveNotification swagger:route POST /notification notifications receiveNotification
 
 ReceiveNotification receive notification API
-
 */
 type ReceiveNotification struct {
 	Context *middleware.Context

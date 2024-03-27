@@ -31,10 +31,10 @@ func NewCancelPayment(ctx *middleware.Context, handler CancelPaymentHandler) *Ca
 	return &CancelPayment{Context: ctx, Handler: handler}
 }
 
-/* CancelPayment swagger:route POST /payments/cancel payments cancelPayment
+/*
+	CancelPayment swagger:route POST /payments/cancel payments cancelPayment
 
 CancelPayment cancel payment API
-
 */
 type CancelPayment struct {
 	Context *middleware.Context

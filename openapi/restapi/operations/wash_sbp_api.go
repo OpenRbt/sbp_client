@@ -23,6 +23,7 @@ import (
 	"sbp/openapi/restapi/operations/notifications"
 	"sbp/openapi/restapi/operations/payments"
 	"sbp/openapi/restapi/operations/standard"
+	"sbp/openapi/restapi/operations/transactions"
 	"sbp/openapi/restapi/operations/washes"
 )
 
@@ -59,6 +60,9 @@ func NewWashSbpAPI(spec *loads.Document) *WashSbpAPI {
 		}),
 		WashesDeleteWashHandler: washes.DeleteWashHandlerFunc(func(params washes.DeleteWashParams, principal *entities.Auth) washes.DeleteWashResponder {
 			return washes.DeleteWashNotImplemented()
+		}),
+		TransactionsGetTransactionsHandler: transactions.GetTransactionsHandlerFunc(func(params transactions.GetTransactionsParams, principal *entities.Auth) transactions.GetTransactionsResponder {
+			return transactions.GetTransactionsNotImplemented()
 		}),
 		WashesGetWashByIDHandler: washes.GetWashByIDHandlerFunc(func(params washes.GetWashByIDParams, principal *entities.Auth) washes.GetWashByIDResponder {
 			return washes.GetWashByIDNotImplemented()
@@ -136,6 +140,8 @@ type WashSbpAPI struct {
 	WashesCreateWashHandler washes.CreateWashHandler
 	// WashesDeleteWashHandler sets the operation handler for the delete wash operation
 	WashesDeleteWashHandler washes.DeleteWashHandler
+	// TransactionsGetTransactionsHandler sets the operation handler for the get transactions operation
+	TransactionsGetTransactionsHandler transactions.GetTransactionsHandler
 	// WashesGetWashByIDHandler sets the operation handler for the get wash by Id operation
 	WashesGetWashByIDHandler washes.GetWashByIDHandler
 	// WashesGetWashesHandler sets the operation handler for the get washes operation
@@ -240,6 +246,9 @@ func (o *WashSbpAPI) Validate() error {
 	}
 	if o.WashesDeleteWashHandler == nil {
 		unregistered = append(unregistered, "washes.DeleteWashHandler")
+	}
+	if o.TransactionsGetTransactionsHandler == nil {
+		unregistered = append(unregistered, "transactions.GetTransactionsHandler")
 	}
 	if o.WashesGetWashByIDHandler == nil {
 		unregistered = append(unregistered, "washes.GetWashByIDHandler")
@@ -377,6 +386,10 @@ func (o *WashSbpAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/transactions"] = transactions.NewGetTransactions(o.context, o.TransactionsGetTransactionsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/washes/{id}"] = washes.NewGetWashByID(o.context, o.WashesGetWashByIDHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -439,6 +452,6 @@ func (o *WashSbpAPI) AddMiddlewareFor(method, path string, builder middleware.Bu
 	}
 	o.Init()
 	if h, ok := o.handlers[um][path]; ok {
-		o.handlers[method][path] = builder(h)
+		o.handlers[um][path] = builder(h)
 	}
 }

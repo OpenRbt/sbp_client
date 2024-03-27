@@ -17,7 +17,8 @@ import (
 // InitPaymentOKCode is the HTTP code returned for type InitPaymentOK
 const InitPaymentOKCode int = 200
 
-/*InitPaymentOK OK
+/*
+InitPaymentOK OK
 
 swagger:response initPaymentOK
 */
@@ -60,7 +61,8 @@ func (o *InitPaymentOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 
 func (o *InitPaymentOK) InitPaymentResponder() {}
 
-/*InitPaymentDefault Generic error response
+/*
+InitPaymentDefault Generic error response
 
 swagger:response initPaymentDefault
 */

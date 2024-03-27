@@ -41,6 +41,48 @@ func NewPaymentService(
 	}, nil
 }
 
+func (svc *paymentService) TransactionsList(ctx context.Context, auth *entities.Auth, filter entities.TransactionFilter) (entities.Page[entities.TransactionForPage], error) {
+	if auth.IsNoAccess() {
+		return entities.Page[entities.TransactionForPage]{}, entities.ErrForbidden
+	}
+
+	if filter.OrganizationID != nil {
+		org, err := svc.repository.GetOrganizationByID(ctx, *filter.OrganizationID)
+		if err != nil {
+			return entities.Page[entities.TransactionForPage]{}, err
+		}
+		if !auth.IsSystemManager() && !auth.IsAdminManageOrganization(org.ID) {
+			return entities.Page[entities.TransactionForPage]{}, entities.ErrForbidden
+		}
+	}
+
+	if filter.GroupID != nil {
+		group, err := svc.repository.GetGroupByID(ctx, *filter.GroupID)
+		if err != nil {
+			return entities.Page[entities.TransactionForPage]{}, err
+		}
+		if !auth.IsSystemManager() && !auth.IsAdminManageOrganization(group.OrganizationID) {
+			return entities.Page[entities.TransactionForPage]{}, entities.ErrForbidden
+		}
+	}
+
+	if filter.WashID != nil {
+		wash, err := svc.repository.GetWashByID(ctx, *filter.WashID)
+		if err != nil {
+			return entities.Page[entities.TransactionForPage]{}, err
+		}
+		group, err := svc.repository.GetGroupByID(ctx, wash.GroupID.UUID)
+		if err != nil {
+			return entities.Page[entities.TransactionForPage]{}, err
+		}
+		if !auth.IsSystemManager() && !auth.IsAdminManageOrganization(group.OrganizationID) {
+			return entities.Page[entities.TransactionForPage]{}, entities.ErrForbidden
+		}
+	}
+
+	return svc.repository.TransactionsList(ctx, filter)
+}
+
 func (svc *paymentService) InitPayment(ctx context.Context, payRequest entities.PaymentRequest) (*entities.PaymentResponse, error) {
 	errorPrefix := "Pay error:"
 	// get wash uuid
@@ -269,10 +311,10 @@ func (svc *paymentService) CancelPayment(ctx context.Context, req entities.Payme
 	}
 
 	// update transaction status canceling
-	if transaction.Status != entities.TransactionStatusСanceling {
+	if transaction.Status != entities.TransactionStatusCanceling {
 		err = svc.repository.UpdateTransaction(ctx, entities.TransactionUpdate{
 			ID:            transaction.ID,
-			Status:        entities.TransactionStatusСanceling,
+			Status:        entities.TransactionStatusCanceling,
 			PaymentIDBank: nil,
 		})
 		if err != nil {
@@ -293,7 +335,7 @@ func (svc *paymentService) CancelPayment(ctx context.Context, req entities.Payme
 	//  update transaction status canceled
 	err = svc.repository.UpdateTransaction(ctx, entities.TransactionUpdate{
 		ID:            transaction.ID,
-		Status:        entities.TransactionStatusСanceled,
+		Status:        entities.TransactionStatusCanceled,
 		PaymentIDBank: nil,
 	})
 	if err != nil {
@@ -321,7 +363,7 @@ func (svc *paymentService) SyncAllPayments(ctx context.Context) error {
 			// cancel
 			err = svc.repository.UpdateTransaction(ctx, entities.TransactionUpdate{
 				ID:            pt.ID,
-				Status:        entities.TransactionStatusСanceling,
+				Status:        entities.TransactionStatusCanceling,
 				PaymentIDBank: nil,
 			})
 			if err != nil {
@@ -361,7 +403,7 @@ func (svc *paymentService) SyncAllPayments(ctx context.Context) error {
 	}
 
 	// canceling not canceled
-	cancelingStatus := entities.TransactionStatusСanceling
+	cancelingStatus := entities.TransactionStatusCanceling
 	cancelingTransactions, err := svc.repository.GetTransactionsByStatus(ctx, entities.TransactionsGet{
 		Status: cancelingStatus,
 	})

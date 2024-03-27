@@ -16,10 +16,10 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Group group
+// SimpleWash simple wash
 //
-// swagger:model Group
-type Group struct {
+// swagger:model SimpleWash
+type SimpleWash struct {
 
 	// deleted
 	// Required: true
@@ -36,7 +36,7 @@ type Group struct {
 }
 
 // UnmarshalJSON unmarshals this object while disallowing additional properties from JSON
-func (m *Group) UnmarshalJSON(data []byte) error {
+func (m *SimpleWash) UnmarshalJSON(data []byte) error {
 	var props struct {
 
 		// deleted
@@ -65,8 +65,8 @@ func (m *Group) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// Validate validates this group
-func (m *Group) Validate(formats strfmt.Registry) error {
+// Validate validates this simple wash
+func (m *SimpleWash) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateDeleted(formats); err != nil {
@@ -87,7 +87,7 @@ func (m *Group) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Group) validateDeleted(formats strfmt.Registry) error {
+func (m *SimpleWash) validateDeleted(formats strfmt.Registry) error {
 
 	if err := validate.Required("deleted", "body", m.Deleted); err != nil {
 		return err
@@ -96,7 +96,7 @@ func (m *Group) validateDeleted(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Group) validateID(formats strfmt.Registry) error {
+func (m *SimpleWash) validateID(formats strfmt.Registry) error {
 
 	if err := validate.Required("id", "body", m.ID); err != nil {
 		return err
@@ -109,7 +109,7 @@ func (m *Group) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Group) validateName(formats strfmt.Registry) error {
+func (m *SimpleWash) validateName(formats strfmt.Registry) error {
 
 	if err := validate.Required("name", "body", m.Name); err != nil {
 		return err
@@ -118,13 +118,13 @@ func (m *Group) validateName(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this group based on context it is used
-func (m *Group) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this simple wash based on context it is used
+func (m *SimpleWash) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *Group) MarshalBinary() ([]byte, error) {
+func (m *SimpleWash) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -132,8 +132,8 @@ func (m *Group) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Group) UnmarshalBinary(b []byte) error {
-	var res Group
+func (m *SimpleWash) UnmarshalBinary(b []byte) error {
+	var res SimpleWash
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

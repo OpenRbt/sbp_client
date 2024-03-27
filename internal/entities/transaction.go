@@ -17,6 +17,17 @@ type Transaction struct {
 	UpdatedAt     time.Time
 }
 
+type TransactionForPage struct {
+	ID           uuid.UUID
+	PostID       int64
+	Amount       int64
+	Status       TransactionStatus
+	CreatedAt    time.Time
+	Wash         SimpleWash
+	Group        SimpleGroup
+	Organization SimpleOrganization
+}
+
 type TransactionCreate struct {
 	ID            uuid.UUID
 	WashID        string
@@ -34,4 +45,13 @@ type TransactionUpdate struct {
 	ID            uuid.UUID
 	Status        TransactionStatus
 	PaymentIDBank *string
+}
+
+type TransactionFilter struct {
+	Filter
+	OrganizationID *uuid.UUID
+	GroupID        *uuid.UUID
+	WashID         *uuid.UUID
+	PostID         *int64
+	Status         *TransactionStatus
 }
