@@ -14,6 +14,7 @@ import (
 	"sbp/openapi/restapi/operations/notifications"
 	"sbp/openapi/restapi/operations/payments"
 	"sbp/openapi/restapi/operations/standard"
+	"sbp/openapi/restapi/operations/transactions"
 	"sbp/openapi/restapi/operations/washes"
 
 	"github.com/go-openapi/loads"
@@ -100,6 +101,9 @@ func (api *restApi) route() error {
 	api.swaggerApi.PaymentsInitPaymentHandler = payments.InitPaymentHandlerFunc(handler.InitPayment)
 	api.swaggerApi.PaymentsCancelPaymentHandler = payments.CancelPaymentHandlerFunc(handler.CancelPayment)
 	api.swaggerApi.NotificationsReceiveNotificationHandler = notifications.ReceiveNotificationHandlerFunc(handler.ReceiveNotification)
+
+	// transactions
+	api.swaggerApi.TransactionsGetTransactionsHandler = transactions.GetTransactionsHandlerFunc(handler.GetTransactions)
 
 	return nil
 }
